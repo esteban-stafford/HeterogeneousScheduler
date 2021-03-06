@@ -43,29 +43,6 @@ def critic_mlp(x, act_dim):
 
     return tf.layers.dense(x, units=act_dim)
 
-def mlp_v1(x, act_dim):
-    x = tf.reshape(x, shape=[-1,MAX_QUEUE_SIZE*JOB_FEATURES])
-    x = tf.layers.dense(x, units=128, activation=tf.nn.relu)
-    x = tf.layers.dense(x, units=128, activation=tf.nn.relu)
-    x = tf.layers.dense(x, units=128, activation=tf.nn.relu)
-    return tf.layers.dense(x, units=act_dim)
-
-def mlp_v2(x, act_dim):
-    x = tf.reshape(x, shape=[-1,MAX_QUEUE_SIZE*JOB_FEATURES])
-    x = tf.layers.dense(x, units=32, activation=tf.nn.relu)
-    x = tf.layers.dense(x, units=16, activation=tf.nn.relu)
-    x = tf.layers.dense(x, units=8, activation=tf.nn.relu)
-    return tf.layers.dense(x, units=act_dim)
-
-def mlp_v3(x, act_dim):
-    x = tf.reshape(x, shape=[-1,MAX_QUEUE_SIZE*JOB_FEATURES])
-    x = tf.layers.dense(x, units=32, activation=tf.nn.relu)
-    x = tf.layers.dense(x, units=32, activation=tf.nn.relu)
-    x = tf.layers.dense(x, units=32, activation=tf.nn.relu)
-    x = tf.layers.dense(x, units=32, activation=tf.nn.relu)
-    x = tf.layers.dense(x, units=32, activation=tf.nn.relu)
-    return tf.layers.dense(x, units=act_dim)
-
 def rl_kernel(x, act_dim):
     x = tf.reshape(x, shape=[-1,MAX_QUEUE_SIZE, JOB_FEATURES])
     x = tf.layers.dense(x, units=32, activation=tf.nn.relu)
@@ -74,50 +51,12 @@ def rl_kernel(x, act_dim):
     x = tf.squeeze(tf.layers.dense(x, units=1), axis=-1)
     return x
 
-def attention(x, act_dim):
-    x = tf.reshape(x, shape=[-1, MAX_QUEUE_SIZE, JOB_FEATURES])
-    # x = tf.layers.dense(x, units=32, activation=tf.nn.relu)
-    q = tf.layers.dense(x, units=32, activation=tf.nn.relu)
-    k = tf.layers.dense(x, units=32, activation=tf.nn.relu)
-    v = tf.layers.dense(x, units=32, activation=tf.nn.relu)
-    score = tf.matmul(q,tf.transpose(k,[0,2,1]))
-    score = tf.nn.softmax(score,-1)
-    attn = tf.reshape(score,(-1, MAX_QUEUE_SIZE, MAX_QUEUE_SIZE))
-    x = tf.matmul(attn, v)
-    x = tf.layers.dense(x, units=16, activation=tf.nn.relu)
-
-    x = tf.layers.dense(x, units=8, activation=tf.nn.relu)
-    x = tf.squeeze(tf.layers.dense(x, units=1), axis=-1)
-    # x = tf.layers.dense(x, units=128, activation=tf.nn.relu)
-    # x = tf.layers.dense(x, units=64, activation=tf.nn.relu)
-    # x = tf.layers.dense(x, units=64, activation=tf.nn.relu)
-    return x
-
-def lenet(x_ph, act_dim):
-    m = int(np.sqrt(MAX_QUEUE_SIZE))
-    x = tf.reshape(x_ph, shape=[-1, m, m, JOB_FEATURES])
-    x = tf.layers.conv2d(inputs=x, filters=32, kernel_size=[1, 1], strides=1)
-    x = tf.layers.max_pooling2d(x, [2,2], 2)
-    x = tf.layers.conv2d(inputs=x, filters=64, kernel_size=[1, 1], strides=1)
-    x = tf.layers.max_pooling2d(x, [2,2], 2)
-    x = tf.layers.flatten(x)
-    x = tf.layers.dense(x, units=64)
-
-    return tf.layers.dense(
-            inputs=x,
-            units=act_dim,
-            activation=None
-    )
-
 """
 Policies
 """
 def categorical_policy(x, a, mask, action_space, attn):
     act_dim = action_space.n
-    if attn:
-        output_layer = attention(x, act_dim)
-    else:
-        output_layer = rl_kernel(x, act_dim)
+    output_layer = rl_kernel(x, act_dim)
     output_layer = output_layer+(mask-1)*1000000
     logp_all = tf.nn.log_softmax(output_layer)
 
@@ -289,19 +228,9 @@ def ppo(workload_file, model_path, ac_kwargs=dict(), seed=0,
         clipped = model['clipped']
 
         # Optimizers
-        #graph = tf.get_default_graph()
-        #op = sess.graph.get_operations()
-        #[print(m.values()) for m in op]
-        #train_pi = graph.get_tensor_by_name('pi/conv2d/kernel/Adam:0')
-        #train_v = graph.get_tensor_by_name('v/conv2d/kernel/Adam:0')
         train_pi = tf.get_collection("train_pi")[0]
         train_v = tf.get_collection("train_v")[0]
-        # train_pi_optimizer = MpiAdamOptimizer(learning_rate=pi_lr, name='AdamLoad')
-        # train_pi = train_pi_optimizer.minimize(pi_loss)
-        # train_v_optimizer = MpiAdamOptimizer(learning_rate=vf_lr, name='AdamLoad')
-        # train_v = train_v_optimizer.minimize(v_loss)
-        # sess.run(tf.variables_initializer(train_pi_optimizer.variables()))
-        # sess.run(tf.variables_initializer(train_v_optimizer.variables()))
+
         # Need all placeholders in *this* order later (to zip with data from buffer)
         all_phs = [x_ph, a_ph, mask_ph, adv_ph, ret_ph, logp_old_ph]
         # Every step, get: action, value, and logprob

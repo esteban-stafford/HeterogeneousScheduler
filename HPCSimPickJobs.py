@@ -311,22 +311,9 @@ class HPCEnv(gym.Env):
             self.gen_preworkloads(job_sequence_size + self.np_random.randint(job_sequence_size))
 
         self.scheduled_scores.append(sum(self.schedule_curr_sequence_reset(self.sjf_score).values()))
-        self.scheduled_scores.append(sum(self.schedule_curr_sequence_reset(self.f1_score).values()))
-        # self.scheduled_scores.append(sum(self.schedule_curr_sequence_reset(self.smallest_score).values()))
-        # self.scheduled_scores.append(sum(self.schedule_curr_sequence_reset(self.fcfs_score).values()))
-        #self.scheduled_scores.append(sum(self.schedule_curr_sequence_reset(self.f2_score).values()))
-        #self.scheduled_scores.append(sum(self.schedule_curr_sequence_reset(self.f3_score).values()))
-        #self.scheduled_scores.append(sum(self.schedule_curr_sequence_reset(self.f4_score).values()))        
+        self.scheduled_scores.append(sum(self.schedule_curr_sequence_reset(self.f1_score).values()))     
 
         return self.build_observation(), self.build_critic_observation()
-        
-        #print(np.mean(self.scheduled_scores))
-        '''
-        if (np.mean(self.scheduled_scores) > 5):
-            return self.build_observation()
-        else:
-            return self.reset()
-        '''
 
     def reset_for_test(self, num,start):
         self.cluster.reset()
@@ -430,41 +417,23 @@ class HPCEnv(gym.Env):
                 self.running_jobs.pop(0)  # remove the first running job
 
     def post_process_score(self, scheduled_logs):
-        if self.job_score_type == 0:
-            # bsld
-            for i in scheduled_logs:
-                scheduled_logs[i] /= self.num_job_in_batch
-        elif self.job_score_type == 1:
-            # wait time
-            for i in scheduled_logs:
-                scheduled_logs[i] /= self.num_job_in_batch
-        elif self.job_score_type == 2:
-            # turnaround time
+        if self.job_score_type in (0,1,2,4):
+            # bsld  # wait time  # turnaround time
             for i in scheduled_logs:
                 scheduled_logs[i] /= self.num_job_in_batch
         elif self.job_score_type == 3:
             total_cpu_hour = (self.current_timestamp - self.loads[self.start].submit_time)*self.loads.max_procs
             for i in scheduled_logs:
                 scheduled_logs[i] /= total_cpu_hour
-        elif self.job_score_type == 4:
-            for i in scheduled_logs:
-                scheduled_logs[i] /= self.num_job_in_batch
         else:
             raise NotImplementedError
     #@profile
     def schedule_curr_sequence_reset(self, score_fn):
         # schedule the sequence of jobs using heuristic algorithm. 
         scheduled_logs = {}
-        # f = False
-        # if score_fn.__name__ == "sjf_score":
-        #     f = True
-        #     num_total = 0
-        # start_time = time.time()
         while True:
             self.job_queue.sort(key=lambda j: score_fn(j))
             job_for_scheduling = self.job_queue[0]
-            # if f:
-            #     num_total += 1
             # if selected job needs more resources, skip scheduling and try again after adding new jobs or releasing some resources
             if not self.cluster.can_allocated(job_for_scheduling):
                 if self.backfil:
@@ -816,10 +785,7 @@ class HPCEnv(gym.Env):
         return _tmp
 
     def has_only_one_job(self):
-        if len(self.job_queue) == 1:
-            return True
-        else:
-            return False
+        return len(self.job_queue) == 1
 
     def skip_schedule(self):
         # schedule nothing, just move forward to next timestamp. It should 1) add a new job; 2) finish a running job; 3) reach skip time
@@ -871,14 +837,10 @@ class HPCEnv(gym.Env):
         self.job_queue.remove(job_for_scheduling)  # remove the job from job queue
 
         # after scheduling, check if job queue is empty, try to add jobs. 
-        not_empty = self.moveforward_for_job()
-
-        if not_empty:
-            # job_queue is not empty
-            return False
-        else:
-            # job_queue is empty and can not add new jobs as we reach the end of the sequence
-            return True
+        empty = not self.moveforward_for_job()
+        
+        # empty=True significa que ya ha terminado la secuencia
+        return empty
 
     def valid(self, a):
         action = a[0]
@@ -904,24 +866,14 @@ class HPCEnv(gym.Env):
             f1 = self.scheduled_scores[1]
             rwd2 = (best_total - rl_total)
             rwd = -rl_total
-            '''
-            if (best_total) < rl_total:
-                rwd = -1
-            elif best_total == rl_total:
-                rwd = 0
-            else:
-                rwd = 1    
-            '''
             return [None, rwd, True, rwd2, sjf, f1]
     
     def step_for_test(self, a):
         job_for_scheduling = self.pairs[a][0]
 
         if not job_for_scheduling:
-            # print("SKIP", end=" ")
             done, _ = self.skip_schedule()
         else:
-            job_for_scheduling = self.pairs[a][0]
             done = self.schedule(job_for_scheduling)
 
         if not done:

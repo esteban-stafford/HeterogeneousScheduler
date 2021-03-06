@@ -133,10 +133,7 @@ class SimpleCluster:
 
         request_node = int(math.ceil(float(job.request_number_of_processors)/float(self.num_procs_per_node)))
         job.request_number_of_nodes = request_node
-        if request_node > self.free_node:
-            return False
-        else:
-            return True
+        return request_node <= self.free_node
 
     def allocate(self, job_id, request_num_procs):
         allocated_nodes = FakeList(0)
@@ -162,9 +159,7 @@ class SimpleCluster:
 
 
     def is_idle(self):
-        if self.used_node == 0:
-            return True
-        return False
+        return self.used_node == 0
 
     def reset(self):
         self.used_node = 0
