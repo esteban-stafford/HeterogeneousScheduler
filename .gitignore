@@ -1,0 +1,8 @@
+__pycache__/
+.vscode
+data/
+trained_models/
+
+environment_info
+README.md
+requirements.txt
