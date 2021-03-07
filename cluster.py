@@ -9,21 +9,19 @@ class Machine:
         self.job_history = []
 
     def taken_by_job(self, job_id):
-        if self.is_free:
-            self.running_job_id = job_id
-            self.is_free = False
-            self.job_history.append(job_id)
-            return True
-        else:
+        if not self.is_free:
             return False
+        self.running_job_id = job_id
+        self.is_free = False
+        self.job_history.append(job_id)
+        return True
 
     def release(self):
         if self.is_free:
             return -1
-        else:
-            self.is_free = True
-            self.running_job_id = -1
-            return 1
+        self.is_free = True
+        self.running_job_id = -1
+        return 1
 
     def reset(self):
         self.is_free = True
@@ -49,8 +47,9 @@ class Cluster:
         for i in range(self.total_node):
             self.all_nodes.append(Machine(i))
 
-    def feature(self):
-        return [self.free_node]
+    def can_allocate(self, job):
+        if job.request_number_of_nodes != -1:
+            return job.request_number_of_nodes <= self.free_node
 
     def can_allocated(self, job):
         if job.request_number_of_nodes != -1 and job.request_number_of_nodes > self.free_node:
@@ -60,10 +59,7 @@ class Cluster:
 
         request_node = int(math.ceil(float(job.request_number_of_processors)/float(self.num_procs_per_node)))
         job.request_number_of_nodes = request_node
-        if request_node > self.free_node:
-            return False
-        else:
-            return True
+        return request_node <= self.free_node
 
     def allocate(self, job_id, request_num_procs):
         allocated_nodes = []
@@ -112,28 +108,7 @@ class FakeList:
     def __len__(self):
         return self.len
 
-class SimpleCluster:
-    def __init__(self, cluster_name, node_num, num_procs_per_node):
-        self.name = cluster_name
-        self.total_node = node_num
-        self.free_node = node_num
-        self.used_node = 0
-        self.num_procs_per_node = num_procs_per_node
-        self.all_nodes = []
-
-    def feature(self):
-        return [self.free_node]
-
-    def can_allocated(self, job):
-        if job.request_number_of_nodes != -1:
-            if job.request_number_of_nodes > self.free_node:
-                return False
-            else:
-                return True
-
-        request_node = int(math.ceil(float(job.request_number_of_processors)/float(self.num_procs_per_node)))
-        job.request_number_of_nodes = request_node
-        return request_node <= self.free_node
+class SimpleCluster(Cluster):
 
     def allocate(self, job_id, request_num_procs):
         allocated_nodes = FakeList(0)
@@ -157,6 +132,9 @@ class SimpleCluster:
         self.used_node -= len(releases)
         self.free_node += len(releases)
 
+    def reset(self):
+        self.used_node = 0
+        self.free_node = self.total_node
 
     def is_idle(self):
         return self.used_node == 0
