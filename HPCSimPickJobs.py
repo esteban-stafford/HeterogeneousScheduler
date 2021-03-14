@@ -313,41 +313,9 @@ class HPCEnv(gym.Env):
         self.scheduled_scores.append(sum(self.schedule_curr_sequence_reset(self.sjf_score).values()))
         self.scheduled_scores.append(sum(self.schedule_curr_sequence_reset(self.f1_score).values()))     
 
-        return self.build_observation(), self.build_critic_observation()
+        
 
-    def reset_for_test(self, num,start):
-        self.cluster.reset()
-        self.loads.reset()
 
-        self.job_queue = []
-        self.running_jobs = []
-        self.visible_jobs = []
-        self.pairs = []
-
-        self.current_timestamp = 0
-        self.start = 0
-        self.next_arriving_job_idx = 0
-        self.last_job_in_batch = 0
-        self.num_job_in_batch = 0
-        self.scheduled_rl = {}
-        self.penalty = 0
-        self.pivot_job = False
-        self.scheduled_scores = []
-
-        job_sequence_size = num
-        assert self.batch_job_slice == 0 or self.batch_job_slice>=job_sequence_size
-        if self.batch_job_slice == 0:
-            self.start = self.np_random.randint(job_sequence_size, (self.loads.size() - job_sequence_size - 1))
-        else:
-            self.start = self.np_random.randint(job_sequence_size, (self.batch_job_slice - job_sequence_size - 1))
-        #self.start = start
-        self.start_idx_last_reset = self.start
-        self.num_job_in_batch = job_sequence_size
-        self.last_job_in_batch = self.start + self.num_job_in_batch
-        self.current_timestamp = self.loads[self.start].submit_time
-        self.job_queue.append(self.loads[self.start])
-        self.next_arriving_job_idx = self.start + 1
-    
     def skip_for_resources_greedy(self, job, scheduled_logs):
         #note that this function is only called when current job can not be scheduled.
         assert not self.cluster.can_allocated(job)
@@ -866,23 +834,9 @@ class HPCEnv(gym.Env):
             f1 = self.scheduled_scores[1]
             rwd2 = (best_total - rl_total)
             rwd = -rl_total
-            return [None, rwd, True, rwd2, sjf, f1]
-    
-    def step_for_test(self, a):
-        job_for_scheduling = self.pairs[a][0]
 
-        if not job_for_scheduling:
-            done, _ = self.skip_schedule()
-        else:
-            done = self.schedule(job_for_scheduling)
 
-        if not done:
-            obs = self.build_observation()
-            return [obs, 0, False, None]
-        else:
-            self.post_process_score(self.scheduled_rl)
-            rl_total = sum(self.scheduled_rl.values())
-            return [None, rl_total, True, None]
+
 
 if __name__ == '__main__':
     import argparse
