@@ -13,7 +13,8 @@ import logging
 logging.getLogger('tensorflow').disabled = True
 
 
-from HPCSimPickJobs import *
+# from HPCSimPickJobs import *
+from HPCSimPickJobsHeterog import *
 
 tf.enable_eager_execution()
 
@@ -154,8 +155,8 @@ if __name__ == '__main__':
     import time
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--rlmodel', type=str, default="./trained_models/sdsc_sp2/sdsc_sp2_s4")
-    parser.add_argument('--workload', type=str, default='./data/lublin_256.swf')
+    parser.add_argument('--rlmodel', type=str, default="trained_models/bsld/sdsc_sp2/sdsc_sp2_s4")
+    parser.add_argument('--workload', type=str, default='data/lublin_256.swf')
     parser.add_argument('--len', '-l', type=int, default=10)
     parser.add_argument('--seed', '-s', type=int, default=1)
     parser.add_argument('--iter', '-i', type=int, default=10)

@@ -4,35 +4,25 @@ import gym
 import os
 import sys
 import time
+
+import spinup
+print(spinup)
+
 from spinup.utils.logx import EpochLogger
 from spinup.utils.mpi_tf import MpiAdamOptimizer, sync_all_params
 from spinup.utils.mpi_tools import mpi_fork, mpi_avg, proc_id, mpi_statistics_scalar, num_procs
 from spinup.utils.logx import restore_tf_graph
 import os.path as osp
-from HPCSimPickJobs import *
-def load_policy(model_path, itr='last'):
-    # handle which epoch to load from
-    if itr=='last':
-        saves = [int(x[11:]) for x in os.listdir(model_path) if 'simple_save' in x and len(x)>11]
-        itr = '%d'%max(saves) if len(saves) > 0 else ''
-    else:
-        itr = '%d'%itr
+# from HPCSimPickJobs import *
+from HPCSimPickJobsHeterog import *
+from pprint import pprint
 
-    # load the things!
-    sess = tf.Session()
-    model = restore_tf_graph(sess, osp.join(model_path, 'simple_save'+itr))
-
-    # get the correct op for executing actions
-    pi = model['pi']
-    v = model['v']
-
-    # make function for producing an action given a single state
-    get_probs = lambda x ,y  : sess.run(pi, feed_dict={model['x']: x.reshape(-1, MAX_QUEUE_SIZE * JOB_FEATURES), model['mask']:y.reshape(-1, MAX_QUEUE_SIZE)})
-    get_v = lambda x : sess.run(v, feed_dict={model['x']: x.reshape(-1, MAX_QUEUE_SIZE * JOB_FEATURES)})
-    return get_probs, get_v
+from tensorflow.python.util import deprecation
+tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
+deprecation._PRINT_DEPRECATION_WARNINGS = False
 
 def critic_mlp(x, act_dim):
-    x = tf.reshape(x, shape=[-1,MAX_QUEUE_SIZE, JOB_FEATURES])
+    x = tf.reshape(x, shape=[-1,MAX_QUEUE_SIZE*NUM_NODES, TOTAL_FEATURES])
     x = tf.layers.dense(x, units=32, activation=tf.nn.relu)
     x = tf.layers.dense(x, units=16, activation=tf.nn.relu)
     x = tf.layers.dense(x, units=8, activation=tf.nn.relu)
@@ -44,7 +34,7 @@ def critic_mlp(x, act_dim):
     return tf.layers.dense(x, units=act_dim)
 
 def rl_kernel(x, act_dim):
-    x = tf.reshape(x, shape=[-1,MAX_QUEUE_SIZE, JOB_FEATURES])
+    x = tf.reshape(x, shape=[-1,MAX_QUEUE_SIZE*NUM_NODES, TOTAL_FEATURES])
     x = tf.layers.dense(x, units=32, activation=tf.nn.relu)
     x = tf.layers.dense(x, units=16, activation=tf.nn.relu)
     x = tf.layers.dense(x, units=8, activation=tf.nn.relu)
@@ -85,10 +75,11 @@ class PPOBuffer:
     def __init__(self, obs_dim, act_dim, size, gamma=0.99, lam=0.95):
         size = size * 100 # assume the traj can be really long
         self.obs_buf = np.zeros(combined_shape(size, obs_dim), dtype=np.float32)
-       # self.cobs_buf = np.zeros(combined_shape(size, JOB_SEQUENCE_SIZE*3), dtype=np.float32)
+        # self.nobs_buf = np.zeros(combined_shape(size, nobs_dim), dtype=np.float32)
+        # self.cobs_buf = np.zeros(combined_shape(size, JOB_SEQUENCE_SIZE*3), dtype=np.float32)
         self.cobs_buf = None
         self.act_buf = np.zeros(combined_shape(size, act_dim), dtype=np.float32)
-        self.mask_buf = np.zeros(combined_shape(size, MAX_QUEUE_SIZE), dtype=np.float32)
+        self.mask_buf = np.zeros(combined_shape(size, MAX_QUEUE_SIZE * NUM_NODES), dtype=np.float32)
         self.adv_buf = np.zeros(size, dtype=np.float32)
         self.rew_buf = np.zeros(size, dtype=np.float32)
         self.ret_buf = np.zeros(size, dtype=np.float32)
@@ -103,7 +94,8 @@ class PPOBuffer:
         """
         assert self.ptr < self.max_size     # buffer has to have room so you can store
         self.obs_buf[self.ptr] = obs
-       # self.cobs_buf[self.ptr] = cobs
+        # self.nobs_buf[self.ptr] = nobs
+        # self.cobs_buf[self.ptr] = cobs
         self.act_buf[self.ptr] = act
         self.mask_buf[self.ptr] = mask
         self.rew_buf[self.ptr] = rew
@@ -157,7 +149,7 @@ class PPOBuffer:
         adv_n = len(actual_adv_buf)
         adv_mean = adv_sum / adv_n
         adv_sum_sq = np.sum((actual_adv_buf - adv_mean) ** 2)
-        adv_std = np.sqrt(adv_sum_sq / adv_n)
+        adv_std = np.sqrt(adv_sum_sq / adv_n) + 1e-5
         # print ("-----------------------> adv_std:", adv_std)
         actual_adv_buf = (actual_adv_buf - adv_mean) / adv_std
         # print (actual_adv_buf)
@@ -189,6 +181,8 @@ def ppo(workload_file, model_path, ac_kwargs=dict(), seed=0,
     env.my_init(workload_file=workload_file, sched_file=model_path)
     
     obs_dim = env.observation_space.shape
+    # obs_dim = (MAX_QUEUE_SIZE * JOB_FEATURES,)
+    # nobs_dim = (NUM_NODES * NODE_FEATURES,)
     act_dim = env.action_space.shape
     
     # Share information about action space with policy architecture
@@ -239,7 +233,7 @@ def ppo(workload_file, model_path, ac_kwargs=dict(), seed=0,
     else:
         x_ph, a_ph = placeholders_from_spaces(env.observation_space, env.action_space)
         # y_ph = placeholder(JOB_SEQUENCE_SIZE*3) # 3 is the number of sequence features
-        mask_ph = placeholder(MAX_QUEUE_SIZE)
+        mask_ph = placeholder(MAX_QUEUE_SIZE * NUM_NODES)
         adv_ph, ret_ph, logp_old_ph = placeholders(None, None, None)
 
         # Main outputs from computation graph
@@ -283,47 +277,50 @@ def ppo(workload_file, model_path, ac_kwargs=dict(), seed=0,
     logger.setup_tf_saver(sess, inputs={'x': x_ph, 'a':a_ph, 'adv':adv_ph, 'mask':mask_ph, 'ret':ret_ph, 'logp_old_ph':logp_old_ph}, outputs={'pi': pi, 'v': v, 'out':out, 'pi_loss':pi_loss, 'logp': logp, 'logp_pi':logp_pi, 'v_loss':v_loss, 'approx_ent':approx_ent, 'approx_kl':approx_kl, 'clipped':clipped, 'clipfrac':clipfrac})
 
     def update():
+        print(1)
         inputs = {k:v for k,v in zip(all_phs, buf.get())}
+        # print('INPUTS',inputs)
+        print(1)
         pi_l_old, v_l_old, ent = sess.run([pi_loss, v_loss, approx_ent], feed_dict=inputs)
 
         # Training
         for i in range(train_pi_iters):
+            print(3, i)
             _, kl = sess.run([train_pi, approx_kl], feed_dict=inputs)
             kl = mpi_avg(kl)
             if kl > 1.5 * target_kl:
                 logger.log('Early stopping at step %d due to reaching max kl.'%i)
                 break
+        print(4)
         logger.store(StopIter=i)
+        print(5)
         for _ in range(train_v_iters):
+            print(6)
             sess.run(train_v, feed_dict=inputs)
 
+        print(7)
         # Log changes from update
         pi_l_new, v_l_new, kl, cf = sess.run([pi_loss, v_loss, approx_kl, clipfrac], feed_dict=inputs)
         logger.store(LossPi=pi_l_old, LossV=v_l_old,
                      KL=kl, Entropy=ent, ClipFrac=cf,
                      DeltaLossPi=(pi_l_new - pi_l_old),
                      DeltaLossV=(v_l_new - v_l_old))
+        print(8)
 
     start_time = time.time()
-    [o, co], r, d, ep_ret, ep_len, show_ret, sjf, f1 = env.reset(), 0, False, 0, 0,0,0,0
-
+    # [o, no, co], r, d, ep_ret, ep_len, show_ret, sjf, f1 = env.reset(), 0, False, 0, 0,0,0,0
+    [o, lst], r, d, ep_ret, ep_len, show_ret, sjf, f1 = env.reset(), 0, False, 0, 0,0,0,0
     # Main loop: collect experience in env and update/log each epoch
     start_time = time.time()
     num_total = 0
     for epoch in range(epochs):
         t = 0
         while True:
-            lst = []
-            for i in range(0, MAX_QUEUE_SIZE * JOB_FEATURES, JOB_FEATURES):
-                if all(o[i:i+JOB_FEATURES] == [0]+[1]*(JOB_FEATURES-2)+[0]):
-                    lst.append(0)
-                elif all(o[i:i+JOB_FEATURES] == [1]*JOB_FEATURES):
-                    lst.append(0)
-                else:
-                    lst.append(1)
+            # comb_obs, lst = env.combine_observations(o, no)
+            # pprint(comb_obs.reshape(-1,NUM_NODES * MAX_QUEUE_SIZE, TOTAL_FEATURES).tolist())
 
+            # print('lst',lst)
             a, v_t, logp_t, output = sess.run(get_action_ops, feed_dict={x_ph: o.reshape(1,-1), mask_ph: np.array(lst).reshape(1,-1)})
-            # print(a, end=" ")
 
             num_total += 1
             '''
@@ -332,10 +329,12 @@ def ppo(workload_file, model_path, ac_kwargs=dict(), seed=0,
             '''
 
             # save and log
-            buf.store(o,None,  a, np.array(lst), r, v_t, logp_t)
+            buf.store(o, None, a, np.array(lst), r, v_t, logp_t)
             logger.store(VVals=v_t)
 
-            o, r, d, r2, sjf_t, f1_t = env.step(a[0])
+            # print('ACTION:', a)
+
+            [o, lst], r, d, r2, sjf_t, f1_t = env.step(a[0])
             ep_ret += r
             ep_len += 1
             show_ret += r2
@@ -346,7 +345,7 @@ def ppo(workload_file, model_path, ac_kwargs=dict(), seed=0,
                 t += 1
                 buf.finish_path(r)
                 logger.store(EpRet=ep_ret, EpLen=ep_len, ShowRet=show_ret, SJF=sjf, F1=f1)
-                [o, co], r, d, ep_ret, ep_len, show_ret, sjf, f1 = env.reset(), 0, False, 0, 0, 0, 0, 0
+                [o, lst], r, d, ep_ret, ep_len, show_ret, sjf, f1 = env.reset(), 0, False, 0, 0, 0, 0, 0
                 if t >= traj_per_epoch:
                     # print ("state:", state, "\nlast action in a traj: action_probs:\n", action_probs, "\naction:", action)
                     break
@@ -384,7 +383,8 @@ if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument('--workload', type=str, default='./data/lublin_256.swf')  # RICC-2010-2 lublin_256.swf SDSC-SP2-1998-4.2-cln.swf
-    parser.add_argument('--model', type=str, default='./data/lublin_256.schd')
+    # parser.add_argument('--model', type=str, default='./data/lublin_256.schd')
+    parser.add_argument('--model', type=str, default='./data/cluster_x1248.json')
     parser.add_argument('--gamma', type=float, default=1)
     parser.add_argument('--seed', '-s', type=int, default=0)
     parser.add_argument('--cpu', type=int, default=1)
@@ -410,7 +410,6 @@ if __name__ == '__main__':
     logger_kwargs = setup_logger_kwargs(args.exp_name, seed=args.seed, data_dir=log_data_dir)
     if args.pre_trained:
         model_file = os.path.join(current_dir, args.trained_model)
-        # get_probs, get_value = load_policy(model_file, 'last')
 
         ppo(workload_file, args.model, gamma=args.gamma, seed=args.seed, traj_per_epoch=args.trajs, epochs=args.epochs,
         logger_kwargs=logger_kwargs, pre_trained=1,trained_model=os.path.join(model_file,"simple_save"),attn=args.attn,

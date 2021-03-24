@@ -2,7 +2,12 @@ __pycache__/
 .vscode
 data/
 trained_models/
+tkinter
+OldVersion/
 
 environment_info
 README.md
 requirements.txt
+*ipynb*
+
+*.out

@@ -95,7 +95,7 @@ class Job:
         return self.job_id < other.job_id
 
     def __str__(self):
-        return "J["+str(self.job_id)+"]-["+str(self.request_number_of_processors)+"]-["+str(self.submit_time)+"]-["+str(self.request_time)+"]"
+        return "Job[ID:"+str(self.job_id)+"]-[Procs:"+str(self.request_number_of_processors)+"]-[SubT:"+str(self.submit_time)+"]-[ReqT:"+str(self.request_time)+"]"
     def __feature__(self):
         return [self.submit_time, self.request_number_of_processors, self.request_time,
                 self.user_id, self.group_id, self.executable_number, self.queue_number]
@@ -173,7 +173,8 @@ class Workloads:
 
 if __name__ == "__main__":
     print ("Loading the workloads...")
-    load = Workloads("../../../data/lublin_256.swf")
+    # load = Workloads("../../../data/lublin_256.swf")
+    load = Workloads("data/lublin_256.swf")
     print ("Finish loading the workloads...", type(load[0]))
     print (load.max_nodes, load.max_procs)
     print (load[0].__feature__())
