@@ -6,7 +6,6 @@ import sys
 import time
 
 import spinup
-print(spinup)
 
 from spinup.utils.logx import EpochLogger
 from spinup.utils.mpi_tf import MpiAdamOptimizer, sync_all_params
@@ -277,35 +276,27 @@ def ppo(workload_file, model_path, ac_kwargs=dict(), seed=0,
     logger.setup_tf_saver(sess, inputs={'x': x_ph, 'a':a_ph, 'adv':adv_ph, 'mask':mask_ph, 'ret':ret_ph, 'logp_old_ph':logp_old_ph}, outputs={'pi': pi, 'v': v, 'out':out, 'pi_loss':pi_loss, 'logp': logp, 'logp_pi':logp_pi, 'v_loss':v_loss, 'approx_ent':approx_ent, 'approx_kl':approx_kl, 'clipped':clipped, 'clipfrac':clipfrac})
 
     def update():
-        print(1)
         inputs = {k:v for k,v in zip(all_phs, buf.get())}
         # print('INPUTS',inputs)
-        print(1)
         pi_l_old, v_l_old, ent = sess.run([pi_loss, v_loss, approx_ent], feed_dict=inputs)
 
         # Training
         for i in range(train_pi_iters):
-            print(3, i)
             _, kl = sess.run([train_pi, approx_kl], feed_dict=inputs)
             kl = mpi_avg(kl)
             if kl > 1.5 * target_kl:
                 logger.log('Early stopping at step %d due to reaching max kl.'%i)
                 break
-        print(4)
         logger.store(StopIter=i)
-        print(5)
         for _ in range(train_v_iters):
-            print(6)
             sess.run(train_v, feed_dict=inputs)
 
-        print(7)
         # Log changes from update
         pi_l_new, v_l_new, kl, cf = sess.run([pi_loss, v_loss, approx_kl, clipfrac], feed_dict=inputs)
         logger.store(LossPi=pi_l_old, LossV=v_l_old,
                      KL=kl, Entropy=ent, ClipFrac=cf,
                      DeltaLossPi=(pi_l_new - pi_l_old),
                      DeltaLossV=(v_l_new - v_l_old))
-        print(8)
 
     start_time = time.time()
     # [o, no, co], r, d, ep_ret, ep_len, show_ret, sjf, f1 = env.reset(), 0, False, 0, 0,0,0,0
@@ -351,8 +342,8 @@ def ppo(workload_file, model_path, ac_kwargs=dict(), seed=0,
                     break
         # print("Sample time:", (time.time()-start_time)/num_total, num_total)
         # Save model
-        if (epoch % save_freq == 0) or (epoch == epochs-1):
-            logger.save_state({'env': env}, None)
+        # if (epoch % save_freq == 0) or (epoch == epochs-1):
+        #     logger.save_state({'env': env}, None)
 
         # Perform PPO update!
         # start_time = time.time()
