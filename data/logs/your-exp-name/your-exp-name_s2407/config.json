@@ -1,0 +1,46 @@
+{
+    "ac_kwargs":	{},
+    "attn":	0,
+    "backfil":	0,
+    "batch_job_slice":	0,
+    "clip_ratio":	0.2,
+    "epochs":	1,
+    "exp_name":	"your-exp-name",
+    "gamma":	1,
+    "lam":	0.97,
+    "logger":	{
+        "<spinup.utils.logx.EpochLogger object at 0x7f50d1d68d10>":	{
+            "epoch_dict":	{},
+            "exp_name":	"your-exp-name",
+            "first_row":	true,
+            "log_current_row":	{},
+            "log_headers":	[],
+            "output_dir":	"/home/fompe/UNI/TFG/RLSchedulerCode/./data/logs/your-exp-name/your-exp-name_s2407",
+            "output_file":	{
+                "<_io.TextIOWrapper name='/home/fompe/UNI/TFG/RLSchedulerCode/./data/logs/your-exp-name/your-exp-name_s2407/progress.txt' mode='w' encoding='UTF-8'>":	{
+                    "mode":	"w"
+                }
+            }
+        }
+    },
+    "logger_kwargs":	{
+        "exp_name":	"your-exp-name",
+        "output_dir":	"/home/fompe/UNI/TFG/RLSchedulerCode/./data/logs/your-exp-name/your-exp-name_s2407"
+    },
+    "max_ep_len":	1000,
+    "model_path":	"./data/cluster_x1248.json",
+    "pi_lr":	0.0003,
+    "pre_trained":	0,
+    "save_freq":	10,
+    "score_type":	0,
+    "seed":	2407,
+    "shuffle":	0,
+    "skip":	0,
+    "target_kl":	0.01,
+    "train_pi_iters":	80,
+    "train_v_iters":	80,
+    "trained_model":	null,
+    "traj_per_epoch":	1,
+    "vf_lr":	0.001,
+    "workload_file":	"/home/fompe/UNI/TFG/RLSchedulerCode/./data/lublin_256.swf"
+}
