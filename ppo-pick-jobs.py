@@ -72,10 +72,8 @@ class PPOBuffer:
     """
 
     def __init__(self, obs_dim, act_dim, size, gamma=0.99, lam=0.95):
-        size = size * 100 # assume the traj can be really long
         self.obs_buf = np.zeros(combined_shape(size, obs_dim), dtype=np.float32)
-        # self.nobs_buf = np.zeros(combined_shape(size, nobs_dim), dtype=np.float32)
-        # self.cobs_buf = np.zeros(combined_shape(size, JOB_SEQUENCE_SIZE*3), dtype=np.float32)
+        size = size * 100 # assume the traj can be really long
         self.cobs_buf = None
         self.act_buf = np.zeros(combined_shape(size, act_dim), dtype=np.float32)
         self.mask_buf = np.zeros(combined_shape(size, MAX_QUEUE_SIZE * NUM_NODES), dtype=np.float32)
@@ -307,10 +305,7 @@ def ppo(workload_file, model_path, ac_kwargs=dict(), seed=0,
     for epoch in range(epochs):
         t = 0
         while True:
-            # comb_obs, lst = env.combine_observations(o, no)
-            # pprint(comb_obs.reshape(-1,NUM_NODES * MAX_QUEUE_SIZE, TOTAL_FEATURES).tolist())
 
-            # print('lst',lst)
             a, v_t, logp_t, output = sess.run(get_action_ops, feed_dict={x_ph: o.reshape(1,-1), mask_ph: np.array(lst).reshape(1,-1)})
 
             num_total += 1
@@ -342,8 +337,8 @@ def ppo(workload_file, model_path, ac_kwargs=dict(), seed=0,
                     break
         # print("Sample time:", (time.time()-start_time)/num_total, num_total)
         # Save model
-        # if (epoch % save_freq == 0) or (epoch == epochs-1):
-        #     logger.save_state({'env': env}, None)
+        if (epoch % save_freq == 0) or (epoch == epochs-1):
+            logger.save_state({'env': env}, None)
 
         # Perform PPO update!
         # start_time = time.time()
