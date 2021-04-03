@@ -174,8 +174,10 @@ class Processor:
 
 class HeterogeneousNode:
     
-    def __init__(self, id, num_procs):
+    def __init__(self, id, num_procs, frec, base_frec):
         self.id = f'{id}'
+        self.frec = frec
+        self.rel_frec = base_frec / frec 
         self.is_free = True
         self.total_procs = num_procs
         self.free_procs = num_procs
@@ -189,8 +191,9 @@ class HeterogeneousNode:
         self.free_procs -= job.request_number_of_processors
         allocated = []
         req_procs = job.request_number_of_processors
+        job.finish_time = int((job.scheduled_time + job.request_time) * self.rel_frec)
         for proc in self.all_procs:
-            if proc.taken_by_job(job.job_id, job.scheduled_time + job.request_time):
+            if proc.taken_by_job(job.job_id, job.finish_time):
                 req_procs -= 1
                 allocated.append(proc)
             if not req_procs:
@@ -230,10 +233,14 @@ class HeterogeneousCluster:
         self.name = cluster['id']
         self.all_nodes = []
         
+        self.min_frec = min([n['frec'] for n in cluster['nodes']])
+        self.max_frec = max([n['frec'] for n in cluster['nodes']])
+
         for n in cluster['nodes']:
             for i in range(n['number']):
-                name, num_procs = n['id'], n['num_procs']
-                self.all_nodes.append(HeterogeneousNode(f'{name}_{i}', num_procs))
+                name, num_procs, frec = n['id'], n['num_procs'], n['frec']
+                self.max_frec = max(self.max_frec, frec)
+                self.all_nodes.append(HeterogeneousNode(f'{name}_{i}', num_procs, frec, self.min_frec))
         # print('CLUSTER: ', [str(n) for n in self.all_nodes])
 
     def can_allocate(self, job, node=None):
@@ -282,6 +289,6 @@ def load_cluster(path):
 
 if __name__ == '__main__':
     print('Loading resources...')
-    load = HeterogeneousCluster('data/cluster_x1248.json')
+    load = HeterogeneousCluster('data/cluster_x4_64procs.json')
     print(load)
     print('Finished loading the resources...')

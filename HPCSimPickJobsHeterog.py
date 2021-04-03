@@ -31,8 +31,8 @@ DEBUG = False
 
 # NUM_NODES = 1
 # NODE_FEATURES = 0
-NUM_NODES = 9 
-NODE_FEATURES = 2
+NUM_NODES = 20 
+NODE_FEATURES = 3
 
 TOTAL_FEATURES = JOB_FEATURES + NODE_FEATURES
 
@@ -367,9 +367,10 @@ class HPCEnv(gym.Env):
         vector = np.zeros(NUM_NODES * NODE_FEATURES, dtype=float)
         self.nodes = []
         for i, node in enumerate(self.cluster.all_nodes):
-            normalized_proc_number = min(float(node.total_procs)/float(self.loads.max_procs), 1.0-1e-5)
-            normalized_free_procs = min(float(node.free_procs)/float(node.total_procs), 1.0-1e-5)
-            self.nodes.append([node, normalized_proc_number, normalized_free_procs])
+            normalized_proc_number = min(float(node.total_procs)/float(self.loads.max_procs), MIN_OBS_VALUE)
+            normalized_free_procs = min(float(node.free_procs)/float(node.total_procs), MIN_OBS_VALUE)
+            normalized_frec = min(float(node.frec)/float(self.cluster.max_frec), MIN_OBS_VALUE)
+            self.nodes.append([node, normalized_proc_number, normalized_free_procs, normalized_frec])
             vector[i*NODE_FEATURES:(i+1)*NODE_FEATURES] = self.nodes[i][1:]
         return vector
 
@@ -430,7 +431,6 @@ class HPCEnv(gym.Env):
             self.cluster.free_resources(self.current_timestamp())
         else:
             done = self.schedule(job_for_scheduling, node_for_scheduling)
-            self.events_queue.put(self.current_timestamp+job_for_scheduling.request_time)
 
         # TODO Igual por aqui habria que manejar lo de avanzar el tiempo
 
@@ -491,7 +491,7 @@ class HPCEnv(gym.Env):
         job.scheduled_time = self.current_timestamp
         job.allocated_machines = self.cluster.allocate(job, node)
         self.running_jobs.append(job)
-        self.events_queue.put(job.scheduled_time+job.request_time)
+        self.events_queue.put(job.finish_time)
         score = self.job_score(job)   # calculated reward
         self.scheduled_rl[job.job_id] = score
         self.job_queue.remove(job)  # remove the job from job queue
