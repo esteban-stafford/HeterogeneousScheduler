@@ -19,7 +19,7 @@ from gym.utils import seeding
 
 from queue import PriorityQueue
 
-MAX_QUEUE_SIZE = 128
+MAX_QUEUE_SIZE = 64
 
 MAX_WAIT_TIME = 12 * 60 * 60 # assume maximal wait time is 12 hours.
 MAX_RUN_TIME = 12 * 60 * 60 # assume maximal runtime is 12 hours
