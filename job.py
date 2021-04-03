@@ -41,7 +41,7 @@ class Job:
         # I do not know their difference clearly. But it seems to me using a larger one will be sufficient.
         self.request_number_of_processors = int(s_array[7])
         self.number_of_allocated_processors = max(self.number_of_allocated_processors, self.request_number_of_processors)
-        self.request_number_of_processors = self.number_of_allocated_processors
+        self.request_number_of_processors = min(self.number_of_allocated_processors, 64)
         
         self.request_number_of_nodes = -1
         

@@ -3,7 +3,7 @@
 ; Information: http://www.cs.huji.ac.il/labs/parallel/workload
 ; MaxJobs: 10000
 ; MaxRecords: 10000
-; MaxNodes: 256
+; MaxNodes: 64
 ; MaxRuntime: 162754
 1    5094 -1   12072  16 -1 -1 -1 -1 -1 1 -1 -1 -1 0 -1 -1 -1
 2    5170 -1       2   1 -1 -1 -1 -1 -1 1 -1 -1 -1 0 -1 -1 -1
