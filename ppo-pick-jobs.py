@@ -161,7 +161,7 @@ Proximal Policy Optimization (by clipping),
 with early stopping based on approximate KL
 
 """
-def ppo(workload_file, model_path, ac_kwargs=dict(), seed=0, 
+def ppo(workload_file, platform_file, model_path, ac_kwargs=dict(), seed=0, 
         traj_per_epoch=4000, epochs=50, gamma=0.99, clip_ratio=0.2, pi_lr=3e-4,
         vf_lr=1e-3, train_pi_iters=80, train_v_iters=80, lam=0.97, max_ep_len=1000,
         target_kl=0.01, logger_kwargs=dict(), save_freq=10,pre_trained=0,trained_model=None,attn=False,shuffle=False,
@@ -175,7 +175,7 @@ def ppo(workload_file, model_path, ac_kwargs=dict(), seed=0,
 
     env = HPCEnv(shuffle=shuffle, backfil=backfil, skip=skip, job_score_type=score_type, batch_job_slice=batch_job_slice, build_sjf=False)
     env.seed(seed)
-    env.my_init(workload_file=workload_file, sched_file=model_path)
+    env.my_init(workload_file=workload_file, platform_file=platform_file, sched_file=model_path)
     
     obs_dim = env.observation_space.shape
     # obs_dim = (MAX_QUEUE_SIZE * JOB_FEATURES,)
@@ -369,6 +369,7 @@ if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument('--workload', type=str, default='./data/lublin_256.swf')  # RICC-2010-2 lublin_256.swf SDSC-SP2-1998-4.2-cln.swf
+    parser.add_argument('--platform', type=str, default='./data/x4_64procs.json')
     # parser.add_argument('--model', type=str, default='./data/lublin_256.schd')
     parser.add_argument('--model', type=str, default='./data/cluster_x1248.json')
     parser.add_argument('--gamma', type=float, default=1)
@@ -392,16 +393,17 @@ if __name__ == '__main__':
     # build absolute path for using in hpc_env.
     current_dir = os.getcwd()
     workload_file = os.path.join(current_dir, args.workload)
+    platform_file = os.path.join(current_dir, args.platform)
     log_data_dir = os.path.join(current_dir, './data/logs/')
     logger_kwargs = setup_logger_kwargs(args.exp_name, seed=args.seed, data_dir=log_data_dir)
     if args.pre_trained:
         model_file = os.path.join(current_dir, args.trained_model)
 
-        ppo(workload_file, args.model, gamma=args.gamma, seed=args.seed, traj_per_epoch=args.trajs, epochs=args.epochs,
+        ppo(workload_file, platform_file, args.model, gamma=args.gamma, seed=args.seed, traj_per_epoch=args.trajs, epochs=args.epochs,
         logger_kwargs=logger_kwargs, pre_trained=1,trained_model=os.path.join(model_file,"simple_save"),attn=args.attn,
             shuffle=args.shuffle, backfil=args.backfil, skip=args.skip, score_type=args.score_type,
             batch_job_slice=args.batch_job_slice)
     else:
-        ppo(workload_file, args.model, gamma=args.gamma, seed=args.seed, traj_per_epoch=args.trajs, epochs=args.epochs,
+        ppo(workload_file, platform_file, args.model, gamma=args.gamma, seed=args.seed, traj_per_epoch=args.trajs, epochs=args.epochs,
         logger_kwargs=logger_kwargs, pre_trained=0, attn=args.attn,shuffle=args.shuffle, backfil=args.backfil,
             skip=args.skip, score_type=args.score_type, batch_job_slice=args.batch_job_slice)

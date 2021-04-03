@@ -144,7 +144,7 @@ class HPCEnv(gym.Env):
         self.build_sjf = build_sjf
         self.sjf_scores = []
 
-    def my_init(self, workload_file='', sched_file=''):
+    def my_init(self, workload_file='', platform_file='', sched_file=''):
         print ("Loading workloads from dataset:", workload_file)
         self.loads = Workloads(workload_file)
         self.cluster = Cluster(sched_file)
