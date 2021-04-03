@@ -369,7 +369,7 @@ if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument('--workload', type=str, default='./data/lublin_256.swf')  # RICC-2010-2 lublin_256.swf SDSC-SP2-1998-4.2-cln.swf
-    parser.add_argument('--platform', type=str, default='./data/x4_64procs.json')
+    parser.add_argument('--platform', type=str, default='./data/cluster_x4_64procs.json')
     # parser.add_argument('--model', type=str, default='./data/lublin_256.schd')
     parser.add_argument('--model', type=str, default='./data/cluster_x1248.json')
     parser.add_argument('--gamma', type=float, default=1)

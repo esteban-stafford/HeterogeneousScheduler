@@ -147,7 +147,7 @@ class HPCEnv(gym.Env):
     def my_init(self, workload_file='', platform_file='', sched_file=''):
         print ("Loading workloads from dataset:", workload_file)
         self.loads = Workloads(workload_file)
-        self.cluster = Cluster(sched_file)
+        self.cluster = Cluster(platform_file)
 
         # Continue for trajectory filtering
         if not self.build_sjf:
