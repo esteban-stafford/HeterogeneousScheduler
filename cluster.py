@@ -191,7 +191,7 @@ class HeterogeneousNode:
         self.free_procs -= job.request_number_of_processors
         allocated = []
         req_procs = job.request_number_of_processors
-        job.finish_time = int((job.scheduled_time + job.request_time) * self.rel_frec)
+        job.finish_time = job.scheduled_time + int(job.request_time * self.rel_frec)
         for proc in self.all_procs:
             if proc.taken_by_job(job.job_id, job.finish_time):
                 req_procs -= 1
