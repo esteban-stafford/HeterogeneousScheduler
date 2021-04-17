@@ -338,7 +338,7 @@ def ppo(workload_file, platform_file, model_path, ac_kwargs=dict(), seed=0,
         # print("Sample time:", (time.time()-start_time)/num_total, num_total)
         # Save model
         if (epoch % save_freq == 0) or (epoch == epochs-1):
-            logger.save_state({'env': env}, None)
+            logger.save_state({}, None)
 
         # Perform PPO update!
         # start_time = time.time()
