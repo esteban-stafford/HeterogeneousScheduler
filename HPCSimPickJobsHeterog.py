@@ -432,10 +432,10 @@ class HPCEnv(gym.Env):
 
     def build_nodes_observation_for_job(self, job_idx) -> tuple:
         vector = np.zeros(NUM_NODES * TOTAL_FEATURES, dtype=float)
+        mask = []
         job = self.jobs[job_idx][0]
         jo = self.jobs[job_idx][1:]
         self.nodes = []
-        mask = []
         for i, node in enumerate(self.cluster.all_nodes):
             normalized_proc_number = min(float(node.total_procs)/float(self.loads.max_procs), MIN_OBS_VALUE)
             normalized_free_procs = min(float(node.free_procs)/float(node.total_procs), MIN_OBS_VALUE)
@@ -456,13 +456,8 @@ class HPCEnv(gym.Env):
                     mask.append(0)
                     continue
                 p = i * TOTAL_FEATURES * NUM_NODES + j * TOTAL_FEATURES
-                # job[-1] = MAX_OBS_VALUE if self.cluster.can_allocate(j_[0],n_[0]) else MIN_OBS_VALUE
                 vector[p:p+TOTAL_FEATURES] = np.concatenate((job, node))
                 mask.append(1)
-        # s = np.sum(vector)
-        # if s == 0.0:
-        #     print('SE ACABO')
-        #     exit()
         return vector, np.array(mask)
 
     def build_critic_observation(self) -> np.ndarray:
