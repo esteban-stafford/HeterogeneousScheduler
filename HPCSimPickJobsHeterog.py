@@ -17,7 +17,6 @@ from gym import spaces
 from gym.spaces import Box, Discrete
 from gym.utils import seeding
 
-from queue import PriorityQueue
 
 MAX_QUEUE_SIZE = 128
 
@@ -51,17 +50,6 @@ SLD = 4 # Slowdown
 MIN_OBS_VALUE = 1e-5
 MAX_OBS_VALUE = 1.0 - 1e-5
 
-
-# Priority Queue for sorting timestamps chronologically
-# Checks input before inserting to avoid repetitions
-class EventQueue(PriorityQueue):
-    def put(self, e):
-        # el = self.get()
-        # self.put(el)
-        # if e != el:
-        #     self.put(e)
-        if e not in self.queue:
-            super().put(e)
 
 
 def combined_shape(length, shape=None):
@@ -115,7 +103,6 @@ class HPCEnv(gym.Env):
         self.visible_jobs = []
         self.jobs = []
         self.nodes = []
-        self.events_queue = EventQueue()
 
         self.current_timestamp = 0
         self.start = 0
@@ -251,7 +238,6 @@ class HPCEnv(gym.Env):
     def reset(self) -> tuple:
         self.cluster.reset()
         self.loads.reset()
-        self.events_queue = EventQueue()
 
         self.job_queue = []
         self.running_jobs = []
@@ -281,7 +267,7 @@ class HPCEnv(gym.Env):
             self.start = self.np_random.randint(JOB_SEQUENCE_SIZE, (size - JOB_SEQUENCE_SIZE - 1))
 
         for job in self.loads[self.start:self.start+JOB_SEQUENCE_SIZE]:
-            self.events_queue.put(job.submit_time)
+            self.cluster.events_queue.put(job.submit_time)
 
         self.start_idx_last_reset = self.start
         self.num_job_in_batch = JOB_SEQUENCE_SIZE
@@ -302,7 +288,6 @@ class HPCEnv(gym.Env):
     def reset_2nets(self) -> tuple:
         self.cluster.reset()
         self.loads.reset()
-        self.events_queue = EventQueue()
 
         self.job_queue = []
         self.running_jobs = []
@@ -332,7 +317,7 @@ class HPCEnv(gym.Env):
             self.start = self.np_random.randint(JOB_SEQUENCE_SIZE, (size - JOB_SEQUENCE_SIZE - 1))
 
         for job in self.loads[self.start:self.start+JOB_SEQUENCE_SIZE]:
-            self.events_queue.put(job.submit_time)
+            self.cluster.events_queue.put(job.submit_time)
 
         self.start_idx_last_reset = self.start
         self.num_job_in_batch = JOB_SEQUENCE_SIZE
@@ -574,7 +559,6 @@ class HPCEnv(gym.Env):
         job.scheduled_time = self.current_timestamp
         job.allocated_machines = self.cluster.allocate(job, node)
         self.running_jobs.append(job)
-        self.events_queue.put(job.finish_time)
         score = self.job_score(job)   # calculated reward
         self.scheduled_rl[job.job_id] = score
         self.job_queue.remove(job)  # remove the job from job queue
@@ -598,7 +582,6 @@ class HPCEnv(gym.Env):
             assert job.request_number_of_processors <= node.free_procs
             job.scheduled_time = self.current_timestamp
             job.allocated_machines = self.cluster.allocate(job, node)
-            self.events_queue.put(job.finish_time)
             self.running_jobs.append(job)
             score = self.job_score(job)
             scheduled_logs[job.job_id] = score
@@ -613,9 +596,8 @@ class HPCEnv(gym.Env):
         self.pairs = []
         self.current_timestamp = self.loads[self.start].submit_time
         self.job_queue.append(self.loads[self.start])
-        self.events_queue = EventQueue()
         for job in self.loads[self.start:self.start+JOB_SEQUENCE_SIZE]:
-            self.events_queue.put(job.submit_time)
+            self.cluster.events_queue.put(job.submit_time)
         self.last_job_in_batch = self.start + self.num_job_in_batch
         self.next_arriving_job_idx = self.start + 1
 
@@ -649,9 +631,8 @@ class HPCEnv(gym.Env):
         self.pairs = []
         self.current_timestamp = self.loads[self.start].submit_time
         self.job_queue.append(self.loads[self.start])
-        self.events_queue = EventQueue()
         for job in self.loads[self.start:self.start+JOB_SEQUENCE_SIZE]:
-            self.events_queue.put(job.submit_time)
+            self.cluster.events_queue.put(job.submit_time)
         self.last_job_in_batch = self.start + self.num_job_in_batch
         self.next_arriving_job_idx = self.start + 1
 
@@ -666,7 +647,7 @@ class HPCEnv(gym.Env):
         self.cluster.free_resources(self.current_timestamp)
 
         while job.request_number_of_processors > node.free_procs:
-            self.current_timestamp = self.events_queue.get()
+            self.current_timestamp = self.cluster.events_queue.get()
             self.cluster.free_resources(self.current_timestamp)        
             self.receive_jobs()
         # TODO Por aqui no se si habra que hacer mas cosas
@@ -697,7 +678,7 @@ class HPCEnv(gym.Env):
                 self.running_jobs.pop(0)  # remove the first running job.
 
     def skip_for_resources_greedy_heterog(self, job):
-        next_resource_release_time = self.events_queue.get()
+        next_resource_release_time = self.cluster.events_queue.get()
         self.current_timestamp = next_resource_release_time
         self.cluster.free_resources(self.current_timestamp)
         return self.cluster.next_resource(job)

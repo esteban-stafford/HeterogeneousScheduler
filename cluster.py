@@ -1,7 +1,14 @@
 import math
 import json
 
+from queue import PriorityQueue
 
+# Priority Queue for sorting timestamps chronologically
+# Checks input before inserting to avoid repetitions
+class EventQueue(PriorityQueue):
+    def put(self, e):
+        if e not in self.queue:
+            super().put(e)
             
 
 class Processor:
@@ -106,6 +113,7 @@ class HeterogeneousNode:
 class HeterogeneousCluster:
 
     def __init__(self, path):
+        self.events_queue = EventQueue()
         cluster = load_cluster(path)
         self.name = cluster['id']
         self.all_nodes = []
@@ -136,6 +144,8 @@ class HeterogeneousCluster:
             return []
 
         allocated_procs = node.allocate(job)
+        if allocated_procs:
+            self.events_queue.put(job.finish_time)
         return allocated_procs
         
     def free_resources(self, current_time):
@@ -149,6 +159,7 @@ class HeterogeneousCluster:
         released = node.release(releases)            
         
     def reset(self):
+        self.events_queue = EventQueue()
         for n in self.all_nodes:
             n.reset()
 
@@ -158,7 +169,6 @@ class HeterogeneousCluster:
                 return node
         return None
 
-# Cluster = SimpleCluster
 Cluster = HeterogeneousCluster
 
 
