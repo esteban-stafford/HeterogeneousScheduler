@@ -482,16 +482,10 @@ class HPCEnv(gym.Env):
         return vector
 
     def step(self, a: int) -> list:
-        # print('STEP:', a, a//NUM_NODES)
-        # print(self.jobs)
-        # print(self.nodes)
         job_for_scheduling = self.jobs[a//NUM_NODES][0]
         node_for_scheduling = self.nodes[a%NUM_NODES][0]
-        # print(f'J:{job_for_scheduling.job_id} -> N:{node_for_scheduling.id}')
 
         if not job_for_scheduling or not node_for_scheduling:
-            # print(self.job_queue)
-            # print(self.running_jobs)
             done = self.skip_schedule()
             # TODO Mirar si hay un sitio mejor para hjacer esto
             self.cluster.free_resources(self.current_timestamp)
@@ -573,7 +567,6 @@ class HPCEnv(gym.Env):
                 raise NotImplementedError
             else:
                 # Skips until current job finishes
-                # print('skipea')
                 self.skip_for_resources(job, node)
 
         assert job.scheduled_time == -1
