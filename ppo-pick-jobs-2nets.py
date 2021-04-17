@@ -21,7 +21,7 @@ tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 deprecation._PRINT_DEPRECATION_WARNINGS = False
 
 def critic_mlp(x, act_dim):
-    x = tf.reshape(x, shape=[-1,MAX_QUEUE_SIZE*NUM_NODES, TOTAL_FEATURES])
+    x = tf.reshape(x, shape=[-1,MAX_QUEUE_SIZE, JOB_FEATURES])
     x = tf.layers.dense(x, units=32, activation=tf.nn.relu)
     x = tf.layers.dense(x, units=16, activation=tf.nn.relu)
     x = tf.layers.dense(x, units=8, activation=tf.nn.relu)
@@ -29,7 +29,6 @@ def critic_mlp(x, act_dim):
     x = tf.layers.dense(x, units=64, activation=tf.nn.relu)
     x = tf.layers.dense(x, units=32, activation=tf.nn.relu)
     x = tf.layers.dense(x, units=8, activation=tf.nn.relu)
-
     return tf.layers.dense(x, units=act_dim)
 
 def rl_kernel_jobs(x, act_dim):
@@ -41,7 +40,7 @@ def rl_kernel_jobs(x, act_dim):
     return x
 
 def rl_kernel_nodes(x, act_dim):
-    x = tf.reshape(x, shape=[-1, NUM_NODES, NODE_FEATURES])
+    x = tf.reshape(x, shape=[-1, NUM_NODES, TOTAL_FEATURES])
     x = tf.layers.dense(x, units=32, activation=tf.nn.relu)
     x = tf.layers.dense(x, units=16, activation=tf.nn.relu)
     x = tf.layers.dense(x, units=8, activation=tf.nn.relu)
@@ -51,9 +50,14 @@ def rl_kernel_nodes(x, act_dim):
 """
 Policies
 """
-def categorical_policy(x, a, mask, action_space, attn):
+def categorical_policy(x, a, mask, action_space, jobs=False, nodes=False):
     act_dim = action_space.n
-    output_layer = rl_kernel(x, act_dim)
+    if jobs:
+        output_layer = rl_kernel_jobs(x, act_dim)
+    elif nodes:
+        output_layer = rl_kernel_nodes(x, act_dim)
+    else:
+        raise NotImplementedError
     output_layer = output_layer+(mask-1)*1000000
     logp_all = tf.nn.log_softmax(output_layer)
 
@@ -65,12 +69,17 @@ def categorical_policy(x, a, mask, action_space, attn):
 """
 Actor-Critics
 """
-def actor_critic(x, a, mask, action_space=None, attn=False):
-    with tf.variable_scope('pi'):
-        pi, logp, logp_pi , out= categorical_policy(x, a, mask, action_space, attn)
+def actor_critic_jobs(x, a, mask, jobs_action_space=None):
+    with tf.variable_scope('pi_j'):
+        pi_j, logp_j, logp_pi_j, out_j = categorical_policy(x, a, mask, jobs_action_space, jobs=True)
     with tf.variable_scope('v'):
         v = tf.squeeze(critic_mlp(x, 1), axis=1)
-    return pi, logp, logp_pi, v, out
+    return pi_j, logp_j, logp_pi_j, v, out_j
+
+def actor_critic_nodes(x, a, mask, nodes_action_space=None):
+    with tf.variable_scope('pi_n'):
+        pi_n, logp_n, logp_pi_n, out_n = categorical_policy(x, a, mask, nodes_action_space, nodes=True)
+    return pi_n, logp_n, logp_pi_n, out_n
 
 class PPOBuffer:
     """
@@ -79,33 +88,38 @@ class PPOBuffer:
     for calculating the advantages of state-action pairs.
     """
 
-    def __init__(self, obs_dim, act_dim, size, gamma=0.99, lam=0.95):
-        self.obs_buf = np.zeros(combined_shape(size, obs_dim), dtype=np.float32)
+    def __init__(self, obs_dim, nobs_dim, actj_dim, actn_dim, size, gamma=0.99, lam=0.95):
+        self.jobs_buf = np.zeros(combined_shape(size, obs_dim), dtype=np.float32)
+        self.nobs_buf = np.zeros(combined_shape(size, nobs_dim), dtype=np.float32)
         size = size * 100 # assume the traj can be really long
-        self.cobs_buf = None
-        self.act_buf = np.zeros(combined_shape(size, act_dim), dtype=np.float32)
-        self.mask_buf = np.zeros(combined_shape(size, MAX_QUEUE_SIZE * NUM_NODES), dtype=np.float32)
+        self.actj_buf = np.zeros(combined_shape(size, actj_dim), dtype=np.float32)
+        self.actn_buf = np.zeros(combined_shape(size, actn_dim), dtype=np.float32)
+        self.maskj_buf = np.zeros(combined_shape(size, MAX_QUEUE_SIZE), dtype=np.float32)
+        self.maskn_buf = np.zeros(combined_shape(size, NUM_NODES), dtype=np.float32)
         self.adv_buf = np.zeros(size, dtype=np.float32)
         self.rew_buf = np.zeros(size, dtype=np.float32)
         self.ret_buf = np.zeros(size, dtype=np.float32)
         self.val_buf = np.zeros(size, dtype=np.float32)
-        self.logp_buf = np.zeros(size, dtype=np.float32)
+        self.logpj_buf = np.zeros(size, dtype=np.float32)
+        self.logpn_buf = np.zeros(size, dtype=np.float32)
         self.gamma, self.lam = gamma, lam
         self.ptr, self.path_start_idx, self.max_size = 0, 0, size
 
-    def store(self, obs, cobs, act, mask, rew, val, logp):
+    def store(self, jobs, nobs, actj, actn, maskj, maskn, rew, val, logpj, logpn):
         """
         Append one timestep of agent-environment interaction to the buffer.
         """
         assert self.ptr < self.max_size     # buffer has to have room so you can store
-        self.obs_buf[self.ptr] = obs
-        # self.nobs_buf[self.ptr] = nobs
-        # self.cobs_buf[self.ptr] = cobs
-        self.act_buf[self.ptr] = act
-        self.mask_buf[self.ptr] = mask
+        self.jobs_buf[self.ptr] = jobs
+        self.nobs_buf[self.ptr] = nobs
+        self.actj_buf[self.ptr] = actj
+        self.actn_buf[self.ptr] = actn
+        self.maskj_buf[self.ptr] = maskj
+        self.maskn_buf[self.ptr] = maskn
         self.rew_buf[self.ptr] = rew
         self.val_buf[self.ptr] = val
-        self.logp_buf[self.ptr] = logp
+        self.logpj_buf[self.ptr] = logpj
+        self.logpn_buf[self.ptr] = logpn
         self.ptr += 1
 
     def finish_path(self, last_val=0):
@@ -159,8 +173,13 @@ class PPOBuffer:
         actual_adv_buf = (actual_adv_buf - adv_mean) / adv_std
         # print (actual_adv_buf)
 
-        return [self.obs_buf[:actual_size],  self.act_buf[:actual_size], self.mask_buf[:actual_size], actual_adv_buf,
-                self.ret_buf[:actual_size], self.logp_buf[:actual_size]]
+        return [
+            self.jobs_buf[:actual_size], self.nobs_buf[:actual_size], 
+            self.actj_buf[:actual_size], self.actn_buf[:actual_size], 
+            self.maskj_buf[:actual_size], self.maskn_buf[:actual_size], 
+            actual_adv_buf, self.ret_buf[:actual_size], 
+            self.logpj_buf[:actual_size], self.logpn_buf[:actual_size]
+        ]
 
 """
 
@@ -185,18 +204,20 @@ def ppo(workload_file, platform_file, model_path, ac_kwargs=dict(), seed=0,
     env.seed(seed)
     env.my_init(workload_file=workload_file, platform_file=platform_file, sched_file=model_path)
     
-    obs_dim = env.observation_space.shape
-    # obs_dim = (MAX_QUEUE_SIZE * JOB_FEATURES,)
-    # nobs_dim = (NUM_NODES * NODE_FEATURES,)
-    act_dim = env.action_space.shape
+    # obs_dim = env.observation_space.shape
+    jobs_dim = (MAX_QUEUE_SIZE * JOB_FEATURES,)
+    nobs_dim = (NUM_NODES * TOTAL_FEATURES,)
+    # act_dim = env.action_space.shape
+    actj_dim = env.jobs_action_space.shape
+    actn_dim = env.nodes_action_space.shape
     
     # Share information about action space with policy architecture
-    ac_kwargs['action_space'] = env.action_space
-    ac_kwargs['attn'] = attn
+    jobs_action_space = env.jobs_action_space
+    nodes_action_space = env.nodes_action_space
 
     # Inputs to computation graph
 
-    buf = PPOBuffer(obs_dim, act_dim, traj_per_epoch * JOB_SEQUENCE_SIZE, gamma, lam)
+    buf = PPOBuffer(jobs_dim, nobs_dim, actj_dim, actn_dim, traj_per_epoch * JOB_SEQUENCE_SIZE, gamma, lam)
 
     if pre_trained:
         sess = tf.Session()
@@ -206,20 +227,26 @@ def ppo(workload_file, platform_file, model_path, ac_kwargs=dict(), seed=0,
         var_counts = tuple(count_vars(scope) for scope in ['pi', 'v'])
         logger.log('\nNumber of parameters: \t pi: %d, \t v: %d\n' % var_counts)
 
-        x_ph = model['x']
+        xj_ph = model['xj']
+        xn_ph = model['xn']
         a_ph = model['a']
         mask_ph = model['mask']
         adv_ph = model['adv']
         ret_ph = model['ret']
         logp_old_ph = model['logp_old_ph']
 
-        pi = model['pi']
+        pi_j = model['pi_j']
+        pi_n = model['pi_n']
         v = model['v']
         # logits = model['logits']
-        out = model['out']
-        logp = model['logp']
-        logp_pi = model['logp_pi']
-        pi_loss = model['pi_loss']
+        out_j = model['out_j']
+        out_n = model['out_n']
+        logp_j = model['logp_j']
+        logp_n = model['logp_n']
+        logp_pi_j = model['logp_pi_j']
+        logp_pi_n = model['logp_pi_n']
+        pi_loss_j = model['pi_loss_j']
+        pi_loss_n = model['pi_loss_n']
         v_loss = model['v_loss']
         approx_ent = model['approx_ent']
         approx_kl = model['approx_kl']
@@ -231,42 +258,59 @@ def ppo(workload_file, platform_file, model_path, ac_kwargs=dict(), seed=0,
         train_v = tf.get_collection("train_v")[0]
 
         # Need all placeholders in *this* order later (to zip with data from buffer)
-        all_phs = [x_ph, a_ph, mask_ph, adv_ph, ret_ph, logp_old_ph]
+        all_phs = [xj_ph, xn_ph, aj_ph, an_ph, maskj_ph, maskn_ph, adv_ph, ret_ph, logpj_old_ph, logpn_old_ph]
         # Every step, get: action, value, and logprob
-        get_action_ops = [pi, v, logp_pi, out]
+        get_job_action_ops = [pi_j, v, logp_pi_j, out_j]
 
     else:
-        x_ph, a_ph = placeholders_from_spaces(env.observation_space, env.action_space)
+        xj_ph = placeholder(MAX_QUEUE_SIZE * JOB_FEATURES)
+        xn_ph = placeholder(NUM_NODES * TOTAL_FEATURES)
+        aj_ph, an_ph = placeholders_from_spaces(env.jobs_action_space, env.nodes_action_space)
+
         # y_ph = placeholder(JOB_SEQUENCE_SIZE*3) # 3 is the number of sequence features
-        mask_ph = placeholder(MAX_QUEUE_SIZE * NUM_NODES)
-        adv_ph, ret_ph, logp_old_ph = placeholders(None, None, None)
+        maskj_ph = placeholder(MAX_QUEUE_SIZE)
+        maskn_ph = placeholder(NUM_NODES)
+        adv_ph, ret_ph, logpj_old_ph, logpn_old_ph = placeholders(None, None, None, None)
 
         # Main outputs from computation graph
-        pi, logp, logp_pi, v, out = actor_critic(x_ph, a_ph, mask_ph, **ac_kwargs)
+        pi_j, logp_j, logp_pi_j, v, out_j = actor_critic_jobs(xj_ph, aj_ph, maskj_ph, jobs_action_space)
+        pi_n, logp_n, logp_pi_n, out_n = actor_critic_nodes(xn_ph, an_ph, maskn_ph, nodes_action_space)
 
         # Need all placeholders in *this* order later (to zip with data from buffer)
-        all_phs = [x_ph, a_ph, mask_ph, adv_ph, ret_ph, logp_old_ph]
+        all_phs = [xj_ph, xn_ph, aj_ph, an_ph, maskj_ph, maskn_ph, adv_ph, ret_ph, logpj_old_ph, logpn_old_ph]
 
         # Every step, get: action, value, and logprob
-        get_action_ops = [pi, v, logp_pi, out]
+        get_job_action_ops = [pi_j, v, logp_pi_j, out_j]
+        get_node_action_ops = [pi_n, logp_pi_n, out_n]
 
         # Experience buffer
 
         # Count variables
-        var_counts = tuple(count_vars(scope) for scope in ['pi', 'v'])
-        logger.log('\nNumber of parameters: \t pi: %d, \t v: %d\n' % var_counts)
+        var_counts = tuple(count_vars(scope) for scope in ['pi_j', 'pi_n', 'v'])
+        logger.log('\nNumber of parameters: \t pi_j: %d, \t pi_n: %d, \t v: %d\n' % var_counts)
 
         # PPO objectives
-        ratio = tf.exp(logp - logp_old_ph)  # pi(a|s) / pi_old(a|s)
+        ratio_j = tf.exp(logp_j - logpj_old_ph)  # pi(aj|s) / pi_old(aj|s)
+        ratio_n = tf.exp(logp_n - logpn_old_ph)
         min_adv = tf.where(adv_ph > 0, (1 + clip_ratio) * adv_ph, (1 - clip_ratio) * adv_ph)
-        pi_loss = -tf.reduce_mean(tf.minimum(ratio * adv_ph, min_adv))
+        # TODO Aqui hay que hacer algo para unir los ratios #####################
+        # pi_loss = -tf.reduce_mean(tf.minimum(tf.add(ratio_j, ratio_n) * adv_ph, min_adv))
+        mean_ratios = tf.reduce_mean(tf.stack([ratio_j, ratio_n]), axis=0)
+        pi_loss = -tf.reduce_mean(tf.minimum(mean_ratios * adv_ph, min_adv))
+        #########################################################################
         v_loss = tf.reduce_mean((ret_ph - v) ** 2)
 
-        # Info (useful to watch during learning)
-        approx_kl = tf.reduce_mean(logp_old_ph - logp)  # a sample estimate for KL-divergence, easy to compute
-        approx_ent = tf.reduce_mean(-logp)  # a sample estimate for entropy, also easy to compute
-        clipped = tf.logical_or(ratio > (1 + clip_ratio), ratio < (1 - clip_ratio))
-        clipfrac = tf.reduce_mean(tf.cast(clipped, tf.float32))
+        # Info (useful to watch during learning) - JOBS
+        approx_kl_j = tf.reduce_mean(logpj_old_ph - logp_j)  # a sample estimate for KL-divergence, easy to compute
+        approx_ent_j = tf.reduce_mean(-logp_j)  # a sample estimate for entropy, also easy to compute
+        clipped_j = tf.logical_or(ratio_j > (1 + clip_ratio), ratio_j < (1 - clip_ratio))
+        clipfrac_j = tf.reduce_mean(tf.cast(clipped_j, tf.float32))
+
+        # Info (useful to watch during learning) - NODES
+        approx_kl_n = tf.reduce_mean(logpn_old_ph - logp_n)
+        approx_ent_n = tf.reduce_mean(-logp_n)
+        clipped_n = tf.logical_or(ratio_n > (1 + clip_ratio), ratio_n < (1 - clip_ratio))
+        clipfrac_n = tf.reduce_mean(tf.cast(clipped_n, tf.float32))
 
         # Optimizers
         train_pi = tf.train.AdamOptimizer(learning_rate=pi_lr).minimize(pi_loss)
@@ -279,18 +323,30 @@ def ppo(workload_file, platform_file, model_path, ac_kwargs=dict(), seed=0,
 
     # Setup model saving
     # logger.setup_tf_saver(sess, inputs={'x': x_ph}, outputs={'action_probs': action_probs, 'log_picked_action_prob': log_picked_action_prob, 'v': v})
-    logger.setup_tf_saver(sess, inputs={'x': x_ph, 'a':a_ph, 'adv':adv_ph, 'mask':mask_ph, 'ret':ret_ph, 'logp_old_ph':logp_old_ph}, outputs={'pi': pi, 'v': v, 'out':out, 'pi_loss':pi_loss, 'logp': logp, 'logp_pi':logp_pi, 'v_loss':v_loss, 'approx_ent':approx_ent, 'approx_kl':approx_kl, 'clipped':clipped, 'clipfrac':clipfrac})
+    logger.setup_tf_saver(sess, 
+        inputs = {
+            'xj': xj_ph, 'xn': xn_ph, 'aj':aj_ph, 'an': an_ph, 
+            'adv':adv_ph, 'maskj':maskj_ph, 'maskn': maskn_ph, 'ret':ret_ph, 
+            'logpj_old_ph':logpj_old_ph, 'logpn_old_ph': logpn_old_ph
+        }, 
+        outputs = {
+            'pi_j': pi_j, 'pi_n': pi_n, 'v': v, 'out_j': out_j, 'out_n': out_n, 
+            'pi_loss': pi_loss, 'logpj': logp_j, 'logpn': logp_n, 'logp_pi_j':logp_pi_j, 'logp_pi_n':logp_pi_n,
+            'v_loss': v_loss, 'approx_ent_j':approx_ent_j, 'approx_ent_n':approx_ent_n, 
+            'approx_kl_j': approx_kl_j, 'approx_kl_n': approx_kl_n, 
+            'clipped_j': clipped_j, 'clipped_n': clipped_n, 
+            'clipfrac_j': clipfrac_j, 'clipfrac_n': clipfrac_n
+        })
 
     def update():
         inputs = {k:v for k,v in zip(all_phs, buf.get())}
-        # print('INPUTS',inputs)
-        pi_l_old, v_l_old, ent = sess.run([pi_loss, v_loss, approx_ent], feed_dict=inputs)
+        pi_l_old, v_l_old, entj, entn = sess.run([pi_loss, v_loss, approx_ent_j, approx_ent_n], feed_dict=inputs)
 
         # Training
         for i in range(train_pi_iters):
-            _, kl = sess.run([train_pi, approx_kl], feed_dict=inputs)
-            kl = mpi_avg(kl)
-            if kl > 1.5 * target_kl:
+            _, klj, kln = sess.run([train_pi, approx_kl_j, approx_kl_n], feed_dict=inputs)
+            klj = mpi_avg(klj)
+            if klj > 1.5 * target_kl:
                 logger.log('Early stopping at step %d due to reaching max kl.'%i)
                 break
         logger.store(StopIter=i)
@@ -298,23 +354,27 @@ def ppo(workload_file, platform_file, model_path, ac_kwargs=dict(), seed=0,
             sess.run(train_v, feed_dict=inputs)
 
         # Log changes from update
-        pi_l_new, v_l_new, kl, cf = sess.run([pi_loss, v_loss, approx_kl, clipfrac], feed_dict=inputs)
+        pi_l_new, v_l_new, klj, kln, cfj, cfn = sess.run([pi_loss, v_loss, approx_kl_j, approx_kl_n, clipfrac_j, clipfrac_n], feed_dict=inputs)
         logger.store(LossPi=pi_l_old, LossV=v_l_old,
-                     KL=kl, Entropy=ent, ClipFrac=cf,
+                     KLj=klj, KLn=kln, EntropyJ=entj, EntropyN=entn, 
+                     ClipFracJ=cfj, ClipFracN=cfn,
                      DeltaLossPi=(pi_l_new - pi_l_old),
                      DeltaLossV=(v_l_new - v_l_old))
 
     start_time = time.time()
-    # [o, no, co], r, d, ep_ret, ep_len, show_ret, sjf, f1 = env.reset(), 0, False, 0, 0,0,0,0
-    [o, lst], r, d, ep_ret, ep_len, show_ret, sjf, f1 = env.reset(), 0, False, 0, 0,0,0,0
+    [jo, lstj], r, d, ep_ret, ep_len, show_ret, sjf, f1 = env.reset_2nets(), 0, False, 0, 0,0,0,0
     # Main loop: collect experience in env and update/log each epoch
     start_time = time.time()
     num_total = 0
     for epoch in range(epochs):
         t = 0
         while True:
+            
+            a_j, v_t, logp_t_j, output_j = sess.run(get_job_action_ops, feed_dict={xj_ph: jo.reshape(1,-1), maskj_ph: lstj.reshape(1,-1)})
 
-            a, v_t, logp_t, output = sess.run(get_action_ops, feed_dict={x_ph: o.reshape(1,-1), mask_ph: np.array(lst).reshape(1,-1)})
+            no, lstn = env.build_nodes_observation_for_job(a_j[0])
+
+            a_n, logp_t_n, output_n = sess.run(get_node_action_ops, feed_dict={xn_ph: no.reshape(1,-1), maskn_ph: lstn.reshape(1,-1)})
 
             num_total += 1
             '''
@@ -323,12 +383,12 @@ def ppo(workload_file, platform_file, model_path, ac_kwargs=dict(), seed=0,
             '''
 
             # save and log
-            buf.store(o, None, a, np.array(lst), r, v_t, logp_t)
+            buf.store(jo, no, a_j, a_n, lstj, lstn, r, v_t, logp_t_j, logp_t_n)
             logger.store(VVals=v_t)
 
             # print('ACTION:', a)
 
-            [o, lst], r, d, r2, sjf_t, f1_t = env.step(a[0])
+            [jo, lstj], r, d, r2, sjf_t, f1_t = env.step_2nets(a_j[0], a_n[0])
             ep_ret += r
             ep_len += 1
             show_ret += r2
@@ -339,14 +399,15 @@ def ppo(workload_file, platform_file, model_path, ac_kwargs=dict(), seed=0,
                 t += 1
                 buf.finish_path(r)
                 logger.store(EpRet=ep_ret, EpLen=ep_len, ShowRet=show_ret, SJF=sjf, F1=f1)
-                [o, lst], r, d, ep_ret, ep_len, show_ret, sjf, f1 = env.reset(), 0, False, 0, 0, 0, 0, 0
+                [jo, lstj], r, d, ep_ret, ep_len, show_ret, sjf, f1 = env.reset_2nets(), 0, False, 0, 0, 0, 0, 0
                 if t >= traj_per_epoch:
                     # print ("state:", state, "\nlast action in a traj: action_probs:\n", action_probs, "\naction:", action)
                     break
         # print("Sample time:", (time.time()-start_time)/num_total, num_total)
         # Save model
         if (epoch % save_freq == 0) or (epoch == epochs-1):
-            logger.save_state({'env': env}, None)
+            # logger.save_state({'env': env}, None)
+            logger.save_state({}, None)
 
         # Perform PPO update!
         # start_time = time.time()
@@ -363,9 +424,12 @@ def ppo(workload_file, platform_file, model_path, ac_kwargs=dict(), seed=0,
         logger.log_tabular('LossV', average_only=True)
         logger.log_tabular('DeltaLossPi', average_only=True)
         logger.log_tabular('DeltaLossV', average_only=True)
-        logger.log_tabular('Entropy', average_only=True)
-        logger.log_tabular('KL', average_only=True)
-        logger.log_tabular('ClipFrac', average_only=True)
+        logger.log_tabular('EntropyJ', average_only=True)
+        logger.log_tabular('EntropyN', average_only=True)
+        logger.log_tabular('KLj', average_only=True)
+        logger.log_tabular('KLn', average_only=True)
+        logger.log_tabular('ClipFracJ', average_only=True)
+        logger.log_tabular('ClipFracN', average_only=True)
         logger.log_tabular('StopIter', average_only=True)
         logger.log_tabular('ShowRet', average_only=True)
         logger.log_tabular('SJF', average_only=True)

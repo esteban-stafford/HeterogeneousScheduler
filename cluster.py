@@ -275,6 +275,11 @@ class HeterogeneousCluster:
         for n in self.all_nodes:
             n.reset()
 
+    def next_resource(self, job) -> HeterogeneousNode:
+        for node in self.all_nodes:
+            if node.free_procs >= job.request_number_of_processors:
+                return node
+        return None
 
 # Cluster = SimpleCluster
 Cluster = HeterogeneousCluster
