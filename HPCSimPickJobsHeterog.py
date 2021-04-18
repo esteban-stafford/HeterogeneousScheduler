@@ -153,14 +153,12 @@ class HPCEnv(gym.Env):
         submit_time = job.submit_time
         request_processors = job.request_number_of_processors
         request_time = job.request_time
-        # run_time = job.run_time
         return (np.log10(request_time if request_time>0 else 0.1) * request_processors + 870 * np.log10(submit_time if submit_time>0 else 0.1))
 
     def f2_score(self, job: Job):
         submit_time = job.submit_time
         request_processors = job.request_number_of_processors
         request_time = job.request_time
-        # run_time = job.run_time
         # f2: r^(1/2)*n + 25600 * log10(s)
         return (np.sqrt(request_time) * request_processors + 25600 * np.log10(submit_time))
 
@@ -168,7 +166,6 @@ class HPCEnv(gym.Env):
         submit_time = job.submit_time
         request_processors = job.request_number_of_processors
         request_time = job.request_time
-        # run_time = job.run_time
         # f3: r * n + 6860000 * log10(s)
         return (request_time * request_processors + 6860000 * np.log10(submit_time))
 
@@ -176,12 +173,10 @@ class HPCEnv(gym.Env):
         submit_time = job.submit_time
         request_processors = job.request_number_of_processors
         request_time = job.request_time
-        # run_time = job.run_time
         # f4: r * sqrt(n) + 530000 * log10(s)
         return (request_time * np.sqrt(request_processors) + 530000 * np.log10(submit_time))
 
     def sjf_score(self, job):
-        # run_time = job.run_time
         request_time = job.request_time
         submit_time = job.submit_time
         # if request_time is the same, pick whichever submitted earlier 
@@ -216,17 +211,17 @@ class HPCEnv(gym.Env):
         # 0: Average bounded slowdown, 1: Average waiting time
         # 2: Average turnaround time, 3: Resource utilization 4: Average slowdown
         if self.job_score_type == BSLD:
-            return max(1.0, (float(job_for_scheduling.scheduled_time - job_for_scheduling.submit_time + job_for_scheduling.run_time)
-                            / max(job_for_scheduling.run_time, 10)))
+            return max(1.0, (float(job_for_scheduling.finish_time - job_for_scheduling.submit_time)
+                            / max(job_for_scheduling.request_time, 10)))
         if self.job_score_type == AVGW:
             return float(job_for_scheduling.scheduled_time - job_for_scheduling.submit_time)
         if self.job_score_type == AVGT:
-            return float(job_for_scheduling.scheduled_time - job_for_scheduling.submit_time + job_for_scheduling.run_time)
+            return float(job_for_scheduling.finish_time - job_for_scheduling.submit_time)
         if self.job_score_type == RESU: # TODO Esto igual se puede redefinir algo mejor
-            return -float(job_for_scheduling.run_time*job_for_scheduling.request_number_of_processors)
+            return -float(job_for_scheduling.request_time*job_for_scheduling.request_number_of_processors)
         if self.job_score_type == SLD:
-            return float(job_for_scheduling.scheduled_time - job_for_scheduling.submit_time + job_for_scheduling.run_time)\
-                /job_for_scheduling.run_time
+            return float(job_for_scheduling.finish_time - job_for_scheduling.submit_time)\
+                /job_for_scheduling.request_time
         raise NotImplementedError
 
     def gen_preworkloads(self, size):
@@ -660,8 +655,8 @@ class HPCEnv(gym.Env):
         while not self.cluster.can_allocate(job):
             # schedule nothing, just move forward to next timestamp. It should just add a new job or finish a running job
             assert self.running_jobs
-            self.running_jobs.sort(key=lambda running_job: (running_job.scheduled_time + running_job.run_time))
-            next_resource_release_time = (self.running_jobs[0].scheduled_time + self.running_jobs[0].run_time)
+            self.running_jobs.sort(key=lambda running_job: running_job.finish_time)
+            next_resource_release_time = (self.running_jobs[0].finish_time)
             next_resource_release_machines = self.running_jobs[0].allocated_machines
 
             if self.next_arriving_job_idx < self.last_job_in_batch and self.loads[self.next_arriving_job_idx].submit_time <= next_resource_release_time:
@@ -690,9 +685,9 @@ class HPCEnv(gym.Env):
 
         while not self.job_queue:
             if self.running_jobs:
-                self.running_jobs.sort(key=lambda rj: rj.scheduled_time + rj.run_time)
+                self.running_jobs.sort(key=lambda rj: rj.finish_time)
                 next_job = self.running_jobs[0]
-                next_resource_release_time = next_job.scheduled_time + next_job.run_time
+                next_resource_release_time = next_job.finish_time
                 next_resource_release_machines = next_job.allocated_machines
             else:
                 next_resource_release_time = sys.maxsize
