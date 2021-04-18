@@ -422,7 +422,7 @@ class HPCEnv(gym.Env):
             normalized_frec = min(float(node.frec)/float(self.cluster.max_frec), MIN_OBS_VALUE)
             self.nodes.append([node, normalized_proc_number, normalized_free_procs, normalized_frec])
             vector[i*TOTAL_FEATURES:(i+1)*TOTAL_FEATURES] = jo + self.nodes[i][1:]
-            mask.append(job is not None and job.request_number_of_processors <= node.total_procs)
+            mask.append(job is not None and job.request_number_of_processors <= node.free_procs)
         return vector, np.array(mask)
 
     def combine_observations(self, o: np.ndarray, no: np.ndarray) -> tuple:
@@ -432,7 +432,7 @@ class HPCEnv(gym.Env):
         mask = []
         for i, [job, j_] in enumerate(zip(o_,self.jobs)):
             for j, [node, n_] in enumerate(zip(no_,self.nodes)):
-                if j_[0] is None or j_[0].request_number_of_processors > n_[0].total_procs:
+                if j_[0] is None or j_[0].request_number_of_processors > n_[0].free_procs:
                     mask.append(0)
                     continue
                 p = i * TOTAL_FEATURES * NUM_NODES + j * TOTAL_FEATURES
@@ -461,6 +461,13 @@ class HPCEnv(gym.Env):
             vector[i*3:(i+1)*3] = jobs[i]
         return vector
 
+    def shortest_job_req_procs(self):
+        return min([j.request_number_of_processors for j in self.job_queue])
+
+    def advance_time(self):
+        self.current_timestamp = self.cluster.advance_to_next_time_event()
+        self.receive_jobs()
+
     def step(self, a: int) -> list:
         job_for_scheduling = self.jobs[a//NUM_NODES][0]
         node_for_scheduling = self.nodes[a%NUM_NODES][0]
@@ -470,11 +477,14 @@ class HPCEnv(gym.Env):
             # TODO Mirar si hay un sitio mejor para hjacer esto
             self.cluster.free_resources(self.current_timestamp)
         else:
+            assert job_for_scheduling.request_number_of_processors <= node_for_scheduling.free_procs
             done = self.schedule(job_for_scheduling, node_for_scheduling)
 
         # TODO Igual por aqui habria que manejar lo de avanzar el tiempo
 
         if not done:
+            while self.shortest_job_req_procs() > self.cluster.most_free_procs():
+                self.advance_time()
             obs = self.combine_observations(self.build_observation(), self.build_nodes_observation())
             return [obs, 0, False, 0, 0, 0]
 
@@ -498,6 +508,8 @@ class HPCEnv(gym.Env):
             done = self.schedule(job_for_scheduling, node_for_scheduling)
         
         if not done:
+            while self.shortest_job_req_procs() > self.cluster.most_free_procs():
+                self.advance_time()
             obs = self.build_observation(with_mask=True)
             return [obs, 0, False, 0, 0, 0]
         
@@ -636,8 +648,7 @@ class HPCEnv(gym.Env):
     def skip_for_resources(self, job:Job, node:Node = None):
 
         assert not self.cluster.can_allocate(job, node)
-        self.cluster.free_resources(self.current_timestamp)
-
+        
         while job.request_number_of_processors > node.free_procs:
             self.current_timestamp = self.cluster.advance_to_next_time_event()      
             self.receive_jobs()

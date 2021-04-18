@@ -182,6 +182,9 @@ class HeterogeneousCluster:
                 return node
         return None
 
+    def most_free_procs(self):
+        return max([n.free_procs for n in self.all_nodes])
+
 Cluster = HeterogeneousCluster
 
 
