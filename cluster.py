@@ -9,6 +9,9 @@ class EventQueue(PriorityQueue):
     def put(self, e):
         if e not in self.queue:
             super().put(e)
+
+    def peek(self):
+        return self.queue[0]
             
 
 class Processor:
@@ -149,6 +152,9 @@ class HeterogeneousCluster:
         self.events_queue.put(job.finish_time)
         job.allocated_machines = allocated_procs
         return
+
+    def peek_next_event(self):
+        return self.events_queue.peek()
 
     def advance_to_next_time_event(self):
         next_event = self.events_queue.get()
