@@ -462,7 +462,7 @@ class HPCEnv(gym.Env):
         return vector
 
     def shortest_job_req_procs(self):
-        return min([j.request_number_of_processors for j in self.job_queue])
+        return max([j.request_number_of_processors for j in self.job_queue])
 
     def advance_time(self):
         self.current_timestamp = self.cluster.advance_to_next_time_event()
@@ -503,8 +503,9 @@ class HPCEnv(gym.Env):
 
         if not job_for_scheduling or not node_for_scheduling:
             done = self.skip_schedule()
-            self.cluster.free_resources()
+            self.cluster.free_resources(self.current_timestamp)
         else:
+            assert job_for_scheduling.request_number_of_processors <= node_for_scheduling.free_procs
             done = self.schedule(job_for_scheduling, node_for_scheduling)
         
         if not done:
