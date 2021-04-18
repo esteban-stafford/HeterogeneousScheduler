@@ -644,8 +644,7 @@ class HPCEnv(gym.Env):
         self.cluster.free_resources(self.current_timestamp)
 
         while job.request_number_of_processors > node.free_procs:
-            self.current_timestamp = self.cluster.events_queue.get()
-            self.cluster.free_resources(self.current_timestamp)        
+            self.current_timestamp = self.cluster.advance_to_next_time_event()      
             self.receive_jobs()
         # TODO Por aqui no se si habra que hacer mas cosas
     
@@ -675,9 +674,7 @@ class HPCEnv(gym.Env):
                 self.running_jobs.pop(0)  # remove the first running job.
 
     def skip_for_resources_greedy_heterog(self, job):
-        next_resource_release_time = self.cluster.events_queue.get()
-        self.current_timestamp = next_resource_release_time
-        self.cluster.free_resources(self.current_timestamp)
+        self.current_timestamp = self.cluster.advance_to_next_time_event()
         return self.cluster.next_resource(job)
 
 

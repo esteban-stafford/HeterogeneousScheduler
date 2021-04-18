@@ -149,7 +149,12 @@ class HeterogeneousCluster:
         self.events_queue.put(job.finish_time)
         job.allocated_machines = allocated_procs
         return
-        
+
+    def advance_to_next_time_event(self):
+        next_event = self.events_queue.get()
+        self.free_resources(next_event)
+        return next_event
+    
     def free_resources(self, current_time):
         for n in self.all_nodes:
             freed = n.free_resources(current_time)
