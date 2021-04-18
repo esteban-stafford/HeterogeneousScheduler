@@ -137,16 +137,18 @@ class HeterogeneousCluster:
         return any(n.free_procs >= job.request_number_of_processors for n in self.all_nodes)
         
 
-    def allocate(self, job, node=None):
+    def allocate(self, job, sch_time, node=None):
         if not node:
             node = next((n for n in self.all_nodes if n.free_procs >= job.request_number_of_processors), None)
         if not node or not self.can_allocate(job, node):
-            return []
+            return
 
+        job.scheduled_time = sch_time
         allocated_procs = node.allocate(job)
-        if allocated_procs:
-            self.events_queue.put(job.finish_time)
-        return allocated_procs
+        assert allocated_procs
+        self.events_queue.put(job.finish_time)
+        job.allocated_machines = allocated_procs
+        return
         
     def free_resources(self, current_time):
         for n in self.all_nodes:

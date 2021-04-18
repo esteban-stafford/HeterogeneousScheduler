@@ -556,8 +556,7 @@ class HPCEnv(gym.Env):
 
         assert job.scheduled_time == -1
         assert job.request_number_of_processors <= node.free_procs
-        job.scheduled_time = self.current_timestamp
-        job.allocated_machines = self.cluster.allocate(job, node)
+        self.cluster.allocate(job, self.current_timestamp, node)
         self.running_jobs.append(job)
         score = self.job_score(job)   # calculated reward
         self.scheduled_rl[job.job_id] = score
@@ -580,8 +579,7 @@ class HPCEnv(gym.Env):
                 # self.skip_for_resources_greedy(job, scheduled_logs)
             assert job.scheduled_time == -1
             assert job.request_number_of_processors <= node.free_procs
-            job.scheduled_time = self.current_timestamp
-            job.allocated_machines = self.cluster.allocate(job, node)
+            self.cluster.allocate(job, self.current_timestamp, node)
             self.running_jobs.append(job)
             score = self.job_score(job)
             scheduled_logs[job.job_id] = score
@@ -615,8 +613,7 @@ class HPCEnv(gym.Env):
                 #TODO Implement backfill y meter if
                 self.skip_for_resources_greedy(job_for_scheduling, scheduled_logs)
             assert job_for_scheduling.scheduled_time == -1
-            job_for_scheduling.scheduled_time = self.current_timestamp
-            job_for_scheduling.allocated_machines = self.cluster.allocate(job_for_scheduling)
+            self.cluster.allocate(job_for_scheduling, self.current_timestamp)
             self.running_jobs.append(job_for_scheduling)
             score = self.job_score(job_for_scheduling)
             scheduled_logs[job_for_scheduling.job_id] = score
