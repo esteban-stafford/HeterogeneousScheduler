@@ -295,8 +295,9 @@ def ppo(workload_file, platform_file, model_path, ac_kwargs=dict(), seed=0,
         min_adv = tf.where(adv_ph > 0, (1 + clip_ratio) * adv_ph, (1 - clip_ratio) * adv_ph)
         # TODO Aqui hay que hacer algo para unir los ratios #####################
         # pi_loss = -tf.reduce_mean(tf.minimum(tf.add(ratio_j, ratio_n) * adv_ph, min_adv))
-        mean_ratios = tf.reduce_mean(tf.stack([ratio_j, ratio_n]), axis=0)
-        pi_loss = -tf.reduce_mean(tf.minimum(mean_ratios * adv_ph, min_adv))
+        # mean_ratios = tf.reduce_mean(tf.stack([ratio_j, ratio_n]), axis=0)
+        pi_loss = -tf.reduce_mean(tf.minimum(ratio_j * adv_ph, min_adv))
+        n_loss = -tf.reduce_mean(tf.minimum(ratio_n * adv_ph, min_adv))
         #########################################################################
         v_loss = tf.reduce_mean((ret_ph - v) ** 2)
 
@@ -314,10 +315,12 @@ def ppo(workload_file, platform_file, model_path, ac_kwargs=dict(), seed=0,
 
         # Optimizers
         train_pi = tf.train.AdamOptimizer(learning_rate=pi_lr).minimize(pi_loss)
+        train_n = tf.train.AdamOptimizer(learning_rate=pi_lr).minimize(n_loss)
         train_v = tf.train.AdamOptimizer(learning_rate=vf_lr).minimize(v_loss)
         sess = tf.Session()
         sess.run(tf.global_variables_initializer())
         tf.add_to_collection("train_pi", train_pi)
+        td.add_to_collection("train_n", train_n)
         tf.add_to_collection("train_v", train_v)
 
 
@@ -331,7 +334,7 @@ def ppo(workload_file, platform_file, model_path, ac_kwargs=dict(), seed=0,
         }, 
         outputs = {
             'pi_j': pi_j, 'pi_n': pi_n, 'v': v, 'out_j': out_j, 'out_n': out_n, 
-            'pi_loss': pi_loss, 'logpj': logp_j, 'logpn': logp_n, 'logp_pi_j':logp_pi_j, 'logp_pi_n':logp_pi_n,
+            'pi_loss': pi_loss, 'n_loss': n_loss, 'logpj': logp_j, 'logpn': logp_n, 'logp_pi_j':logp_pi_j, 'logp_pi_n':logp_pi_n,
             'v_loss': v_loss, 'approx_ent_j':approx_ent_j, 'approx_ent_n':approx_ent_n, 
             'approx_kl_j': approx_kl_j, 'approx_kl_n': approx_kl_n, 
             'clipped_j': clipped_j, 'clipped_n': clipped_n, 
