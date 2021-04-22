@@ -320,7 +320,7 @@ def ppo(workload_file, platform_file, model_path, ac_kwargs=dict(), seed=0,
         sess = tf.Session()
         sess.run(tf.global_variables_initializer())
         tf.add_to_collection("train_pi", train_pi)
-        td.add_to_collection("train_n", train_n)
+        tf.add_to_collection("train_n", train_n)
         tf.add_to_collection("train_v", train_v)
 
 
