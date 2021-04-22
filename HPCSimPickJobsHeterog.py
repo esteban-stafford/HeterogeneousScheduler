@@ -396,6 +396,7 @@ class HPCEnv(gym.Env):
 
         for i in range(0, MAX_QUEUE_SIZE):
             vector[i*JOB_FEATURES:(i+1)*JOB_FEATURES] = self.jobs[i][1:]
+        self.build_critic_observation_heterog(vector)
         
         if with_mask:
             return vector, mask
@@ -462,6 +463,18 @@ class HPCEnv(gym.Env):
         for i in range(JOB_SEQUENCE_SIZE):
             vector[i*CRITIC_SIZE:(i+1)*CRITIC_SIZE] = jobs[i]
         return vector
+
+    def build_critic_observation_heterog(self, jobs_obs: np.ndarray) -> None:
+        nodes = np.zeros((NUM_NODES * NODE_FEATURES))
+        for i, node in enumerate(self.cluster.all_nodes):
+            normalized_proc_number = min(float(node.total_procs)/float(self.loads.max_procs), MAX_OBS_VALUE)
+            normalized_free_procs = min(float(node.free_procs)/float(node.total_procs), MAX_OBS_VALUE)
+            normalized_frec = min(float(node.frec)/float(self.cluster.max_frec), MAX_OBS_VALUE)
+            nodes[i*NODE_FEATURES:(i+1)*NODE_FEATURES] = [normalized_proc_number, normalized_free_procs, normalized_frec]
+        self.critic_obs = np.concatenate((jobs_obs.flatten(), nodes.flatten()))
+
+    def get_critic_obs(self) -> np.ndarray:
+        return self.critic_obs
 
     def shortest_job_req_procs(self):
         return max([j.request_number_of_processors for j in self.job_queue])

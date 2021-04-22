@@ -84,7 +84,8 @@ def actor_critic_jobs(x, c, a, mask, jobs_action_space=None):
     with tf.variable_scope('pi_j'):
         pi_j, logp_j, logp_pi_j, out_j = categorical_policy(x, a, mask, jobs_action_space, jobs=True)
     with tf.variable_scope('v'):
-        v = tf.squeeze(critic_combined(c, 1), axis=1)
+        v = tf.squeeze(critic_combined(c, 1), axis=-1)
+        # v = critic_combined(c, 1)
     return pi_j, logp_j, logp_pi_j, v, out_j
 
 def actor_critic_nodes(x, a, mask, nodes_action_space=None):
@@ -99,9 +100,10 @@ class PPOBuffer:
     for calculating the advantages of state-action pairs.
     """
 
-    def __init__(self, obs_dim, nobs_dim, actj_dim, actn_dim, size, gamma=0.99, lam=0.95):
+    def __init__(self, obs_dim, nobs_dim, cobs_dim, actj_dim, actn_dim, size, gamma=0.99, lam=0.95):
         self.jobs_buf = np.zeros(combined_shape(size, obs_dim), dtype=np.float32)
         self.nobs_buf = np.zeros(combined_shape(size, nobs_dim), dtype=np.float32)
+        self.cobs_buf = np.zeros(combined_shape(size, cobs_dim), dtype=np.float32)
         size = size * 100 # assume the traj can be really long
         self.actj_buf = np.zeros(combined_shape(size, actj_dim), dtype=np.float32)
         self.actn_buf = np.zeros(combined_shape(size, actn_dim), dtype=np.float32)
@@ -116,13 +118,14 @@ class PPOBuffer:
         self.gamma, self.lam = gamma, lam
         self.ptr, self.path_start_idx, self.max_size = 0, 0, size
 
-    def store(self, jobs, nobs, actj, actn, maskj, maskn, rew, val, logpj, logpn):
+    def store(self, jobs, nobs, cobs, actj, actn, maskj, maskn, rew, val, logpj, logpn):
         """
         Append one timestep of agent-environment interaction to the buffer.
         """
         assert self.ptr < self.max_size     # buffer has to have room so you can store
         self.jobs_buf[self.ptr] = jobs
         self.nobs_buf[self.ptr] = nobs
+        self.cobs_buf[self.ptr] = cobs
         self.actj_buf[self.ptr] = actj
         self.actn_buf[self.ptr] = actn
         self.maskj_buf[self.ptr] = maskj
@@ -185,7 +188,7 @@ class PPOBuffer:
         # print (actual_adv_buf)
 
         return [
-            self.jobs_buf[:actual_size], self.nobs_buf[:actual_size], 
+            self.jobs_buf[:actual_size], self.nobs_buf[:actual_size], self.cobs_buf[:actual_size],
             self.actj_buf[:actual_size], self.actn_buf[:actual_size], 
             self.maskj_buf[:actual_size], self.maskn_buf[:actual_size], 
             actual_adv_buf, self.ret_buf[:actual_size], 
@@ -218,6 +221,7 @@ def ppo(workload_file, platform_file, model_path, ac_kwargs=dict(), seed=0,
     # obs_dim = env.observation_space.shape
     jobs_dim = (MAX_QUEUE_SIZE * JOB_FEATURES,)
     nobs_dim = (NUM_NODES * TOTAL_FEATURES,)
+    cobs_dim = (MAX_QUEUE_SIZE * JOB_FEATURES + NUM_NODES * NODE_FEATURES,)
     # act_dim = env.action_space.shape
     actj_dim = env.jobs_action_space.shape
     actn_dim = env.nodes_action_space.shape
@@ -228,7 +232,7 @@ def ppo(workload_file, platform_file, model_path, ac_kwargs=dict(), seed=0,
 
     # Inputs to computation graph
 
-    buf = PPOBuffer(jobs_dim, nobs_dim, actj_dim, actn_dim, traj_per_epoch * JOB_SEQUENCE_SIZE, gamma, lam)
+    buf = PPOBuffer(jobs_dim, nobs_dim, cobs_dim, actj_dim, actn_dim, traj_per_epoch * JOB_SEQUENCE_SIZE, gamma, lam)
 
     if pre_trained:
         sess = tf.Session()
@@ -276,7 +280,7 @@ def ppo(workload_file, platform_file, model_path, ac_kwargs=dict(), seed=0,
     else:
         xj_ph = placeholder(MAX_QUEUE_SIZE * JOB_FEATURES)
         xn_ph = placeholder(NUM_NODES * TOTAL_FEATURES)
-        co_ph = placeholder(MAX_QUEUE_SIZE * JOB_FEATURES + NUM_NODES * TOTAL_FEATURES)
+        co_ph = placeholder(MAX_QUEUE_SIZE * JOB_FEATURES + NUM_NODES * NODE_FEATURES)
         aj_ph, an_ph = placeholders_from_spaces(env.jobs_action_space, env.nodes_action_space)
 
         # y_ph = placeholder(JOB_SEQUENCE_SIZE*3) # 3 is the number of sequence features
@@ -289,7 +293,7 @@ def ppo(workload_file, platform_file, model_path, ac_kwargs=dict(), seed=0,
         pi_n, logp_n, logp_pi_n, out_n = actor_critic_nodes(xn_ph, an_ph, maskn_ph, nodes_action_space)
 
         # Need all placeholders in *this* order later (to zip with data from buffer)
-        all_phs = [xj_ph, xn_ph, aj_ph, an_ph, maskj_ph, maskn_ph, adv_ph, ret_ph, logpj_old_ph, logpn_old_ph]
+        all_phs = [xj_ph, xn_ph, co_ph, aj_ph, an_ph, maskj_ph, maskn_ph, adv_ph, ret_ph, logpj_old_ph, logpn_old_ph]
 
         # Every step, get: action, value, and logprob
         get_job_action_ops = [pi_j, v, logp_pi_j, out_j]
@@ -399,7 +403,7 @@ def ppo(workload_file, platform_file, model_path, ac_kwargs=dict(), seed=0,
             '''
 
             # save and log
-            buf.store(jo, no, a_j, a_n, lstj, lstn, r, v_t, logp_t_j, logp_t_n)
+            buf.store(jo, no, co, a_j, a_n, lstj, lstn, r, v_t, logp_t_j, logp_t_n)
             logger.store(VVals=v_t)
 
             # print('ACTION:', a)
