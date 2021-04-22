@@ -104,6 +104,7 @@ class HeterogeneousNode:
     def reset(self):
         self.used_procs = 0
         self.free_procs = self.total_procs
+        self.is_free = True
         for p in self.all_procs:
             p.reset()
 
