@@ -35,6 +35,8 @@ NODE_FEATURES = 3
 
 TOTAL_FEATURES = JOB_FEATURES + NODE_FEATURES
 
+CRITIC_SIZE = 3
+
 JOB_SEQUENCE_SIZE = 256
 
 SKIP_TIME = 360 # skip 60 seconds
@@ -441,7 +443,7 @@ class HPCEnv(gym.Env):
         return vector, np.array(mask)
 
     def build_critic_observation(self) -> np.ndarray:
-        vector = np.zeros(JOB_SEQUENCE_SIZE * 3,dtype=float)
+        vector = np.zeros(JOB_SEQUENCE_SIZE * CRITIC_SIZE,dtype=float)
         earlist_job = self.loads[self.start_idx_last_reset]
         earlist_submit_time = earlist_job.submit_time
         jobs = []
@@ -458,7 +460,7 @@ class HPCEnv(gym.Env):
             jobs.append([normalized_submit_time, normalized_run_time, normalized_request_nodes])
 
         for i in range(JOB_SEQUENCE_SIZE):
-            vector[i*3:(i+1)*3] = jobs[i]
+            vector[i*CRITIC_SIZE:(i+1)*CRITIC_SIZE] = jobs[i]
         return vector
 
     def shortest_job_req_procs(self):
