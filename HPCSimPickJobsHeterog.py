@@ -50,7 +50,7 @@ RESU = 3 # Resource utilization
 SLD = 4 # Slowdown
 
 MIN_OBS_VALUE = 1e-5
-MAX_OBS_VALUE = 1.0 - 1e-5
+MAX_OBS_VALUE = 1.0 - MIN_OBS_VALUE
 
 
 
@@ -405,9 +405,9 @@ class HPCEnv(gym.Env):
         vector = np.zeros(NUM_NODES * NODE_FEATURES, dtype=float)
         self.nodes = []
         for i, node in enumerate(self.cluster.all_nodes):
-            normalized_proc_number = min(float(node.total_procs)/float(self.loads.max_procs), MIN_OBS_VALUE)
-            normalized_free_procs = min(float(node.free_procs)/float(node.total_procs), MIN_OBS_VALUE)
-            normalized_frec = min(float(node.frec)/float(self.cluster.max_frec), MIN_OBS_VALUE)
+            normalized_proc_number = min(float(node.total_procs)/float(self.loads.max_procs), MAX_OBS_VALUE)
+            normalized_free_procs = min(float(node.free_procs)/float(node.total_procs), MAX_OBS_VALUE)
+            normalized_frec = min(float(node.frec)/float(self.cluster.max_frec), MAX_OBS_VALUE)
             self.nodes.append([node, normalized_proc_number, normalized_free_procs, normalized_frec])
             vector[i*NODE_FEATURES:(i+1)*NODE_FEATURES] = self.nodes[i][1:]
         return vector
@@ -419,9 +419,9 @@ class HPCEnv(gym.Env):
         jo = self.jobs[job_idx][1:]
         self.nodes = []
         for i, node in enumerate(self.cluster.all_nodes):
-            normalized_proc_number = min(float(node.total_procs)/float(self.loads.max_procs), MIN_OBS_VALUE)
-            normalized_free_procs = min(float(node.free_procs)/float(node.total_procs), MIN_OBS_VALUE)
-            normalized_frec = min(float(node.frec)/float(self.cluster.max_frec), MIN_OBS_VALUE)
+            normalized_proc_number = min(float(node.total_procs)/float(self.loads.max_procs), MAX_OBS_VALUE)
+            normalized_free_procs = min(float(node.free_procs)/float(node.total_procs), MAX_OBS_VALUE)
+            normalized_frec = min(float(node.frec)/float(self.cluster.max_frec), MAX_OBS_VALUE)
             self.nodes.append([node, normalized_proc_number, normalized_free_procs, normalized_frec])
             vector[i*TOTAL_FEATURES:(i+1)*TOTAL_FEATURES] = jo + self.nodes[i][1:]
             mask.append(job is not None and job.request_number_of_processors <= node.free_procs)
