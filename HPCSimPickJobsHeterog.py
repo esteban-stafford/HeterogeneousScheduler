@@ -557,7 +557,7 @@ class HPCEnv(gym.Env):
         return [(None, None), rl_total, True, None]
 
     def post_process_score(self, scheduled_logs: dict):
-        if self.job_score_type in (BSLD, AVGW, AVGT):
+        if self.job_score_type in (BSLD, AVGW, AVGT, SLD):
             for k in scheduled_logs:
                 scheduled_logs[k] /= self.num_job_in_batch
             return
