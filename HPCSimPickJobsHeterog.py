@@ -561,7 +561,7 @@ class HPCEnv(gym.Env):
             for k in scheduled_logs:
                 scheduled_logs[k] /= self.num_job_in_batch
             return
-        if self.job_score_type in (RESU):
+        if self.job_score_type in (RESU,):
             total_cpu_hour = (self.current_timestamp - self.loads[self.start].submit_time)*self.loads.max_procs
             for i in scheduled_logs:
                 scheduled_logs[i] /= total_cpu_hour
