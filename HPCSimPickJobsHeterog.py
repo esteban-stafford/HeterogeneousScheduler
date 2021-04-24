@@ -581,11 +581,11 @@ class HPCEnv(gym.Env):
         return [(None, None), rl_total, True, None]
 
     def post_process_score(self, scheduled_logs: dict):
-        if self.job_score_type in (BSLD, AVGW, AVGT):
+        if self.job_score_type in (BSLD, AVGW, AVGT, SLD):
             for k in scheduled_logs:
                 scheduled_logs[k] /= self.num_job_in_batch
             return
-        if self.job_score_type in (RESU):
+        if self.job_score_type in (RESU,):
             total_cpu_hour = (self.current_timestamp - self.loads[self.start].submit_time)*self.loads.max_procs
             for i in scheduled_logs:
                 scheduled_logs[i] /= total_cpu_hour
