@@ -546,12 +546,36 @@ class HPCEnv(gym.Env):
             done = self.skip_schedule()
             self.cluster.free_resources(self.current_timestamp)
         else:
+            assert job_for_scheduling.request_number_of_processors <= node_for_scheduling.free_procs
             done = self.schedule(job_for_scheduling, node_for_scheduling)
 
         if not done:
+            while self.shortest_job_req_procs() > self.cluster.most_free_procs():
+                self.advance_time()
             obs = self.combine_observations(self.build_observation(), self.build_nodes_observation())
             return [obs, 0, False, None]
 
+        self.post_process_score(self.scheduled_rl)
+        rl_total = sum(self.scheduled_rl.values())
+        return [(None, None), rl_total, True, None]
+
+    def step_for_test_2nets(self, aj: int, an: int):
+        job_for_scheduling = self.jobs[aj][0]
+        node_for_scheduling = self.nodes[an][0]
+
+        if not job_for_scheduling or not node_for_scheduling:
+            done = self.skip_schedule()
+            self.cluster.free_resources(self.current_timestamp)
+        else:
+            assert job_for_scheduling.request_number_of_processors <= node_for_scheduling.free_procs
+            done = self.schedule(job_for_scheduling, node_for_scheduling)
+
+        if not done:
+            while self.shortest_job_req_procs() > self.cluster.most_free_procs():
+                self.advance_time()
+            obs = self.build_observation(with_mask=True)
+            return [obs, 0, False, None]
+        
         self.post_process_score(self.scheduled_rl)
         rl_total = sum(self.scheduled_rl.values())
         return [(None, None), rl_total, True, None]
@@ -591,14 +615,16 @@ class HPCEnv(gym.Env):
 
     def schedule_curr_sequence_reset_heterog(self, job_fn, node_fn) -> dict:
         scheduled_logs = {}
-        self.job_queue.sort(key=lambda j:job_fn(j))
         self.cluster.all_nodes.sort(key=lambda n:node_fn(n))
         while self.job_queue:
+            self.job_queue.sort(key=lambda j:job_fn(j))
             job = self.job_queue.pop(0)
             node = self.cluster.next_resource(job)
-            while not node or job.request_number_of_processors > node.free_procs:
+            while not node:
                 # TODO Mirar esta funcion
-                node = self.skip_for_resources_greedy_heterog(job)
+                self.advance_time()
+                node = self.cluster.next_resource(job)
+                # node = self.skip_for_resources_greedy_heterog(job)
                 # self.skip_for_resources_greedy(job, scheduled_logs)
             assert job.scheduled_time == -1
             assert job.request_number_of_processors <= node.free_procs
@@ -606,6 +632,7 @@ class HPCEnv(gym.Env):
             self.running_jobs.append(job)
             score = self.job_score(job)
             scheduled_logs[job.job_id] = score
+            # self.receive_jobs()
             self.moveforward_for_job() # TODO Esto igual hay que revisarlo
         
         self.post_process_score(scheduled_logs)
