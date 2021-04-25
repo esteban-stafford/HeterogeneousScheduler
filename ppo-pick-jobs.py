@@ -21,7 +21,7 @@ tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 deprecation._PRINT_DEPRECATION_WARNINGS = False
 
 def critic_mlp(x, act_dim):
-    x = tf.reshape(x, shape=[-1,MAX_QUEUE_SIZE*NUM_NODES, TOTAL_FEATURES])
+    x = tf.reshape(x, shape=[-1, act_dim, TOTAL_FEATURES])
     x = tf.layers.dense(x, units=32, activation=tf.nn.relu)
     x = tf.layers.dense(x, units=16, activation=tf.nn.relu)
     x = tf.layers.dense(x, units=8, activation=tf.nn.relu)
@@ -29,11 +29,11 @@ def critic_mlp(x, act_dim):
     x = tf.layers.dense(x, units=64, activation=tf.nn.relu)
     x = tf.layers.dense(x, units=32, activation=tf.nn.relu)
     x = tf.layers.dense(x, units=8, activation=tf.nn.relu)
-
-    return tf.layers.dense(x, units=act_dim)
+    x = tf.layers.dense(x, units=1)
+    return x
 
 def rl_kernel(x, act_dim):
-    x = tf.reshape(x, shape=[-1,MAX_QUEUE_SIZE*NUM_NODES, TOTAL_FEATURES])
+    x = tf.reshape(x, shape=[-1, act_dim, TOTAL_FEATURES])
     x = tf.layers.dense(x, units=32, activation=tf.nn.relu)
     x = tf.layers.dense(x, units=16, activation=tf.nn.relu)
     x = tf.layers.dense(x, units=8, activation=tf.nn.relu)
@@ -61,7 +61,7 @@ def actor_critic(x, a, mask, action_space=None, attn=False):
     with tf.variable_scope('pi'):
         pi, logp, logp_pi , out= categorical_policy(x, a, mask, action_space, attn)
     with tf.variable_scope('v'):
-        v = tf.squeeze(critic_mlp(x, 1), axis=1)
+        v = tf.squeeze(critic_mlp(x, action_space.n), axis=1)
     return pi, logp, logp_pi, v, out
 
 class PPOBuffer:
@@ -75,8 +75,8 @@ class PPOBuffer:
         self.obs_buf = np.zeros(combined_shape(size, obs_dim), dtype=np.float32)
         size = size * 100 # assume the traj can be really long
         self.cobs_buf = None
-        self.act_buf = np.zeros(combined_shape(size, act_dim), dtype=np.float32)
-        self.mask_buf = np.zeros(combined_shape(size, MAX_QUEUE_SIZE * NUM_NODES), dtype=np.float32)
+        self.act_buf = np.zeros(combined_shape(size, act_dim.shape), dtype=np.float32)
+        self.mask_buf = np.zeros(combined_shape(size, act_dim.n), dtype=np.float32)
         self.adv_buf = np.zeros(size, dtype=np.float32)
         self.rew_buf = np.zeros(size, dtype=np.float32)
         self.ret_buf = np.zeros(size, dtype=np.float32)
@@ -165,7 +165,7 @@ def ppo(workload_file, platform_file, model_path, ac_kwargs=dict(), seed=0,
         traj_per_epoch=4000, epochs=50, gamma=0.99, clip_ratio=0.2, pi_lr=3e-4,
         vf_lr=1e-3, train_pi_iters=80, train_v_iters=80, lam=0.97, max_ep_len=1000,
         target_kl=0.01, logger_kwargs=dict(), save_freq=10,pre_trained=0,trained_model=None,attn=False,shuffle=False,
-        backfil=False, skip=False, score_type=0, batch_job_slice=0):
+        backfil=False, skip=False, score_type=0, batch_job_slice=0, enable_clustering=False):
 
     logger = EpochLogger(**logger_kwargs)
     logger.save_config(locals())
@@ -173,14 +173,12 @@ def ppo(workload_file, platform_file, model_path, ac_kwargs=dict(), seed=0,
     tf.set_random_seed(seed)
     np.random.seed(seed)
 
-    env = HPCEnv(shuffle=shuffle, backfil=backfil, skip=skip, job_score_type=score_type, batch_job_slice=batch_job_slice, build_sjf=False)
+    env = HPCEnv(shuffle=shuffle, backfil=backfil, skip=skip, job_score_type=score_type, batch_job_slice=batch_job_slice, build_sjf=False, enable_clustering=enable_clustering)
     env.seed(seed)
     env.my_init(workload_file=workload_file, platform_file=platform_file, sched_file=model_path)
     
     obs_dim = env.observation_space.shape
-    # obs_dim = (MAX_QUEUE_SIZE * JOB_FEATURES,)
-    # nobs_dim = (NUM_NODES * NODE_FEATURES,)
-    act_dim = env.action_space.shape
+    act_dim = env.action_space
     
     # Share information about action space with policy architecture
     ac_kwargs['action_space'] = env.action_space
@@ -230,7 +228,7 @@ def ppo(workload_file, platform_file, model_path, ac_kwargs=dict(), seed=0,
     else:
         x_ph, a_ph = placeholders_from_spaces(env.observation_space, env.action_space)
         # y_ph = placeholder(JOB_SEQUENCE_SIZE*3) # 3 is the number of sequence features
-        mask_ph = placeholder(MAX_QUEUE_SIZE * NUM_NODES)
+        mask_ph = placeholder(env.action_space.n)
         adv_ph, ret_ph, logp_old_ph = placeholders(None, None, None)
 
         # Main outputs from computation graph
@@ -386,6 +384,7 @@ if __name__ == '__main__':
     parser.add_argument('--skip', type=int, default=0)
     parser.add_argument('--score_type', type=int, default=0)
     parser.add_argument('--batch_job_slice', type=int, default=0)
+    parser.add_argument('--enable_clustering', type=int, default=0)
     args = parser.parse_args()
 
     from spinup.utils.run_utils import setup_logger_kwargs
@@ -402,8 +401,8 @@ if __name__ == '__main__':
         ppo(workload_file, platform_file, args.model, gamma=args.gamma, seed=args.seed, traj_per_epoch=args.trajs, epochs=args.epochs,
         logger_kwargs=logger_kwargs, pre_trained=1,trained_model=os.path.join(model_file,"simple_save"),attn=args.attn,
             shuffle=args.shuffle, backfil=args.backfil, skip=args.skip, score_type=args.score_type,
-            batch_job_slice=args.batch_job_slice)
+            batch_job_slice=args.batch_job_slice, enable_clustering=args.enable_clustering)
     else:
         ppo(workload_file, platform_file, args.model, gamma=args.gamma, seed=args.seed, traj_per_epoch=args.trajs, epochs=args.epochs,
         logger_kwargs=logger_kwargs, pre_trained=0, attn=args.attn,shuffle=args.shuffle, backfil=args.backfil,
-            skip=args.skip, score_type=args.score_type, batch_job_slice=args.batch_job_slice)
+            skip=args.skip, score_type=args.score_type, batch_job_slice=args.batch_job_slice, enable_clustering=args.enable_clustering)

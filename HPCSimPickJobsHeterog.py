@@ -17,6 +17,8 @@ from gym import spaces
 from gym.spaces import Box, Discrete
 from gym.utils import seeding
 
+from sklearn.cluster import KMeans
+
 
 MAX_QUEUE_SIZE = 128
 
@@ -24,12 +26,11 @@ MAX_WAIT_TIME = 12 * 60 * 60 # assume maximal wait time is 12 hours.
 MAX_RUN_TIME = 12 * 60 * 60 # assume maximal runtime is 12 hours
 
 # each job has three features: wait_time, requested_node, runtime, machine states,
-# JOB_FEATURES = 8
 JOB_FEATURES = 4
 DEBUG = False
 
-# NUM_NODES = 1
-# NODE_FEATURES = 0
+CLUSTERING_SIZE = 20
+
 NUM_NODES = 20 
 NODE_FEATURES = 3
 
@@ -89,16 +90,9 @@ def discount_cumsum(x, discount):
 
 class HPCEnv(gym.Env):
 
-    def __init__(self,shuffle=False, backfil=False, skip=False, job_score_type=0, batch_job_slice=0, build_sjf=False):
+    def __init__(self,shuffle=False, backfil=False, skip=False, job_score_type=0, batch_job_slice=0, build_sjf=False, enable_clustering=False):
         super(HPCEnv, self).__init__()
         print("Initialize Heterog HPC Env")
-
-        self.action_space = spaces.Discrete(MAX_QUEUE_SIZE * NUM_NODES)
-        self.jobs_action_space = spaces.Discrete(MAX_QUEUE_SIZE)
-        self.nodes_action_space = spaces.Discrete(NUM_NODES)
-        self.observation_space = spaces.Box(low=0.0, high=1.0,
-                                            shape=(MAX_QUEUE_SIZE *  NUM_NODES * TOTAL_FEATURES,),
-                                            dtype=np.float32)
 
         self.job_queue = []
         self.running_jobs = []
@@ -124,16 +118,27 @@ class HPCEnv(gym.Env):
         self.enable_preworkloads = False
         self.pre_workloads = []
 
+        self.enable_clustering = enable_clustering and CLUSTERING_SIZE < NUM_NODES
+        self.NUM_NODES = CLUSTERING_SIZE if self.enable_clustering else NUM_NODES
+
         self.shuffle = shuffle
         self.backfil = backfil
         self.skip = skip
         # 0: Average bounded slowdown, 1: Average waiting time
         # 2: Average turnaround time, 3: Resource utilization
+        # 4: Slowdown
         self.job_score_type = job_score_type
         self.batch_job_slice = batch_job_slice
 
         self.build_sjf = build_sjf
         self.sjf_scores = []
+
+        self.action_space = spaces.Discrete(MAX_QUEUE_SIZE * self.NUM_NODES)
+        self.jobs_action_space = spaces.Discrete(MAX_QUEUE_SIZE)
+        self.nodes_action_space = spaces.Discrete(NUM_NODES)
+        self.observation_space = spaces.Box(low=0.0, high=1.0,
+                                            shape=(MAX_QUEUE_SIZE * self.NUM_NODES * TOTAL_FEATURES,),
+                                            dtype=np.float32)
 
     def my_init(self, workload_file='', platform_file='', sched_file=''):
         print ("Loading workloads from dataset:", workload_file)
@@ -411,6 +416,15 @@ class HPCEnv(gym.Env):
             normalized_frec = min(float(node.frec)/float(self.cluster.max_frec), MAX_OBS_VALUE)
             self.nodes.append([node, normalized_proc_number, normalized_free_procs, normalized_frec])
             vector[i*NODE_FEATURES:(i+1)*NODE_FEATURES] = self.nodes[i][1:]
+
+        if self.enable_clustering:
+            kmeans = KMeans(n_clusters=CLUSTERING_SIZE)
+            clusters = kmeans.fit_predict(vector.reshape(NUM_NODES, NODE_FEATURES))
+            self.node_clusters = {i:[] for i in range(self.NUM_NODES)}
+            for i, node in enumerate(self.nodes):
+                self.node_clusters[clusters[i]].append(node[0])
+            vector = kmeans.cluster_centers_
+
         return vector
 
     def build_nodes_observation_for_job(self, job_idx) -> tuple:
@@ -428,19 +442,21 @@ class HPCEnv(gym.Env):
             mask.append(job is not None and job.request_number_of_processors <= node.free_procs)
         return vector, np.array(mask)
 
-    def combine_observations(self, o: np.ndarray, no: np.ndarray) -> tuple:
-        o_ = o.reshape(MAX_QUEUE_SIZE, JOB_FEATURES)
-        no_ = no.reshape(NUM_NODES, NODE_FEATURES)
-        vector = np.zeros(MAX_QUEUE_SIZE *  NUM_NODES * TOTAL_FEATURES)
+    def combine_observations(self, jo: np.ndarray, no: np.ndarray) -> tuple:
+        vector = np.zeros(MAX_QUEUE_SIZE *  self.NUM_NODES * TOTAL_FEATURES)
+        jobs_obs = jo.reshape(MAX_QUEUE_SIZE, JOB_FEATURES)
+        nodes_obs = no.reshape(self.NUM_NODES, NODE_FEATURES)
         mask = []
-        for i, [job, j_] in enumerate(zip(o_,self.jobs)):
-            for j, [node, n_] in enumerate(zip(no_,self.nodes)):
-                if j_[0] is None or j_[0].request_number_of_processors > n_[0].free_procs:
-                    mask.append(0)
-                    continue
-                p = i * TOTAL_FEATURES * NUM_NODES + j * TOTAL_FEATURES
-                vector[p:p+TOTAL_FEATURES] = np.concatenate((job, node))
-                mask.append(1)
+        for i, job_obs in enumerate(jobs_obs):
+            job = self.jobs[i]
+            for j, node_obs in enumerate(nodes_obs):
+                p = i * TOTAL_FEATURES * self.NUM_NODES + j * TOTAL_FEATURES
+                vector[p:p+TOTAL_FEATURES] = np.concatenate((job_obs, node_obs))
+                if self.enable_clustering:
+                    mask.append(job[0] is not None and any(job[0].request_number_of_processors <= n.free_procs for n in self.node_clusters[j]))
+                else:
+                    node = self.nodes[j]
+                    mask.append(job[0] is not None and job[0].request_number_of_processors <= node[0].free_procs)
         return vector, np.array(mask)
 
     def build_critic_observation(self) -> np.ndarray:
@@ -483,9 +499,18 @@ class HPCEnv(gym.Env):
         self.current_timestamp = self.cluster.advance_to_next_time_event()
         self.receive_jobs()
 
+    def get_node_from_cluster(self, job, cluster):
+        for node in self.node_clusters[cluster]:
+            if node.free_procs >= job.request_number_of_processors:
+                return node
+        raise NotImplementedError
+
     def step(self, a: int) -> list:
-        job_for_scheduling = self.jobs[a//NUM_NODES][0]
-        node_for_scheduling = self.nodes[a%NUM_NODES][0]
+        job_for_scheduling = self.jobs[a//self.NUM_NODES][0]
+        if self.enable_clustering:
+            node_for_scheduling = self.get_node_from_cluster(job_for_scheduling, a%self.NUM_NODES)
+        else:
+            node_for_scheduling = self.nodes[a%self.NUM_NODES][0]
 
         if not job_for_scheduling or not node_for_scheduling:
             done = self.skip_schedule()
@@ -539,8 +564,11 @@ class HPCEnv(gym.Env):
         return [(None, None), rwd, True, rwd2, sjf, f1]
 
     def step_for_test(self, a):
-        job_for_scheduling = self.jobs[a//NUM_NODES][0]
-        node_for_scheduling = self.nodes[a%NUM_NODES][0]
+        job_for_scheduling = self.jobs[a//self.NUM_NODES][0]
+        if self.enable_clustering:
+            node_for_scheduling = self.get_node_from_cluster(job_for_scheduling, a%self.NUM_NODES)
+        else:
+            node_for_scheduling = self.nodes[a%self.NUM_NODES][0]
 
         if not job_for_scheduling or not node_for_scheduling:
             done = self.skip_schedule()
