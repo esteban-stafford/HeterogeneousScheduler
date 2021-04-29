@@ -40,42 +40,53 @@ def load_policy(model_path, itr='last'):
     model = restore_tf_graph(sess, osp.join(model_path, 'tf1_save'+itr))
 
     # get the correct op for executing actions
-    pi = model['pi']
+    pi_j = model['pi_j']
+    pi_n = model['pi_n']
     v = model['v']
-    out = model['out']
-    get_out = lambda x ,y  : sess.run(out, feed_dict={model['x']: x.reshape(-1, MAX_QUEUE_SIZE * JOB_FEATURES), model['mask']:y.reshape(-1, MAX_QUEUE_SIZE)})
+    out_j = model['out_j']
+    out_n = model['out_n']
+    # get_out = lambda x ,y  : sess.run(out, feed_dict={model['x']: x.reshape(-1, MAX_QUEUE_SIZE * JOB_FEATURES), model['mask']:y.reshape(-1, MAX_QUEUE_SIZE)})
     # make function for producing an action given a single state
-    get_probs = lambda x ,y  : sess.run(pi, feed_dict={model['x']: x.reshape(-1, MAX_QUEUE_SIZE * NUM_NODES * TOTAL_FEATURES), model['mask']:y.reshape(-1, MAX_QUEUE_SIZE*NUM_NODES)})
-    get_v = lambda x : sess.run(v, feed_dict={model['x']: x.reshape(-1, MAX_QUEUE_SIZE * JOB_FEATURES)})
-    return get_probs, get_out
+    get_jobs = lambda x ,y  : sess.run(pi_j, feed_dict={model['xj']: x.reshape(-1, MAX_QUEUE_SIZE * JOB_FEATURES), model['maskj']:y.reshape(-1, MAX_QUEUE_SIZE)})
+    get_nodes = lambda x ,y  : sess.run(pi_n, feed_dict={model['xn']: x.reshape(-1, NUM_NODES * TOTAL_FEATURES), model['maskn']:y.reshape(-1, NUM_NODES)})
+    # get_v = lambda x : sess.run(v, feed_dict={model['x']: x.reshape(-1, MAX_QUEUE_SIZE * JOB_FEATURES)})
+    # return get_probs, get_out
+    return get_jobs, get_nodes
 
 
 #@profile
-def run_policy(env, get_probs, get_out, nums, iters, score_type):
+def run_policy(env, get_jobs, get_nodes, nums, iters, score_type):
 
     rl_r = []
     results = defaultdict(list)
 
     for iter_num in range(0, iters):
         start = iter_num *args.len
-        env.reset_for_test(nums,start)
+        env.reset_for_test(nums,start) # TODO
         for k1, js in env.JOB_SCORES().items():
             for k2, ns in env.NODE_SCORES().items():
                 results[(k1,k2)].append(sum(env.schedule_curr_sequence_reset_heterog(js, ns).values()))
 
-        [o, lst] = env.combine_observations(env.build_observation(), env.build_nodes_observation())
+        jo, lstj = env.build_observation(with_mask=True)
         print ("schedule: ", end="")
         rl = 0
         total_decisions = 0
         rl_decisions = 0
         while True:
             total_decisions += 1
-            pi = get_probs(o, np.array(lst))
-            a = pi[0]
+            
+            pi_j = get_jobs(jo, lstj)
+            a_j = pi_j[0]
+            
+            no, lstn = env.build_nodes_observation_for_job(a_j)
+            
+            pi_n = get_nodes(no, lstn)
+            a_n = pi_n[0]
+
             rl_decisions += 1
 
             # print (str(a)+"("+str(count)+")", end="|")
-            [o, lst], r, d, _ = env.step_for_test(a)
+            [o, lstj], r, d, _ = env.step_for_test_2nets(a_j, a_n)
             rl += r
             if d:
                 print("Sequence Length:",total_decisions)
@@ -124,18 +135,18 @@ def run_policy(env, get_probs, get_out, nums, iters, score_type):
     plt.tick_params(axis='both', which='major', labelsize=20)
     plt.tick_params(axis='both', which='minor', labelsize=20)
 
-    plt.savefig('data/graphics/fig_1net_128j_20n_200e_20t_v2.png')
+    plt.savefig('data/graphics2/fig_2nets_2opt_fix_min_value4.png')
 
 if __name__ == '__main__':
     import argparse
     import time
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--rlmodel', type=str, default="./data/logs/1net_128j_20n_200e_20t_v2/1net_128j_20n_200e_20t_v2_s1804")
+    parser.add_argument('--rlmodel', type=str, default="./data/logs/2nets_2opt_fix_min_value/2nets_2opt_fix_min_value_s1804")
     parser.add_argument('--workload', type=str, default='./data/lublin_256.swf')
     parser.add_argument('--platform', type=str, default='./data/cluster_x4_64procs.json')
-    parser.add_argument('--len', '-l', type=int, default=1024)
-    parser.add_argument('--seed', '-s', type=int, default=1)
+    parser.add_argument('--len', '-l', type=int, default=2048)
+    parser.add_argument('--seed', '-s', type=int, default=1234)
     parser.add_argument('--iter', '-i', type=int, default=10)
     parser.add_argument('--shuffle', type=int, default=0)
     parser.add_argument('--backfil', type=int, default=0)
@@ -150,7 +161,7 @@ if __name__ == '__main__':
     platform_file = os.path.join(current_dir, args.platform)
     model_file = os.path.join(current_dir, args.rlmodel)
 
-    get_probs, get_value = load_policy(model_file, 'last') 
+    get_jobs, get_nodes = load_policy(model_file, 'last') 
     
     # initialize the environment from scratch
     env = HPCEnv(shuffle=args.shuffle, backfil=args.backfil, skip=args.skip, job_score_type=args.score_type,
@@ -159,5 +170,5 @@ if __name__ == '__main__':
     env.seed(args.seed)
 
     start = time.time()
-    run_policy(env, get_probs, get_value, args.len, args.iter, args.score_type)
+    run_policy(env, get_jobs, get_nodes, args.len, args.iter, args.score_type)
     print("elapse: {}".format(time.time()-start))

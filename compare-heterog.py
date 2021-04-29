@@ -45,7 +45,7 @@ def load_policy(model_path, itr='last'):
     out = model['out']
     get_out = lambda x ,y  : sess.run(out, feed_dict={model['x']: x.reshape(-1, MAX_QUEUE_SIZE * JOB_FEATURES), model['mask']:y.reshape(-1, MAX_QUEUE_SIZE)})
     # make function for producing an action given a single state
-    get_probs = lambda x ,y  : sess.run(pi, feed_dict={model['x']: x.reshape(-1, MAX_QUEUE_SIZE * NUM_NODES * TOTAL_FEATURES), model['mask']:y.reshape(-1, MAX_QUEUE_SIZE*NUM_NODES)})
+    get_probs = lambda x ,y  : sess.run(pi, feed_dict={model['x']: x.reshape(-1, MAX_QUEUE_SIZE * env.NUM_NODES * TOTAL_FEATURES), model['mask']:y.reshape(-1, MAX_QUEUE_SIZE*env.NUM_NODES)})
     get_v = lambda x : sess.run(v, feed_dict={model['x']: x.reshape(-1, MAX_QUEUE_SIZE * JOB_FEATURES)})
     return get_probs, get_out
 
@@ -80,6 +80,7 @@ def run_policy(env, get_probs, get_out, nums, iters, score_type):
             if d:
                 print("Sequence Length:",total_decisions)
                 break
+        print(f'RL res: {rl}')
         rl_r.append(rl)
         print ("")
 
@@ -105,14 +106,16 @@ def run_policy(env, get_probs, get_out, nums, iters, score_type):
     xticklabels = [f'{k1}_{k2}' for k1 in env.JOB_SCORES() for k2 in env.NODE_SCORES()] + ['rl']
     plt.setp(axes, xticks=[y + 1 for y in range(len(all_data))],
              xticklabels=xticklabels)
-    if score_type == 0:
+    if score_type == BSLD:
         plt.ylabel("Average bounded slowdown")
-    elif score_type == 1:
+    elif score_type == AVGW:
         plt.ylabel("Average waiting time")
-    elif score_type == 2:
+    elif score_type == AVGT:
         plt.ylabel("Average turnaround time")
-    elif score_type == 3:
+    elif score_type == RESU:
         plt.ylabel("Resource utilization")
+    elif score_type == SLD:
+        plt.ylabel("Slowdown")
     else:
         raise NotImplementedError
 
@@ -123,24 +126,25 @@ def run_policy(env, get_probs, get_out, nums, iters, score_type):
     plt.tick_params(axis='both', which='major', labelsize=20)
     plt.tick_params(axis='both', which='minor', labelsize=20)
 
-    plt.savefig('data/graphics/fig_128j_3000.png')
+    plt.savefig('data/graphics/fig_1net_BSLD_x200_clustering.png')
 
 if __name__ == '__main__':
     import argparse
     import time
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--rlmodel', type=str, default="./data/logs/heter_128j_3000/heter_128j_3000_s2404")
+    parser.add_argument('--rlmodel', type=str, default="./data/logs/1net_BSLD_x200_clustering/1net_BSLD_x200_clustering_s1804")
     parser.add_argument('--workload', type=str, default='./data/lublin_256.swf')
     parser.add_argument('--platform', type=str, default='./data/cluster_x4_64procs.json')
-    parser.add_argument('--len', '-l', type=int, default=1024)
-    parser.add_argument('--seed', '-s', type=int, default=1)
-    parser.add_argument('--iter', '-i', type=int, default=10)
+    parser.add_argument('--len', '-l', type=int, default=2049)
+    parser.add_argument('--seed', '-s', type=int, default=1234)
+    parser.add_argument('--iter', '-i', type=int, default=20)
     parser.add_argument('--shuffle', type=int, default=0)
     parser.add_argument('--backfil', type=int, default=0)
     parser.add_argument('--skip', type=int, default=0)
     parser.add_argument('--score_type', type=int, default=0)
     parser.add_argument('--batch_job_slice', type=int, default=0)
+    parser.add_argument('--enable_clustering', type=int, default=0)
 
     args = parser.parse_args()
 
@@ -153,7 +157,7 @@ if __name__ == '__main__':
     
     # initialize the environment from scratch
     env = HPCEnv(shuffle=args.shuffle, backfil=args.backfil, skip=args.skip, job_score_type=args.score_type,
-                 batch_job_slice=args.batch_job_slice, build_sjf=False)
+                 batch_job_slice=args.batch_job_slice, build_sjf=False, enable_clustering=args.enable_clustering)
     env.my_init(workload_file=workload_file, platform_file=platform_file)
     env.seed(args.seed)
 
