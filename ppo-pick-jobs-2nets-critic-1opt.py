@@ -365,11 +365,11 @@ def ppo(workload_file, platform_file, model_path, ac_kwargs=dict(), seed=0,
 
     def update():
         inputs = {k:v for k,v in zip(all_phs, buf.get())}
-        pi_l_old, n_l_old, v_l_old, entj, entn = sess.run([pi_loss, v_loss, approx_ent_j, approx_ent_n], feed_dict=inputs)
+        pi_l_old, v_l_old, entj, entn = sess.run([pi_loss, v_loss, approx_ent_j, approx_ent_n], feed_dict=inputs)
 
         # Training
         for i in range(train_pi_iters):
-            _, _, klj, kln = sess.run([train_pi, approx_kl_j, approx_kl_n], feed_dict=inputs)
+            _, klj, kln = sess.run([train_pi, approx_kl_j, approx_kl_n], feed_dict=inputs)
             klj = mpi_avg(klj)
             if klj > 1.5 * target_kl:
                 logger.log('Early stopping at step %d due to reaching max kl.'%i)
@@ -379,8 +379,8 @@ def ppo(workload_file, platform_file, model_path, ac_kwargs=dict(), seed=0,
             sess.run(train_v, feed_dict=inputs)
 
         # Log changes from update
-        pi_l_new, n_l_new, v_l_new, klj, kln, cfj, cfn = sess.run([pi_loss, v_loss, approx_kl_j, approx_kl_n, clipfrac_j, clipfrac_n], feed_dict=inputs)
-        logger.store(LossPi=pi_l_old, LossN=n_l_old, LossV=v_l_old,
+        pi_l_new, v_l_new, klj, kln, cfj, cfn = sess.run([pi_loss, v_loss, approx_kl_j, approx_kl_n, clipfrac_j, clipfrac_n], feed_dict=inputs)
+        logger.store(LossPi=pi_l_old, LossV=v_l_old,
                      KLj=klj, KLn=kln, EntropyJ=entj, EntropyN=entn, 
                      ClipFracJ=cfj, ClipFracN=cfn,
                      DeltaLossPi=(pi_l_new - pi_l_old),
@@ -447,7 +447,6 @@ def ppo(workload_file, platform_file, model_path, ac_kwargs=dict(), seed=0,
         logger.log_tabular('VVals', with_min_and_max=True)
         logger.log_tabular('TotalEnvInteracts', (epoch+1)* traj_per_epoch * JOB_SEQUENCE_SIZE)
         logger.log_tabular('LossPi', average_only=True)
-        logger.log_tabular('LossN', average_only=True)
         logger.log_tabular('LossV', average_only=True)
         logger.log_tabular('DeltaLossPi', average_only=True)
         logger.log_tabular('DeltaLossV', average_only=True)
