@@ -1,0 +1,48 @@
+{
+    "ac_kwargs":	{},
+    "attn":	0,
+    "backfil":	0,
+    "batch_job_slice":	0,
+    "clip_ratio":	0.2,
+    "epochs":	150,
+    "exp_name":	"1opt_mean",
+    "gamma":	1,
+    "join_loss_type":	0,
+    "lam":	0.97,
+    "logger":	{
+        "<spinup.utils.logx.EpochLogger object at 0x7fd877f8f898>":	{
+            "epoch_dict":	{},
+            "exp_name":	"1opt_mean",
+            "first_row":	true,
+            "log_current_row":	{},
+            "log_headers":	[],
+            "output_dir":	"/home/hdeeprm/HeterogeneousScheduler/./data/logs/1opt_mean/1opt_mean_s1804",
+            "output_file":	{
+                "<_io.TextIOWrapper name='/home/hdeeprm/HeterogeneousScheduler/./data/logs/1opt_mean/1opt_mean_s1804/progress.txt' mode='w' encoding='ANSI_X3.4-1968'>":	{
+                    "mode":	"w"
+                }
+            }
+        }
+    },
+    "logger_kwargs":	{
+        "exp_name":	"1opt_mean",
+        "output_dir":	"/home/hdeeprm/HeterogeneousScheduler/./data/logs/1opt_mean/1opt_mean_s1804"
+    },
+    "max_ep_len":	1000,
+    "model_path":	"./data/cluster_x1248.json",
+    "pi_lr":	0.0003,
+    "platform_file":	"/home/hdeeprm/HeterogeneousScheduler/./data/cluster_x4_64procs.json",
+    "pre_trained":	0,
+    "save_freq":	10,
+    "score_type":	0,
+    "seed":	1804,
+    "shuffle":	0,
+    "skip":	0,
+    "target_kl":	0.01,
+    "train_pi_iters":	80,
+    "train_v_iters":	80,
+    "trained_model":	null,
+    "traj_per_epoch":	100,
+    "vf_lr":	0.001,
+    "workload_file":	"/home/hdeeprm/HeterogeneousScheduler/./data/lublin_256.swf"
+}
