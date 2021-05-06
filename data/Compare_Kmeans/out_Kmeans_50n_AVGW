@@ -1,0 +1,2898 @@
+[comp003:431938] mca_base_component_repository_open: unable to open mca_oob_ud: libosmcomp.so.3: cannot open shared object file: No such file or directory (ignored)
+[comp003:431938] pmix_mca_base_component_repository_open: unable to open mca_pnet_opa: libpsm2.so.2: cannot open shared object file: No such file or directory (ignored)
+[comp003:431856] pmix_mca_base_component_repository_open: unable to open mca_pnet_opa: libpsm2.so.2: cannot open shared object file: No such file or directory (ignored)
+[comp003:431856] mca_base_component_repository_open: unable to open mca_oob_ud: libosmcomp.so.3: cannot open shared object file: No such file or directory (ignored)
+[comp003:431856] mca_base_component_repository_open: unable to open mca_btl_openib: librdmacm.so.1: cannot open shared object file: No such file or directory (ignored)
+[comp003:431856] mca_base_component_repository_open: unable to open mca_mtl_psm: libpsm_infinipath.so.1: cannot open shared object file: No such file or directory (ignored)
+[comp003:431856] mca_base_component_repository_open: unable to open mca_mtl_psm2: libpsm2.so.2: cannot open shared object file: No such file or directory (ignored)
+2021-05-05 21:30:29.877018: I tensorflow/core/platform/cpu_feature_guard.cc:142] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2 AVX512F FMA
+2021-05-05 21:30:29.887758: I tensorflow/core/platform/profile_utils/cpu_utils.cc:94] CPU Frequency: 2200000000 Hz
+2021-05-05 21:30:29.892650: I tensorflow/compiler/xla/service/service.cc:168] XLA service 0x7b4ead0 executing computations on platform Host. Devices:
+2021-05-05 21:30:29.892701: I tensorflow/compiler/xla/service/service.cc:175]   StreamExecutor device (0): <undefined>, <undefined>
+2021-05-05 21:30:30.013639: W tensorflow/compiler/jit/mark_for_compilation_pass.cc:1412] (One-time warning): Not using XLA:CPU for cluster because envvar TF_XLA_FLAGS=--tf_xla_cpu_global_jit was not set.  If you want XLA:CPU, either set that envvar, or use experimental_jit_scope to enable XLA:CPU.  To confirm that XLA is active, pass --vmodule=xla_compilation_cache=1 (as a proper command-line flag, not via TF_XLA_FLAGS) or set the envvar XLA_FLAGS=--xla_hlo_profile.
+[32;1mLogging data to /home/hdeeprm/HeterogeneousScheduler/./data/logs/Kmeans_50n_AVGW/Kmeans_50n_AVGW_s505/progress.txt[0m
+[36;1mSaving config:
+[0m
+{
+    "ac_kwargs":	{},
+    "attn":	0,
+    "backfil":	0,
+    "batch_job_slice":	0,
+    "clip_ratio":	0.2,
+    "enable_clustering":	1,
+    "epochs":	100,
+    "exp_name":	"Kmeans_50n_AVGW",
+    "gamma":	1,
+    "lam":	0.97,
+    "logger":	{
+        "<spinup.utils.logx.EpochLogger object at 0x7f6387fdbe48>":	{
+            "epoch_dict":	{},
+            "exp_name":	"Kmeans_50n_AVGW",
+            "first_row":	true,
+            "log_current_row":	{},
+            "log_headers":	[],
+            "output_dir":	"/home/hdeeprm/HeterogeneousScheduler/./data/logs/Kmeans_50n_AVGW/Kmeans_50n_AVGW_s505",
+            "output_file":	{
+                "<_io.TextIOWrapper name='/home/hdeeprm/HeterogeneousScheduler/./data/logs/Kmeans_50n_AVGW/Kmeans_50n_AVGW_s505/progress.txt' mode='w' encoding='ANSI_X3.4-1968'>":	{
+                    "mode":	"w"
+                }
+            }
+        }
+    },
+    "logger_kwargs":	{
+        "exp_name":	"Kmeans_50n_AVGW",
+        "output_dir":	"/home/hdeeprm/HeterogeneousScheduler/./data/logs/Kmeans_50n_AVGW/Kmeans_50n_AVGW_s505"
+    },
+    "max_ep_len":	1000,
+    "model_path":	"./data/lublin_256.schd",
+    "pi_lr":	0.0003,
+    "platform_file":	"/home/hdeeprm/HeterogeneousScheduler/./data/cluster_50nodes.json",
+    "pre_trained":	0,
+    "save_freq":	10,
+    "score_type":	1,
+    "seed":	505,
+    "shuffle":	0,
+    "skip":	0,
+    "target_kl":	0.01,
+    "train_pi_iters":	80,
+    "train_v_iters":	80,
+    "trained_model":	null,
+    "traj_per_epoch":	20,
+    "vf_lr":	0.001,
+    "workload_file":	"/home/hdeeprm/HeterogeneousScheduler/./data/lublin_256.swf"
+}
+Initialize Heterog HPC Env
+Loading workloads from dataset: /home/hdeeprm/HeterogeneousScheduler/./data/lublin_256.swf
+Max Allocated Processors: 64 ;max node: 64 ;max procs: 64 ;max execution time: 124707
+[32;1m
+Number of parameters: 	 pi: 929, 	 v: 167186
+[0m
+---------------------------------------
+|             Epoch |               0 |
+|      AverageEpRet |           -7.19 |
+|          StdEpRet |            30.3 |
+|          MaxEpRet |               0 |
+|          MinEpRet |            -139 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |          -0.486 |
+|          StdVVals |           0.037 |
+|          MaxVVals |          -0.372 |
+|          MinVVals |          -0.629 |
+| TotalEnvInteracts |        5.12e+03 |
+|            LossPi |       -2.61e-09 |
+|             LossV |             963 |
+|       DeltaLossPi |        -0.00092 |
+|        DeltaLossV |           -56.3 |
+|           Entropy |             2.5 |
+|                KL |        0.000886 |
+|          ClipFrac |               0 |
+|          StopIter |              79 |
+|           ShowRet |           -7.19 |
+|               SJF |               0 |
+|                F1 |               0 |
+|              Time |             707 |
+---------------------------------------
+---------------------------------------
+|             Epoch |               1 |
+|      AverageEpRet |           -2.01 |
+|          StdEpRet |            5.24 |
+|          MaxEpRet |               0 |
+|          MinEpRet |             -21 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -7.15 |
+|          StdVVals |            2.11 |
+|          MaxVVals |          0.0628 |
+|          MinVVals |             -14 |
+| TotalEnvInteracts |        1.02e+04 |
+|            LossPi |               0 |
+|             LossV |            57.4 |
+|       DeltaLossPi |        -0.00317 |
+|        DeltaLossV |           -31.3 |
+|           Entropy |            2.48 |
+|                KL |         0.00311 |
+|          ClipFrac |          0.0229 |
+|          StopIter |              79 |
+|           ShowRet |           -2.01 |
+|               SJF |               0 |
+|                F1 |               0 |
+|              Time |        1.43e+03 |
+---------------------------------------
+---------------------------------------
+|             Epoch |               2 |
+|      AverageEpRet |           -1.18 |
+|          StdEpRet |            5.09 |
+|          MaxEpRet |               0 |
+|          MinEpRet |           -23.4 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -2.06 |
+|          StdVVals |            1.11 |
+|          MaxVVals |          -0.249 |
+|          MinVVals |           -6.78 |
+| TotalEnvInteracts |        1.54e+04 |
+|            LossPi |        1.58e-08 |
+|             LossV |            26.8 |
+|       DeltaLossPi |        -0.00348 |
+|        DeltaLossV |           -7.01 |
+|           Entropy |            2.48 |
+|                KL |         0.00589 |
+|          ClipFrac |          0.0412 |
+|          StopIter |              79 |
+|           ShowRet |           -1.18 |
+|               SJF |               0 |
+|                F1 |               0 |
+|              Time |        2.15e+03 |
+---------------------------------------
+---------------------------------------
+|             Epoch |               3 |
+|      AverageEpRet |           -16.8 |
+|          StdEpRet |            63.5 |
+|          MaxEpRet |               0 |
+|          MinEpRet |            -291 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -1.27 |
+|          StdVVals |            2.04 |
+|          MaxVVals |            6.41 |
+|          MinVVals |           -12.4 |
+| TotalEnvInteracts |        2.05e+04 |
+|            LossPi |       -2.66e-08 |
+|             LossV |        4.26e+03 |
+|       DeltaLossPi |        -0.00169 |
+|        DeltaLossV |        -1.9e+03 |
+|           Entropy |            2.49 |
+|                KL |         0.00562 |
+|          ClipFrac |               0 |
+|          StopIter |              79 |
+|           ShowRet |           -9.94 |
+|               SJF |            6.89 |
+|                F1 |            6.89 |
+|              Time |        2.89e+03 |
+---------------------------------------
+---------------------------------------
+|             Epoch |               4 |
+|      AverageEpRet |           -10.2 |
+|          StdEpRet |              28 |
+|          MaxEpRet |               0 |
+|          MinEpRet |            -120 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -14.5 |
+|          StdVVals |            29.9 |
+|          MaxVVals |             105 |
+|          MinVVals |            -293 |
+| TotalEnvInteracts |        2.56e+04 |
+|            LossPi |         8.2e-09 |
+|             LossV |         1.6e+03 |
+|       DeltaLossPi |        -0.00366 |
+|        DeltaLossV |            -966 |
+|           Entropy |            2.46 |
+|                KL |         0.00495 |
+|          ClipFrac |          0.0219 |
+|          StopIter |              79 |
+|           ShowRet |           -10.2 |
+|               SJF |               0 |
+|                F1 |               0 |
+|              Time |        3.59e+03 |
+---------------------------------------
+---------------------------------------
+|             Epoch |               5 |
+|      AverageEpRet |           -42.2 |
+|          StdEpRet |             102 |
+|          MaxEpRet |               0 |
+|          MinEpRet |            -388 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -11.4 |
+|          StdVVals |            14.7 |
+|          MaxVVals |            25.3 |
+|          MinVVals |            -235 |
+| TotalEnvInteracts |        3.07e+04 |
+|            LossPi |        3.15e-08 |
+|             LossV |         1.1e+04 |
+|       DeltaLossPi |        -0.00311 |
+|        DeltaLossV |       -2.99e+03 |
+|           Entropy |            2.48 |
+|                KL |         0.00255 |
+|          ClipFrac |         0.00645 |
+|          StopIter |              79 |
+|           ShowRet |           -28.4 |
+|               SJF |            13.8 |
+|                F1 |            13.8 |
+|              Time |         4.3e+03 |
+---------------------------------------
+---------------------------------------
+|             Epoch |               6 |
+|      AverageEpRet |           -24.6 |
+|          StdEpRet |            73.7 |
+|          MaxEpRet |               0 |
+|          MinEpRet |            -326 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |             -43 |
+|          StdVVals |            40.1 |
+|          MaxVVals |            84.8 |
+|          MinVVals |            -446 |
+| TotalEnvInteracts |        3.58e+04 |
+|            LossPi |        2.98e-09 |
+|             LossV |        6.19e+03 |
+|       DeltaLossPi |         -0.0034 |
+|        DeltaLossV |        -2.4e+03 |
+|           Entropy |            2.47 |
+|                KL |         0.00348 |
+|          ClipFrac |          0.0264 |
+|          StopIter |              79 |
+|           ShowRet |           -10.8 |
+|               SJF |            13.8 |
+|                F1 |            13.8 |
+|              Time |        5.01e+03 |
+---------------------------------------
+---------------------------------------
+|             Epoch |               7 |
+|      AverageEpRet |           -4.69 |
+|          StdEpRet |            14.9 |
+|          MaxEpRet |               0 |
+|          MinEpRet |           -64.2 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -24.2 |
+|          StdVVals |            28.5 |
+|          MaxVVals |             135 |
+|          MinVVals |            -358 |
+| TotalEnvInteracts |         4.1e+04 |
+|            LossPi |        5.96e-09 |
+|             LossV |        1.36e+03 |
+|       DeltaLossPi |        -0.00365 |
+|        DeltaLossV |       -1.15e+03 |
+|           Entropy |            2.48 |
+|                KL |         0.00413 |
+|          ClipFrac |          0.0041 |
+|          StopIter |              79 |
+|           ShowRet |           -4.69 |
+|               SJF |               0 |
+|                F1 |               0 |
+|              Time |        5.73e+03 |
+---------------------------------------
+---------------------------------------
+|             Epoch |               8 |
+|      AverageEpRet |           -44.6 |
+|          StdEpRet |            91.8 |
+|          MaxEpRet |               0 |
+|          MinEpRet |            -275 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -5.01 |
+|          StdVVals |            8.94 |
+|          MaxVVals |            75.9 |
+|          MinVVals |            -139 |
+| TotalEnvInteracts |        4.61e+04 |
+|            LossPi |       -7.17e-09 |
+|             LossV |        9.71e+03 |
+|       DeltaLossPi |        -0.00358 |
+|        DeltaLossV |       -2.73e+03 |
+|           Entropy |             2.5 |
+|                KL |         0.00893 |
+|          ClipFrac |          0.0535 |
+|          StopIter |              79 |
+|           ShowRet |           -33.9 |
+|               SJF |            10.7 |
+|                F1 |            10.7 |
+|              Time |        6.44e+03 |
+---------------------------------------
+---------------------------------------
+|             Epoch |               9 |
+|      AverageEpRet |           -12.8 |
+|          StdEpRet |            47.9 |
+|          MaxEpRet |               0 |
+|          MinEpRet |            -220 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |             -42 |
+|          StdVVals |            21.9 |
+|          MaxVVals |              25 |
+|          MinVVals |            -362 |
+| TotalEnvInteracts |        5.12e+04 |
+|            LossPi |       -3.35e-09 |
+|             LossV |        3.26e+03 |
+|       DeltaLossPi |        -0.00182 |
+|        DeltaLossV |       -1.22e+03 |
+|           Entropy |            2.46 |
+|                KL |         0.00175 |
+|          ClipFrac |         0.00859 |
+|          StopIter |              79 |
+|           ShowRet |           -12.8 |
+|               SJF |               0 |
+|                F1 |               0 |
+|              Time |        7.18e+03 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              10 |
+|      AverageEpRet |           -52.2 |
+|          StdEpRet |             118 |
+|          MaxEpRet |               0 |
+|          MinEpRet |            -432 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -14.5 |
+|          StdVVals |            24.2 |
+|          MaxVVals |            41.6 |
+|          MinVVals |            -312 |
+| TotalEnvInteracts |        5.63e+04 |
+|            LossPi |        1.86e-09 |
+|             LossV |        1.44e+04 |
+|       DeltaLossPi |        -0.00319 |
+|        DeltaLossV |       -3.17e+03 |
+|           Entropy |            2.48 |
+|                KL |         0.00353 |
+|          ClipFrac |           0.034 |
+|          StopIter |              79 |
+|           ShowRet |           -41.3 |
+|               SJF |            10.9 |
+|                F1 |            10.9 |
+|              Time |        7.89e+03 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              11 |
+|      AverageEpRet |           -9.33 |
+|          StdEpRet |            32.9 |
+|          MaxEpRet |               0 |
+|          MinEpRet |            -148 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -51.4 |
+|          StdVVals |            29.2 |
+|          MaxVVals |             166 |
+|          MinVVals |            -402 |
+| TotalEnvInteracts |        6.14e+04 |
+|            LossPi |        -1.1e-08 |
+|             LossV |        3.43e+03 |
+|       DeltaLossPi |        -0.00428 |
+|        DeltaLossV |       -2.45e+03 |
+|           Entropy |            2.48 |
+|                KL |         0.00462 |
+|          ClipFrac |          0.0232 |
+|          StopIter |              79 |
+|           ShowRet |           -9.33 |
+|               SJF |               0 |
+|                F1 |               0 |
+|              Time |        8.59e+03 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              12 |
+|      AverageEpRet |           -42.3 |
+|          StdEpRet |             112 |
+|          MaxEpRet |               0 |
+|          MinEpRet |            -436 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |            -9.4 |
+|          StdVVals |            18.5 |
+|          MaxVVals |            27.8 |
+|          MinVVals |            -249 |
+| TotalEnvInteracts |        6.66e+04 |
+|            LossPi |        1.51e-08 |
+|             LossV |        1.27e+04 |
+|       DeltaLossPi |        -0.00227 |
+|        DeltaLossV |       -2.31e+03 |
+|           Entropy |            2.48 |
+|                KL |         0.00306 |
+|          ClipFrac |          0.0105 |
+|          StopIter |              79 |
+|           ShowRet |           -35.4 |
+|               SJF |            6.89 |
+|                F1 |            6.89 |
+|              Time |         9.3e+03 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              13 |
+|      AverageEpRet |           -1.89 |
+|          StdEpRet |            4.22 |
+|          MaxEpRet |               0 |
+|          MinEpRet |           -13.7 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -39.7 |
+|          StdVVals |            20.6 |
+|          MaxVVals |            2.96 |
+|          MinVVals |            -527 |
+| TotalEnvInteracts |        7.17e+04 |
+|            LossPi |        5.96e-09 |
+|             LossV |        1.86e+03 |
+|       DeltaLossPi |        -0.00498 |
+|        DeltaLossV |       -1.84e+03 |
+|           Entropy |            2.47 |
+|                KL |         0.00695 |
+|          ClipFrac |          0.0299 |
+|          StopIter |              79 |
+|           ShowRet |           -1.89 |
+|               SJF |               0 |
+|                F1 |               0 |
+|              Time |           1e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              14 |
+|      AverageEpRet |           -13.3 |
+|          StdEpRet |            39.6 |
+|          MaxEpRet |               0 |
+|          MinEpRet |            -140 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -2.54 |
+|          StdVVals |            4.69 |
+|          MaxVVals |            13.1 |
+|          MinVVals |            -110 |
+| TotalEnvInteracts |        7.68e+04 |
+|            LossPi |        -5.4e-09 |
+|             LossV |        1.64e+03 |
+|       DeltaLossPi |        -0.00779 |
+|        DeltaLossV |            -137 |
+|           Entropy |            2.46 |
+|                KL |         0.00584 |
+|          ClipFrac |            0.12 |
+|          StopIter |              79 |
+|           ShowRet |           -13.3 |
+|               SJF |               0 |
+|                F1 |               0 |
+|              Time |        1.07e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              15 |
+|      AverageEpRet |           -8.89 |
+|          StdEpRet |            27.8 |
+|          MaxEpRet |               0 |
+|          MinEpRet |            -126 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -12.7 |
+|          StdVVals |            5.31 |
+|          MaxVVals |           -3.88 |
+|          MinVVals |            -151 |
+| TotalEnvInteracts |        8.19e+04 |
+|            LossPi |       -1.12e-09 |
+|             LossV |             754 |
+|       DeltaLossPi |        -0.00677 |
+|        DeltaLossV |             -48 |
+|           Entropy |            2.41 |
+|                KL |         0.00699 |
+|          ClipFrac |          0.0768 |
+|          StopIter |              79 |
+|           ShowRet |           0.199 |
+|               SJF |            9.09 |
+|                F1 |            9.09 |
+|              Time |        1.14e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              16 |
+|      AverageEpRet |           -22.5 |
+|          StdEpRet |            62.5 |
+|          MaxEpRet |               0 |
+|          MinEpRet |            -275 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -9.67 |
+|          StdVVals |            15.2 |
+|          MaxVVals |           -1.82 |
+|          MinVVals |            -220 |
+| TotalEnvInteracts |         8.7e+04 |
+|            LossPi |         1.3e-09 |
+|             LossV |        3.75e+03 |
+|       DeltaLossPi |        -0.00419 |
+|        DeltaLossV |            -338 |
+|           Entropy |            2.39 |
+|                KL |         0.00749 |
+|          ClipFrac |           0.077 |
+|          StopIter |              79 |
+|           ShowRet |           -15.7 |
+|               SJF |            6.89 |
+|                F1 |            6.89 |
+|              Time |        1.21e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              17 |
+|      AverageEpRet |           -5.28 |
+|          StdEpRet |              23 |
+|          MaxEpRet |               0 |
+|          MinEpRet |            -106 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -21.7 |
+|          StdVVals |            11.7 |
+|          MaxVVals |          -0.287 |
+|          MinVVals |            -294 |
+| TotalEnvInteracts |        9.22e+04 |
+|            LossPi |       -5.03e-09 |
+|             LossV |             805 |
+|       DeltaLossPi |        -0.00686 |
+|        DeltaLossV |            -331 |
+|           Entropy |            2.44 |
+|                KL |         0.00202 |
+|          ClipFrac |          0.0184 |
+|          StopIter |              79 |
+|           ShowRet |           -5.28 |
+|               SJF |               0 |
+|                F1 |               0 |
+|              Time |        1.28e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              18 |
+|      AverageEpRet |           -7.73 |
+|          StdEpRet |            33.7 |
+|          MaxEpRet |               0 |
+|          MinEpRet |            -155 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -5.26 |
+|          StdVVals |            7.91 |
+|          MaxVVals |            37.1 |
+|          MinVVals |            -192 |
+| TotalEnvInteracts |        9.73e+04 |
+|            LossPi |         6.1e-09 |
+|             LossV |        1.08e+03 |
+|       DeltaLossPi |        -0.00517 |
+|        DeltaLossV |           -35.7 |
+|           Entropy |            2.44 |
+|                KL |         0.00631 |
+|          ClipFrac |            0.12 |
+|          StopIter |              79 |
+|           ShowRet |           -7.73 |
+|               SJF |               0 |
+|                F1 |               0 |
+|              Time |        1.35e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              19 |
+|      AverageEpRet |           -8.76 |
+|          StdEpRet |            26.8 |
+|          MaxEpRet |               0 |
+|          MinEpRet |            -122 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -7.87 |
+|          StdVVals |            12.6 |
+|          MaxVVals |           0.233 |
+|          MinVVals |            -250 |
+| TotalEnvInteracts |        1.02e+05 |
+|            LossPi |       -3.91e-09 |
+|             LossV |             711 |
+|       DeltaLossPi |        -0.00568 |
+|        DeltaLossV |           -57.1 |
+|           Entropy |            2.44 |
+|                KL |         0.00121 |
+|          ClipFrac |          0.0639 |
+|          StopIter |              79 |
+|           ShowRet |           -8.76 |
+|               SJF |               0 |
+|                F1 |               0 |
+|              Time |        1.42e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              20 |
+|      AverageEpRet |           -15.4 |
+|          StdEpRet |            41.6 |
+|          MaxEpRet |               0 |
+|          MinEpRet |            -184 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -8.79 |
+|          StdVVals |            7.71 |
+|          MaxVVals |             1.5 |
+|          MinVVals |            -116 |
+| TotalEnvInteracts |        1.08e+05 |
+|            LossPi |       -2.51e-09 |
+|             LossV |         1.7e+03 |
+|       DeltaLossPi |        -0.00427 |
+|        DeltaLossV |            -160 |
+|           Entropy |            2.45 |
+|                KL |         0.00878 |
+|          ClipFrac |          0.0469 |
+|          StopIter |              79 |
+|           ShowRet |           -15.4 |
+|               SJF |               0 |
+|                F1 |               0 |
+|              Time |        1.49e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              21 |
+|      AverageEpRet |           -28.5 |
+|          StdEpRet |              95 |
+|          MaxEpRet |               0 |
+|          MinEpRet |            -437 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -16.2 |
+|          StdVVals |            15.2 |
+|          MaxVVals |           -2.18 |
+|          MinVVals |            -236 |
+| TotalEnvInteracts |        1.13e+05 |
+|            LossPi |        1.44e-08 |
+|             LossV |        8.59e+03 |
+|       DeltaLossPi |        -0.00417 |
+|        DeltaLossV |       -1.07e+03 |
+|           Entropy |            2.46 |
+|                KL |         0.00948 |
+|          ClipFrac |          0.0938 |
+|          StopIter |              79 |
+|           ShowRet |           -18.7 |
+|               SJF |            9.75 |
+|                F1 |            9.75 |
+|              Time |        1.56e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              22 |
+|      AverageEpRet |           -9.76 |
+|          StdEpRet |            29.4 |
+|          MaxEpRet |               0 |
+|          MinEpRet |            -118 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -27.9 |
+|          StdVVals |            18.8 |
+|          MaxVVals |            47.2 |
+|          MinVVals |            -423 |
+| TotalEnvInteracts |        1.18e+05 |
+|            LossPi |       -1.12e-08 |
+|             LossV |        1.36e+03 |
+|       DeltaLossPi |        -0.00648 |
+|        DeltaLossV |            -549 |
+|           Entropy |            2.41 |
+|                KL |         0.00764 |
+|          ClipFrac |          0.0516 |
+|          StopIter |              79 |
+|           ShowRet |           -9.76 |
+|               SJF |               0 |
+|                F1 |               0 |
+|              Time |        1.63e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              23 |
+|      AverageEpRet |           -13.1 |
+|          StdEpRet |            30.9 |
+|          MaxEpRet |               0 |
+|          MinEpRet |            -112 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -9.39 |
+|          StdVVals |            9.57 |
+|          MaxVVals |            19.6 |
+|          MinVVals |            -227 |
+| TotalEnvInteracts |        1.23e+05 |
+|            LossPi |        1.21e-08 |
+|             LossV |             957 |
+|       DeltaLossPi |        -0.00506 |
+|        DeltaLossV |           -79.9 |
+|           Entropy |            2.44 |
+|                KL |          0.0043 |
+|          ClipFrac |          0.0414 |
+|          StopIter |              79 |
+|           ShowRet |           -12.5 |
+|               SJF |           0.554 |
+|                F1 |           0.554 |
+|              Time |         1.7e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              24 |
+|      AverageEpRet |          -0.017 |
+|          StdEpRet |          0.0741 |
+|          MaxEpRet |               0 |
+|          MinEpRet |           -0.34 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -12.2 |
+|          StdVVals |            3.77 |
+|          MaxVVals |           -3.88 |
+|          MinVVals |           -49.4 |
+| TotalEnvInteracts |        1.28e+05 |
+|            LossPi |       -1.32e-08 |
+|             LossV |             164 |
+|       DeltaLossPi |        -0.00555 |
+|        DeltaLossV |            -163 |
+|           Entropy |            2.43 |
+|                KL |         0.00863 |
+|          ClipFrac |          0.0273 |
+|          StopIter |              79 |
+|           ShowRet |          -0.017 |
+|               SJF |               0 |
+|                F1 |               0 |
+|              Time |        1.77e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              25 |
+|      AverageEpRet |           -7.92 |
+|          StdEpRet |            27.4 |
+|          MaxEpRet |               0 |
+|          MinEpRet |            -125 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |          -0.495 |
+|          StdVVals |            1.44 |
+|          MaxVVals |            30.5 |
+|          MinVVals |           -37.8 |
+| TotalEnvInteracts |        1.33e+05 |
+|            LossPi |       -1.25e-08 |
+|             LossV |             803 |
+|       DeltaLossPi |         -0.0062 |
+|        DeltaLossV |           -83.1 |
+|           Entropy |            2.43 |
+|                KL |         0.00849 |
+|          ClipFrac |          0.0883 |
+|          StopIter |              79 |
+|           ShowRet |           -7.92 |
+|               SJF |               0 |
+|                F1 |               0 |
+|              Time |        1.84e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              26 |
+|      AverageEpRet |           -24.4 |
+|          StdEpRet |             105 |
+|          MaxEpRet |               0 |
+|          MinEpRet |            -481 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -7.08 |
+|          StdVVals |            15.6 |
+|          MaxVVals |          -0.334 |
+|          MinVVals |            -261 |
+| TotalEnvInteracts |        1.38e+05 |
+|            LossPi |        6.89e-09 |
+|             LossV |        1.04e+04 |
+|       DeltaLossPi |        -0.00475 |
+|        DeltaLossV |       -1.28e+03 |
+|           Entropy |            2.44 |
+|                KL |         0.00688 |
+|          ClipFrac |            0.12 |
+|          StopIter |              79 |
+|           ShowRet |           -24.4 |
+|               SJF |               0 |
+|                F1 |               0 |
+|              Time |        1.91e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              27 |
+|      AverageEpRet |           -10.8 |
+|          StdEpRet |            28.2 |
+|          MaxEpRet |               0 |
+|          MinEpRet |            -113 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -24.5 |
+|          StdVVals |            26.4 |
+|          MaxVVals |             129 |
+|          MinVVals |            -461 |
+| TotalEnvInteracts |        1.43e+05 |
+|            LossPi |       -1.23e-08 |
+|             LossV |         1.4e+03 |
+|       DeltaLossPi |        -0.00554 |
+|        DeltaLossV |            -651 |
+|           Entropy |            2.39 |
+|                KL |         0.00748 |
+|          ClipFrac |          0.0459 |
+|          StopIter |              79 |
+|           ShowRet |           -10.8 |
+|               SJF |               0 |
+|                F1 |               0 |
+|              Time |        1.98e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              28 |
+|      AverageEpRet |           -5.76 |
+|          StdEpRet |            14.7 |
+|          MaxEpRet |               0 |
+|          MinEpRet |           -48.8 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -10.3 |
+|          StdVVals |            7.04 |
+|          MaxVVals |            1.45 |
+|          MinVVals |            -184 |
+| TotalEnvInteracts |        1.48e+05 |
+|            LossPi |        1.86e-08 |
+|             LossV |             261 |
+|       DeltaLossPi |        -0.00547 |
+|        DeltaLossV |           -49.2 |
+|           Entropy |            2.43 |
+|                KL |         0.00604 |
+|          ClipFrac |          0.0471 |
+|          StopIter |              79 |
+|           ShowRet |           -5.76 |
+|               SJF |               0 |
+|                F1 |               0 |
+|              Time |        2.05e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              29 |
+|      AverageEpRet |           -0.57 |
+|          StdEpRet |            2.48 |
+|          MaxEpRet |               0 |
+|          MinEpRet |           -11.4 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -5.55 |
+|          StdVVals |            1.55 |
+|          MaxVVals |            30.7 |
+|          MinVVals |           -18.9 |
+| TotalEnvInteracts |        1.54e+05 |
+|            LossPi |       -1.19e-08 |
+|             LossV |            33.3 |
+|       DeltaLossPi |        -0.00371 |
+|        DeltaLossV |           -26.3 |
+|           Entropy |            2.42 |
+|                KL |         0.00316 |
+|          ClipFrac |          0.0219 |
+|          StopIter |              79 |
+|           ShowRet |           -0.57 |
+|               SJF |               0 |
+|                F1 |               0 |
+|              Time |        2.13e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              30 |
+|      AverageEpRet |           -35.7 |
+|          StdEpRet |             104 |
+|          MaxEpRet |               0 |
+|          MinEpRet |            -442 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -2.06 |
+|          StdVVals |            11.6 |
+|          MaxVVals |            11.3 |
+|          MinVVals |            -171 |
+| TotalEnvInteracts |        1.59e+05 |
+|            LossPi |       -2.05e-08 |
+|             LossV |        1.13e+04 |
+|       DeltaLossPi |        -0.00565 |
+|        DeltaLossV |       -2.35e+03 |
+|           Entropy |            2.46 |
+|                KL |         0.00487 |
+|          ClipFrac |          0.0596 |
+|          StopIter |              79 |
+|           ShowRet |           -23.7 |
+|               SJF |              12 |
+|                F1 |              12 |
+|              Time |         2.2e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              31 |
+|      AverageEpRet |           -5.67 |
+|          StdEpRet |            24.7 |
+|          MaxEpRet |               0 |
+|          MinEpRet |            -113 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -33.3 |
+|          StdVVals |            14.6 |
+|          MaxVVals |            2.77 |
+|          MinVVals |            -247 |
+| TotalEnvInteracts |        1.64e+05 |
+|            LossPi |        -8.2e-09 |
+|             LossV |        1.49e+03 |
+|       DeltaLossPi |        -0.00422 |
+|        DeltaLossV |            -941 |
+|           Entropy |            2.44 |
+|                KL |         0.00924 |
+|          ClipFrac |          0.0437 |
+|          StopIter |              79 |
+|           ShowRet |           -5.67 |
+|               SJF |               0 |
+|                F1 |               0 |
+|              Time |        2.27e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              32 |
+|      AverageEpRet |          -0.297 |
+|          StdEpRet |            1.22 |
+|          MaxEpRet |               0 |
+|          MinEpRet |            -5.6 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -3.25 |
+|          StdVVals |            2.47 |
+|          MaxVVals |            1.75 |
+|          MinVVals |           -97.4 |
+| TotalEnvInteracts |        1.69e+05 |
+|            LossPi |       -2.98e-09 |
+|             LossV |            15.8 |
+|       DeltaLossPi |        -0.00595 |
+|        DeltaLossV |           -11.8 |
+|           Entropy |            2.41 |
+|                KL |         0.00305 |
+|          ClipFrac |          0.0576 |
+|          StopIter |              79 |
+|           ShowRet |          -0.297 |
+|               SJF |               0 |
+|                F1 |               0 |
+|              Time |        2.34e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              33 |
+|      AverageEpRet |           -11.7 |
+|          StdEpRet |            50.6 |
+|          MaxEpRet |               0 |
+|          MinEpRet |            -232 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -2.15 |
+|          StdVVals |            9.89 |
+|          MaxVVals |            9.77 |
+|          MinVVals |            -194 |
+| TotalEnvInteracts |        1.74e+05 |
+|            LossPi |        1.04e-08 |
+|             LossV |        2.46e+03 |
+|       DeltaLossPi |        -0.00396 |
+|        DeltaLossV |            -200 |
+|           Entropy |            2.39 |
+|                KL |         0.00608 |
+|          ClipFrac |          0.0527 |
+|          StopIter |              79 |
+|           ShowRet |           -4.81 |
+|               SJF |            6.89 |
+|                F1 |            6.89 |
+|              Time |        2.41e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              34 |
+|      AverageEpRet |          -0.909 |
+|          StdEpRet |            3.96 |
+|          MaxEpRet |               0 |
+|          MinEpRet |           -18.2 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -10.8 |
+|          StdVVals |            10.6 |
+|          MaxVVals |           -1.01 |
+|          MinVVals |            -295 |
+| TotalEnvInteracts |        1.79e+05 |
+|            LossPi |        9.31e-11 |
+|             LossV |             215 |
+|       DeltaLossPi |        -0.00603 |
+|        DeltaLossV |            -196 |
+|           Entropy |            2.38 |
+|                KL |         0.00543 |
+|          ClipFrac |          0.0473 |
+|          StopIter |              79 |
+|           ShowRet |          -0.909 |
+|               SJF |               0 |
+|                F1 |               0 |
+|              Time |        2.48e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              35 |
+|      AverageEpRet |           -9.01 |
+|          StdEpRet |              27 |
+|          MaxEpRet |               0 |
+|          MinEpRet |           -91.5 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -2.27 |
+|          StdVVals |            5.34 |
+|          MaxVVals |            2.51 |
+|          MinVVals |            -113 |
+| TotalEnvInteracts |        1.84e+05 |
+|            LossPi |       -5.77e-09 |
+|             LossV |             743 |
+|       DeltaLossPi |        -0.00601 |
+|        DeltaLossV |           -43.3 |
+|           Entropy |            2.33 |
+|                KL |         0.00864 |
+|          ClipFrac |          0.0477 |
+|          StopIter |              79 |
+|           ShowRet |           -2.12 |
+|               SJF |            6.89 |
+|                F1 |            6.89 |
+|              Time |        2.55e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              36 |
+|      AverageEpRet |           -22.6 |
+|          StdEpRet |            61.4 |
+|          MaxEpRet |               0 |
+|          MinEpRet |            -244 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -8.85 |
+|          StdVVals |            8.61 |
+|          MaxVVals |           -3.97 |
+|          MinVVals |            -139 |
+| TotalEnvInteracts |        1.89e+05 |
+|            LossPi |       -4.28e-09 |
+|             LossV |        3.77e+03 |
+|       DeltaLossPi |        -0.00319 |
+|        DeltaLossV |            -268 |
+|           Entropy |            2.34 |
+|                KL |          0.0038 |
+|          ClipFrac |          0.0215 |
+|          StopIter |              79 |
+|           ShowRet |           -17.1 |
+|               SJF |            5.47 |
+|                F1 |            5.47 |
+|              Time |        2.62e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              37 |
+|      AverageEpRet |           -9.82 |
+|          StdEpRet |            34.6 |
+|          MaxEpRet |               0 |
+|          MinEpRet |            -156 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |             -22 |
+|          StdVVals |            13.4 |
+|          MaxVVals |           -16.8 |
+|          MinVVals |            -251 |
+| TotalEnvInteracts |        1.95e+05 |
+|            LossPi |        3.73e-09 |
+|             LossV |        1.28e+03 |
+|       DeltaLossPi |        -0.00697 |
+|        DeltaLossV |            -179 |
+|           Entropy |            2.37 |
+|                KL |         0.00441 |
+|          ClipFrac |          0.0926 |
+|          StopIter |              79 |
+|           ShowRet |           -2.94 |
+|               SJF |            6.89 |
+|                F1 |            6.89 |
+|              Time |        2.69e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              38 |
+|      AverageEpRet |               0 |
+|          StdEpRet |               0 |
+|          MaxEpRet |               0 |
+|          MinEpRet |               0 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -9.49 |
+|          StdVVals |            2.57 |
+|          MaxVVals |           -5.19 |
+|          MinVVals |           -23.5 |
+| TotalEnvInteracts |           2e+05 |
+|            LossPi |        3.26e-08 |
+|             LossV |            96.6 |
+|       DeltaLossPi |        -0.00456 |
+|        DeltaLossV |           -96.5 |
+|           Entropy |            2.41 |
+|                KL |          0.0055 |
+|          ClipFrac |          0.0359 |
+|          StopIter |              79 |
+|           ShowRet |               0 |
+|               SJF |               0 |
+|                F1 |               0 |
+|              Time |        2.76e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              39 |
+|      AverageEpRet |           -5.65 |
+|          StdEpRet |            20.8 |
+|          MaxEpRet |               0 |
+|          MinEpRet |           -95.4 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |          -0.549 |
+|          StdVVals |            3.69 |
+|          MaxVVals |         -0.0524 |
+|          MinVVals |           -90.4 |
+| TotalEnvInteracts |        2.05e+05 |
+|            LossPi |       -9.59e-09 |
+|             LossV |             440 |
+|       DeltaLossPi |        -0.00367 |
+|        DeltaLossV |           -26.5 |
+|           Entropy |            2.37 |
+|                KL |         0.00561 |
+|          ClipFrac |           0.035 |
+|          StopIter |              79 |
+|           ShowRet |           -5.65 |
+|               SJF |               0 |
+|                F1 |               0 |
+|              Time |        2.83e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              40 |
+|      AverageEpRet |           -3.27 |
+|          StdEpRet |            8.27 |
+|          MaxEpRet |               0 |
+|          MinEpRet |           -29.8 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -5.88 |
+|          StdVVals |            1.08 |
+|          MaxVVals |          -0.616 |
+|          MinVVals |           -56.2 |
+| TotalEnvInteracts |         2.1e+05 |
+|            LossPi |        1.34e-08 |
+|             LossV |            75.8 |
+|       DeltaLossPi |        -0.00354 |
+|        DeltaLossV |           -9.03 |
+|           Entropy |            2.41 |
+|                KL |         0.00604 |
+|          ClipFrac |          0.0391 |
+|          StopIter |              79 |
+|           ShowRet |           -3.27 |
+|               SJF |               0 |
+|                F1 |               0 |
+|              Time |         2.9e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              41 |
+|      AverageEpRet |               0 |
+|          StdEpRet |               0 |
+|          MaxEpRet |               0 |
+|          MinEpRet |               0 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -3.01 |
+|          StdVVals |           0.729 |
+|          MaxVVals |           -1.16 |
+|          MinVVals |            -9.8 |
+| TotalEnvInteracts |        2.15e+05 |
+|            LossPi |       -5.22e-09 |
+|             LossV |             9.6 |
+|       DeltaLossPi |        -0.00337 |
+|        DeltaLossV |           -9.37 |
+|           Entropy |            2.41 |
+|                KL |         0.00538 |
+|          ClipFrac |          0.0326 |
+|          StopIter |              79 |
+|           ShowRet |               0 |
+|               SJF |               0 |
+|                F1 |               0 |
+|              Time |        2.97e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              42 |
+|      AverageEpRet |          -0.979 |
+|          StdEpRet |            4.27 |
+|          MaxEpRet |               0 |
+|          MinEpRet |           -19.6 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |          -0.481 |
+|          StdVVals |           0.167 |
+|          MaxVVals |          0.0205 |
+|          MinVVals |           -12.1 |
+| TotalEnvInteracts |         2.2e+05 |
+|            LossPi |        2.24e-08 |
+|             LossV |            18.4 |
+|       DeltaLossPi |        -0.00379 |
+|        DeltaLossV |         -0.0376 |
+|           Entropy |            2.45 |
+|                KL |         0.00594 |
+|          ClipFrac |          0.0779 |
+|          StopIter |              79 |
+|           ShowRet |          -0.979 |
+|               SJF |               0 |
+|                F1 |               0 |
+|              Time |        3.04e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              43 |
+|      AverageEpRet |           -13.2 |
+|          StdEpRet |            42.6 |
+|          MaxEpRet |               0 |
+|          MinEpRet |            -192 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |          -0.881 |
+|          StdVVals |            4.79 |
+|          MaxVVals |          -0.266 |
+|          MinVVals |           -86.4 |
+| TotalEnvInteracts |        2.25e+05 |
+|            LossPi |        -1.7e-08 |
+|             LossV |        1.88e+03 |
+|       DeltaLossPi |        -0.00413 |
+|        DeltaLossV |            -205 |
+|           Entropy |            2.42 |
+|                KL |         0.00502 |
+|          ClipFrac |           0.042 |
+|          StopIter |              79 |
+|           ShowRet |           -3.62 |
+|               SJF |            9.54 |
+|                F1 |            9.54 |
+|              Time |        3.11e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              44 |
+|      AverageEpRet |             -24 |
+|          StdEpRet |            62.2 |
+|          MaxEpRet |               0 |
+|          MinEpRet |            -251 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -13.3 |
+|          StdVVals |              13 |
+|          MaxVVals |           -6.16 |
+|          MinVVals |            -208 |
+| TotalEnvInteracts |         2.3e+05 |
+|            LossPi |        4.75e-09 |
+|             LossV |        3.71e+03 |
+|       DeltaLossPi |        -0.00514 |
+|        DeltaLossV |            -189 |
+|           Entropy |            2.41 |
+|                KL |         0.00636 |
+|          ClipFrac |           0.098 |
+|          StopIter |              79 |
+|           ShowRet |           -11.7 |
+|               SJF |            12.4 |
+|                F1 |            12.4 |
+|              Time |        3.18e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              45 |
+|      AverageEpRet |           -24.8 |
+|          StdEpRet |            57.1 |
+|          MaxEpRet |               0 |
+|          MinEpRet |            -239 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -24.1 |
+|          StdVVals |              18 |
+|          MaxVVals |           -10.7 |
+|          MinVVals |            -277 |
+| TotalEnvInteracts |        2.36e+05 |
+|            LossPi |        1.21e-09 |
+|             LossV |         3.1e+03 |
+|       DeltaLossPi |        -0.00471 |
+|        DeltaLossV |            -124 |
+|           Entropy |            2.43 |
+|                KL |         0.00355 |
+|          ClipFrac |          0.0418 |
+|          StopIter |              79 |
+|           ShowRet |             -11 |
+|               SJF |            13.8 |
+|                F1 |            13.8 |
+|              Time |        3.25e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              46 |
+|      AverageEpRet |           -8.65 |
+|          StdEpRet |            37.7 |
+|          MaxEpRet |               0 |
+|          MinEpRet |            -173 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -23.3 |
+|          StdVVals |            10.8 |
+|          MaxVVals |           -12.5 |
+|          MinVVals |            -239 |
+| TotalEnvInteracts |        2.41e+05 |
+|            LossPi |        1.32e-08 |
+|             LossV |        1.53e+03 |
+|       DeltaLossPi |        -0.00643 |
+|        DeltaLossV |            -251 |
+|           Entropy |            2.43 |
+|                KL |         0.00551 |
+|          ClipFrac |          0.0627 |
+|          StopIter |              79 |
+|           ShowRet |           -8.65 |
+|               SJF |               0 |
+|                F1 |               0 |
+|              Time |        3.32e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              47 |
+|      AverageEpRet |           -15.1 |
+|          StdEpRet |            46.2 |
+|          MaxEpRet |               0 |
+|          MinEpRet |            -212 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -9.42 |
+|          StdVVals |            16.3 |
+|          MaxVVals |           -1.97 |
+|          MinVVals |            -260 |
+| TotalEnvInteracts |        2.46e+05 |
+|            LossPi |       -5.59e-10 |
+|             LossV |        2.04e+03 |
+|       DeltaLossPi |        -0.00551 |
+|        DeltaLossV |            -155 |
+|           Entropy |            2.41 |
+|                KL |         0.00431 |
+|          ClipFrac |          0.0332 |
+|          StopIter |              79 |
+|           ShowRet |           -9.98 |
+|               SJF |            5.13 |
+|                F1 |            5.13 |
+|              Time |        3.39e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              48 |
+|      AverageEpRet |           -8.11 |
+|          StdEpRet |            21.4 |
+|          MaxEpRet |               0 |
+|          MinEpRet |           -74.2 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -15.3 |
+|          StdVVals |            9.82 |
+|          MaxVVals |            11.3 |
+|          MinVVals |            -132 |
+| TotalEnvInteracts |        2.51e+05 |
+|            LossPi |        2.12e-08 |
+|             LossV |             570 |
+|       DeltaLossPi |        -0.00403 |
+|        DeltaLossV |            -135 |
+|           Entropy |             2.4 |
+|                KL |         0.00758 |
+|          ClipFrac |          0.0281 |
+|          StopIter |              79 |
+|           ShowRet |           -8.11 |
+|               SJF |               0 |
+|                F1 |               0 |
+|              Time |        3.46e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              49 |
+|      AverageEpRet |           -19.8 |
+|          StdEpRet |            52.9 |
+|          MaxEpRet |               0 |
+|          MinEpRet |            -208 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -8.84 |
+|          StdVVals |            10.8 |
+|          MaxVVals |           -4.09 |
+|          MinVVals |            -169 |
+| TotalEnvInteracts |        2.56e+05 |
+|            LossPi |       -7.45e-10 |
+|             LossV |        2.73e+03 |
+|       DeltaLossPi |        -0.00539 |
+|        DeltaLossV |            -258 |
+|           Entropy |            2.38 |
+|                KL |         0.00443 |
+|          ClipFrac |          0.0627 |
+|          StopIter |              79 |
+|           ShowRet |           -12.9 |
+|               SJF |            6.89 |
+|                F1 |            6.89 |
+|              Time |        3.53e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              50 |
+|      AverageEpRet |       -0.000977 |
+|          StdEpRet |         0.00426 |
+|          MaxEpRet |               0 |
+|          MinEpRet |         -0.0195 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -18.1 |
+|          StdVVals |            8.71 |
+|          MaxVVals |           -4.63 |
+|          MinVVals |             -79 |
+| TotalEnvInteracts |        2.61e+05 |
+|            LossPi |        5.59e-09 |
+|             LossV |             404 |
+|       DeltaLossPi |        -0.00703 |
+|        DeltaLossV |            -404 |
+|           Entropy |            2.41 |
+|                KL |         0.00843 |
+|          ClipFrac |          0.0426 |
+|          StopIter |              79 |
+|           ShowRet |       -0.000977 |
+|               SJF |               0 |
+|                F1 |               0 |
+|              Time |         3.6e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              51 |
+|      AverageEpRet |       -0.000977 |
+|          StdEpRet |         0.00426 |
+|          MaxEpRet |               0 |
+|          MinEpRet |         -0.0195 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |          -0.738 |
+|          StdVVals |          0.0722 |
+|          MaxVVals |          -0.607 |
+|          MinVVals |           -1.11 |
+| TotalEnvInteracts |        2.66e+05 |
+|            LossPi |       -7.45e-10 |
+|             LossV |           0.549 |
+|       DeltaLossPi |        -0.00363 |
+|        DeltaLossV |          -0.493 |
+|           Entropy |            2.34 |
+|                KL |         0.00547 |
+|          ClipFrac |          0.0283 |
+|          StopIter |              79 |
+|           ShowRet |       -0.000977 |
+|               SJF |               0 |
+|                F1 |               0 |
+|              Time |        3.67e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              52 |
+|      AverageEpRet |           -1.08 |
+|          StdEpRet |            3.25 |
+|          MaxEpRet |               0 |
+|          MinEpRet |           -14.4 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |          -0.127 |
+|          StdVVals |            2.97 |
+|          MaxVVals |           0.647 |
+|          MinVVals |             -79 |
+| TotalEnvInteracts |        2.71e+05 |
+|            LossPi |       -4.28e-09 |
+|             LossV |              19 |
+|       DeltaLossPi |         -0.0064 |
+|        DeltaLossV |            -8.5 |
+|           Entropy |            2.32 |
+|                KL |         0.00675 |
+|          ClipFrac |           0.137 |
+|          StopIter |              79 |
+|           ShowRet |           -1.08 |
+|               SJF |               0 |
+|                F1 |               0 |
+|              Time |        3.75e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              53 |
+|      AverageEpRet |           -10.6 |
+|          StdEpRet |            43.3 |
+|          MaxEpRet |               0 |
+|          MinEpRet |            -199 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -1.47 |
+|          StdVVals |            5.77 |
+|          MaxVVals |          -0.792 |
+|          MinVVals |            -114 |
+| TotalEnvInteracts |        2.76e+05 |
+|            LossPi |        8.85e-09 |
+|             LossV |        1.85e+03 |
+|       DeltaLossPi |        -0.00559 |
+|        DeltaLossV |            -133 |
+|           Entropy |            2.35 |
+|                KL |         0.00829 |
+|          ClipFrac |            0.11 |
+|          StopIter |              79 |
+|           ShowRet |           -1.09 |
+|               SJF |            9.54 |
+|                F1 |            9.54 |
+|              Time |        3.82e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              54 |
+|      AverageEpRet |           -3.41 |
+|          StdEpRet |            8.55 |
+|          MaxEpRet |               0 |
+|          MinEpRet |           -31.2 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -10.2 |
+|          StdVVals |            7.29 |
+|          MaxVVals |           -8.66 |
+|          MinVVals |            -181 |
+| TotalEnvInteracts |        2.82e+05 |
+|            LossPi |        2.61e-09 |
+|             LossV |             151 |
+|       DeltaLossPi |        -0.00551 |
+|        DeltaLossV |           -79.3 |
+|           Entropy |            2.34 |
+|                KL |         0.00177 |
+|          ClipFrac |          0.0146 |
+|          StopIter |              79 |
+|           ShowRet |            3.48 |
+|               SJF |            6.89 |
+|                F1 |            6.89 |
+|              Time |        3.89e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              55 |
+|      AverageEpRet |           -22.7 |
+|          StdEpRet |            52.7 |
+|          MaxEpRet |               0 |
+|          MinEpRet |            -214 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -2.99 |
+|          StdVVals |            5.43 |
+|          MaxVVals |           -2.01 |
+|          MinVVals |           -99.1 |
+| TotalEnvInteracts |        2.87e+05 |
+|            LossPi |        1.67e-08 |
+|             LossV |        3.05e+03 |
+|       DeltaLossPi |         -0.0071 |
+|        DeltaLossV |            -471 |
+|           Entropy |            2.38 |
+|                KL |         0.00738 |
+|          ClipFrac |           0.105 |
+|          StopIter |              79 |
+|           ShowRet |           -15.8 |
+|               SJF |            6.89 |
+|                F1 |            6.89 |
+|              Time |        3.96e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              56 |
+|      AverageEpRet |           -5.77 |
+|          StdEpRet |              19 |
+|          MaxEpRet |               0 |
+|          MinEpRet |           -86.7 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -21.7 |
+|          StdVVals |            6.42 |
+|          MaxVVals |           -20.6 |
+|          MinVVals |            -176 |
+| TotalEnvInteracts |        2.92e+05 |
+|            LossPi |        1.45e-08 |
+|             LossV |             605 |
+|       DeltaLossPi |        -0.00803 |
+|        DeltaLossV |            -260 |
+|           Entropy |            2.34 |
+|                KL |         0.00758 |
+|          ClipFrac |          0.0877 |
+|          StopIter |              79 |
+|           ShowRet |           -5.77 |
+|               SJF |               0 |
+|                F1 |               0 |
+|              Time |        4.03e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              57 |
+|      AverageEpRet |           -19.6 |
+|          StdEpRet |            57.3 |
+|          MaxEpRet |               0 |
+|          MinEpRet |            -248 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -6.33 |
+|          StdVVals |            9.16 |
+|          MaxVVals |           -5.17 |
+|          MinVVals |            -133 |
+| TotalEnvInteracts |        2.97e+05 |
+|            LossPi |        1.47e-08 |
+|             LossV |        3.27e+03 |
+|       DeltaLossPi |        -0.00473 |
+|        DeltaLossV |            -257 |
+|           Entropy |            2.28 |
+|                KL |           0.002 |
+|          ClipFrac |          0.0582 |
+|          StopIter |              79 |
+|           ShowRet |           -7.26 |
+|               SJF |            12.4 |
+|                F1 |            12.4 |
+|              Time |         4.1e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              58 |
+|      AverageEpRet |         -0.0188 |
+|          StdEpRet |          0.0817 |
+|          MaxEpRet |               0 |
+|          MinEpRet |          -0.375 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -17.9 |
+|          StdVVals |            1.19 |
+|          MaxVVals |           -13.9 |
+|          MinVVals |           -22.5 |
+| TotalEnvInteracts |        3.02e+05 |
+|            LossPi |       -1.42e-08 |
+|             LossV |             322 |
+|       DeltaLossPi |        -0.00736 |
+|        DeltaLossV |            -321 |
+|           Entropy |            2.26 |
+|                KL |         0.00523 |
+|          ClipFrac |          0.0477 |
+|          StopIter |              79 |
+|           ShowRet |         -0.0188 |
+|               SJF |               0 |
+|                F1 |               0 |
+|              Time |        4.17e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              59 |
+|      AverageEpRet |           -5.11 |
+|          StdEpRet |            15.1 |
+|          MaxEpRet |               0 |
+|          MinEpRet |           -62.3 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -1.09 |
+|          StdVVals |           0.348 |
+|          MaxVVals |          -0.957 |
+|          MinVVals |           -16.9 |
+| TotalEnvInteracts |        3.07e+05 |
+|            LossPi |       -1.62e-08 |
+|             LossV |             243 |
+|       DeltaLossPi |        -0.00624 |
+|        DeltaLossV |           -17.8 |
+|           Entropy |            2.29 |
+|                KL |         0.00412 |
+|          ClipFrac |          0.0637 |
+|          StopIter |              79 |
+|           ShowRet |           -2.92 |
+|               SJF |             2.2 |
+|                F1 |             2.2 |
+|              Time |        4.24e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              60 |
+|      AverageEpRet |           -2.57 |
+|          StdEpRet |            11.2 |
+|          MaxEpRet |               0 |
+|          MinEpRet |           -51.4 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -4.28 |
+|          StdVVals |            3.52 |
+|          MaxVVals |          -0.526 |
+|          MinVVals |           -68.2 |
+| TotalEnvInteracts |        3.12e+05 |
+|            LossPi |        1.86e-10 |
+|             LossV |             126 |
+|       DeltaLossPi |        -0.00886 |
+|        DeltaLossV |           -6.98 |
+|           Entropy |             2.3 |
+|                KL |         0.00843 |
+|          ClipFrac |           0.106 |
+|          StopIter |              79 |
+|           ShowRet |           -2.57 |
+|               SJF |               0 |
+|                F1 |               0 |
+|              Time |        4.31e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              61 |
+|      AverageEpRet |           -3.44 |
+|          StdEpRet |            14.9 |
+|          MaxEpRet |               0 |
+|          MinEpRet |           -68.3 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |            -2.3 |
+|          StdVVals |            2.08 |
+|          MaxVVals |            -1.3 |
+|          MinVVals |             -71 |
+| TotalEnvInteracts |        3.17e+05 |
+|            LossPi |       -1.35e-08 |
+|             LossV |             218 |
+|       DeltaLossPi |        -0.00434 |
+|        DeltaLossV |           -3.38 |
+|           Entropy |             2.3 |
+|                KL |          0.0035 |
+|          ClipFrac |          0.0639 |
+|          StopIter |              79 |
+|           ShowRet |           -3.44 |
+|               SJF |               0 |
+|                F1 |               0 |
+|              Time |        4.38e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              62 |
+|      AverageEpRet |               0 |
+|          StdEpRet |               0 |
+|          MaxEpRet |               0 |
+|          MinEpRet |               0 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -3.22 |
+|          StdVVals |            1.32 |
+|          MaxVVals |           -1.52 |
+|          MinVVals |           -10.1 |
+| TotalEnvInteracts |        3.23e+05 |
+|            LossPi |        1.04e-08 |
+|             LossV |            12.1 |
+|       DeltaLossPi |        -0.00748 |
+|        DeltaLossV |           -10.8 |
+|           Entropy |            2.34 |
+|                KL |         0.00546 |
+|          ClipFrac |          0.0441 |
+|          StopIter |              79 |
+|           ShowRet |               0 |
+|               SJF |               0 |
+|                F1 |               0 |
+|              Time |        4.45e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              63 |
+|      AverageEpRet |           -19.3 |
+|          StdEpRet |            46.4 |
+|          MaxEpRet |               0 |
+|          MinEpRet |            -153 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -1.25 |
+|          StdVVals |            1.29 |
+|          MaxVVals |           -1.03 |
+|          MinVVals |           -23.6 |
+| TotalEnvInteracts |        3.28e+05 |
+|            LossPi |       -1.56e-08 |
+|             LossV |        2.45e+03 |
+|       DeltaLossPi |        -0.00493 |
+|        DeltaLossV |            -536 |
+|           Entropy |            2.35 |
+|                KL |         0.00726 |
+|          ClipFrac |          0.0512 |
+|          StopIter |              79 |
+|           ShowRet |           -19.3 |
+|               SJF |               0 |
+|                F1 |               0 |
+|              Time |        4.52e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              64 |
+|      AverageEpRet |               0 |
+|          StdEpRet |               0 |
+|          MaxEpRet |               0 |
+|          MinEpRet |               0 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -18.3 |
+|          StdVVals |            6.83 |
+|          MaxVVals |           -6.05 |
+|          MinVVals |           -42.1 |
+| TotalEnvInteracts |        3.33e+05 |
+|            LossPi |        2.98e-09 |
+|             LossV |             381 |
+|       DeltaLossPi |        -0.00696 |
+|        DeltaLossV |            -378 |
+|           Entropy |            2.33 |
+|                KL |         0.00453 |
+|          ClipFrac |          0.0455 |
+|          StopIter |              79 |
+|           ShowRet |               0 |
+|               SJF |               0 |
+|                F1 |               0 |
+|              Time |        4.59e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              65 |
+|      AverageEpRet |           -6.28 |
+|          StdEpRet |            27.4 |
+|          MaxEpRet |               0 |
+|          MinEpRet |            -126 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |            -1.7 |
+|          StdVVals |            3.48 |
+|          MaxVVals |           -1.29 |
+|          MinVVals |           -85.4 |
+| TotalEnvInteracts |        3.38e+05 |
+|            LossPi |       -1.91e-09 |
+|             LossV |             745 |
+|       DeltaLossPi |        -0.00635 |
+|        DeltaLossV |           -23.6 |
+|           Entropy |            2.27 |
+|                KL |         0.00647 |
+|          ClipFrac |           0.141 |
+|          StopIter |              79 |
+|           ShowRet |           -6.28 |
+|               SJF |               0 |
+|                F1 |               0 |
+|              Time |        4.66e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              66 |
+|      AverageEpRet |           -14.3 |
+|          StdEpRet |            30.9 |
+|          MaxEpRet |               0 |
+|          MinEpRet |            -100 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -5.67 |
+|          StdVVals |            9.79 |
+|          MaxVVals |           -4.09 |
+|          MinVVals |            -143 |
+| TotalEnvInteracts |        3.43e+05 |
+|            LossPi |        1.08e-08 |
+|             LossV |        1.02e+03 |
+|       DeltaLossPi |        -0.00636 |
+|        DeltaLossV |           -94.6 |
+|           Entropy |            2.24 |
+|                KL |         0.00952 |
+|          ClipFrac |          0.0795 |
+|          StopIter |              79 |
+|           ShowRet |           -8.15 |
+|               SJF |            6.18 |
+|                F1 |            6.18 |
+|              Time |        4.73e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              67 |
+|      AverageEpRet |           -9.42 |
+|          StdEpRet |            40.1 |
+|          MaxEpRet |               0 |
+|          MinEpRet |            -184 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -14.1 |
+|          StdVVals |            5.37 |
+|          MaxVVals |           -12.1 |
+|          MinVVals |            -111 |
+| TotalEnvInteracts |        3.48e+05 |
+|            LossPi |       -3.54e-09 |
+|             LossV |        1.52e+03 |
+|       DeltaLossPi |        -0.00622 |
+|        DeltaLossV |           -82.8 |
+|           Entropy |            2.29 |
+|                KL |         0.00793 |
+|          ClipFrac |          0.0697 |
+|          StopIter |              79 |
+|           ShowRet |           -9.42 |
+|               SJF |               0 |
+|                F1 |               0 |
+|              Time |         4.8e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              68 |
+|      AverageEpRet |           -15.1 |
+|          StdEpRet |            46.3 |
+|          MaxEpRet |               0 |
+|          MinEpRet |            -182 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |            -9.8 |
+|          StdVVals |            16.1 |
+|          MaxVVals |           -6.95 |
+|          MinVVals |            -213 |
+| TotalEnvInteracts |        3.53e+05 |
+|            LossPi |        6.43e-09 |
+|             LossV |        2.05e+03 |
+|       DeltaLossPi |        -0.00708 |
+|        DeltaLossV |             -49 |
+|           Entropy |            2.26 |
+|                KL |          0.0101 |
+|          ClipFrac |          0.0959 |
+|          StopIter |              79 |
+|           ShowRet |            -8.2 |
+|               SJF |            6.89 |
+|                F1 |            6.89 |
+|              Time |        4.87e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              69 |
+|      AverageEpRet |               0 |
+|          StdEpRet |               0 |
+|          MaxEpRet |               0 |
+|          MinEpRet |               0 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -14.1 |
+|          StdVVals |           0.442 |
+|          MaxVVals |           -12.6 |
+|          MinVVals |           -15.8 |
+| TotalEnvInteracts |        3.58e+05 |
+|            LossPi |       -5.85e-08 |
+|             LossV |             199 |
+|       DeltaLossPi |        -0.00696 |
+|        DeltaLossV |            -196 |
+|           Entropy |            2.28 |
+|                KL |         0.00443 |
+|          ClipFrac |          0.0717 |
+|          StopIter |              79 |
+|           ShowRet |               0 |
+|               SJF |               0 |
+|                F1 |               0 |
+|              Time |        4.94e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              70 |
+|      AverageEpRet |           -10.6 |
+|          StdEpRet |            34.4 |
+|          MaxEpRet |               0 |
+|          MinEpRet |            -147 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -2.28 |
+|          StdVVals |            7.83 |
+|          MaxVVals |           -1.29 |
+|          MinVVals |            -116 |
+| TotalEnvInteracts |        3.64e+05 |
+|            LossPi |        7.45e-09 |
+|             LossV |        1.16e+03 |
+|       DeltaLossPi |         -0.0061 |
+|        DeltaLossV |           -90.3 |
+|           Entropy |            2.26 |
+|                KL |          0.0071 |
+|          ClipFrac |          0.0828 |
+|          StopIter |              79 |
+|           ShowRet |           -3.76 |
+|               SJF |            6.89 |
+|                F1 |            6.89 |
+|              Time |        5.02e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              71 |
+|      AverageEpRet |           -0.12 |
+|          StdEpRet |           0.414 |
+|          MaxEpRet |               0 |
+|          MinEpRet |           -1.84 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -9.73 |
+|          StdVVals |            2.98 |
+|          MaxVVals |           -3.38 |
+|          MinVVals |           -77.6 |
+| TotalEnvInteracts |        3.69e+05 |
+|            LossPi |        2.16e-08 |
+|             LossV |             101 |
+|       DeltaLossPi |        -0.00631 |
+|        DeltaLossV |            -101 |
+|           Entropy |            2.28 |
+|                KL |          0.0064 |
+|          ClipFrac |          0.0658 |
+|          StopIter |              79 |
+|           ShowRet |           -0.12 |
+|               SJF |               0 |
+|                F1 |               0 |
+|              Time |        5.09e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              72 |
+|      AverageEpRet |         -0.0281 |
+|          StdEpRet |           0.123 |
+|          MaxEpRet |               0 |
+|          MinEpRet |          -0.562 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |          -0.755 |
+|          StdVVals |          0.0449 |
+|          MaxVVals |             2.4 |
+|          MinVVals |          -0.758 |
+| TotalEnvInteracts |        3.74e+05 |
+|            LossPi |       -8.57e-09 |
+|             LossV |           0.546 |
+|       DeltaLossPi |        -0.00617 |
+|        DeltaLossV |          -0.337 |
+|           Entropy |            2.28 |
+|                KL |         0.00415 |
+|          ClipFrac |          0.0602 |
+|          StopIter |              79 |
+|           ShowRet |         -0.0281 |
+|               SJF |               0 |
+|                F1 |               0 |
+|              Time |        5.16e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              73 |
+|      AverageEpRet |           -6.84 |
+|          StdEpRet |            20.6 |
+|          MaxEpRet |               0 |
+|          MinEpRet |           -73.2 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |          -0.564 |
+|          StdVVals |            2.01 |
+|          MaxVVals |            1.96 |
+|          MinVVals |           -57.6 |
+| TotalEnvInteracts |        3.79e+05 |
+|            LossPi |       -6.89e-09 |
+|             LossV |             455 |
+|       DeltaLossPi |        -0.00493 |
+|        DeltaLossV |             -12 |
+|           Entropy |            2.26 |
+|                KL |         0.00613 |
+|          ClipFrac |           0.033 |
+|          StopIter |              79 |
+|           ShowRet |           -6.84 |
+|               SJF |               0 |
+|                F1 |               0 |
+|              Time |        5.23e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              74 |
+|      AverageEpRet |           -2.41 |
+|          StdEpRet |            10.5 |
+|          MaxEpRet |               0 |
+|          MinEpRet |           -48.2 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -0.93 |
+|          StdVVals |             2.2 |
+|          MaxVVals |          -0.853 |
+|          MinVVals |           -73.7 |
+| TotalEnvInteracts |        3.84e+05 |
+|            LossPi |        9.31e-11 |
+|             LossV |             111 |
+|       DeltaLossPi |        -0.00703 |
+|        DeltaLossV |          -0.527 |
+|           Entropy |            2.24 |
+|                KL |          0.0122 |
+|          ClipFrac |           0.214 |
+|          StopIter |              79 |
+|           ShowRet |           -2.41 |
+|               SJF |               0 |
+|                F1 |               0 |
+|              Time |         5.3e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              75 |
+|      AverageEpRet |           -5.06 |
+|          StdEpRet |            22.1 |
+|          MaxEpRet |               0 |
+|          MinEpRet |            -101 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -1.14 |
+|          StdVVals |            4.08 |
+|          MaxVVals |          -0.894 |
+|          MinVVals |           -84.2 |
+| TotalEnvInteracts |        3.89e+05 |
+|            LossPi |        1.02e-08 |
+|             LossV |             475 |
+|       DeltaLossPi |        -0.00617 |
+|        DeltaLossV |           -17.5 |
+|           Entropy |            2.21 |
+|                KL |         0.00517 |
+|          ClipFrac |           0.102 |
+|          StopIter |              79 |
+|           ShowRet |            1.83 |
+|               SJF |            6.89 |
+|                F1 |            6.89 |
+|              Time |        5.37e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              76 |
+|      AverageEpRet |           -4.75 |
+|          StdEpRet |            20.7 |
+|          MaxEpRet |               0 |
+|          MinEpRet |           -95.1 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -4.38 |
+|          StdVVals |            4.07 |
+|          MaxVVals |              -3 |
+|          MinVVals |           -93.6 |
+| TotalEnvInteracts |        3.94e+05 |
+|            LossPi |       -8.94e-09 |
+|             LossV |             410 |
+|       DeltaLossPi |        -0.00576 |
+|        DeltaLossV |           -1.72 |
+|           Entropy |            2.24 |
+|                KL |         0.00832 |
+|          ClipFrac |           0.131 |
+|          StopIter |              79 |
+|           ShowRet |           -4.75 |
+|               SJF |               0 |
+|                F1 |               0 |
+|              Time |        5.44e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              77 |
+|      AverageEpRet |          -0.596 |
+|          StdEpRet |             2.6 |
+|          MaxEpRet |               0 |
+|          MinEpRet |           -11.9 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -4.52 |
+|          StdVVals |           0.832 |
+|          MaxVVals |           -1.83 |
+|          MinVVals |            -7.8 |
+| TotalEnvInteracts |        3.99e+05 |
+|            LossPi |        9.13e-09 |
+|             LossV |            22.5 |
+|       DeltaLossPi |        -0.00488 |
+|        DeltaLossV |           -15.4 |
+|           Entropy |            2.26 |
+|                KL |         0.00617 |
+|          ClipFrac |          0.0324 |
+|          StopIter |              79 |
+|           ShowRet |          -0.596 |
+|               SJF |               0 |
+|                F1 |               0 |
+|              Time |        5.51e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              78 |
+|      AverageEpRet |           -16.6 |
+|          StdEpRet |            58.3 |
+|          MaxEpRet |               0 |
+|          MinEpRet |            -263 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -1.55 |
+|          StdVVals |            3.99 |
+|          MaxVVals |           0.825 |
+|          MinVVals |           -65.1 |
+| TotalEnvInteracts |        4.04e+05 |
+|            LossPi |       -6.43e-09 |
+|             LossV |        3.52e+03 |
+|       DeltaLossPi |        -0.00816 |
+|        DeltaLossV |            -384 |
+|           Entropy |            2.25 |
+|                KL |         0.00859 |
+|          ClipFrac |            0.12 |
+|          StopIter |              79 |
+|           ShowRet |           -3.57 |
+|               SJF |            13.1 |
+|                F1 |            13.1 |
+|              Time |        5.58e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              79 |
+|      AverageEpRet |           -0.57 |
+|          StdEpRet |            2.48 |
+|          MaxEpRet |               0 |
+|          MinEpRet |           -11.4 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -15.5 |
+|          StdVVals |           0.747 |
+|          MaxVVals |           -12.3 |
+|          MinVVals |           -17.6 |
+| TotalEnvInteracts |         4.1e+05 |
+|            LossPi |       -2.12e-08 |
+|             LossV |             230 |
+|       DeltaLossPi |        -0.00528 |
+|        DeltaLossV |            -224 |
+|           Entropy |             2.3 |
+|                KL |         0.00586 |
+|          ClipFrac |          0.0326 |
+|          StopIter |              79 |
+|           ShowRet |           -0.57 |
+|               SJF |               0 |
+|                F1 |               0 |
+|              Time |        5.65e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              80 |
+|      AverageEpRet |           -16.1 |
+|          StdEpRet |            45.9 |
+|          MaxEpRet |               0 |
+|          MinEpRet |            -190 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -2.68 |
+|          StdVVals |              16 |
+|          MaxVVals |          -0.948 |
+|          MinVVals |            -214 |
+| TotalEnvInteracts |        4.15e+05 |
+|            LossPi |       -1.08e-08 |
+|             LossV |        2.16e+03 |
+|       DeltaLossPi |        -0.00649 |
+|        DeltaLossV |            -221 |
+|           Entropy |            2.32 |
+|                KL |         0.00793 |
+|          ClipFrac |           0.102 |
+|          StopIter |              79 |
+|           ShowRet |           -9.18 |
+|               SJF |            6.89 |
+|                F1 |            6.89 |
+|              Time |        5.72e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              81 |
+|      AverageEpRet |           -8.86 |
+|          StdEpRet |              29 |
+|          MaxEpRet |               0 |
+|          MinEpRet |            -131 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -15.8 |
+|          StdVVals |            9.15 |
+|          MaxVVals |           -13.3 |
+|          MinVVals |            -177 |
+| TotalEnvInteracts |         4.2e+05 |
+|            LossPi |       -2.31e-08 |
+|             LossV |             837 |
+|       DeltaLossPi |        -0.00594 |
+|        DeltaLossV |           -53.6 |
+|           Entropy |             2.3 |
+|                KL |         0.00912 |
+|          ClipFrac |          0.0723 |
+|          StopIter |              79 |
+|           ShowRet |           -1.97 |
+|               SJF |            6.89 |
+|                F1 |            6.89 |
+|              Time |        5.79e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              82 |
+|      AverageEpRet |           -8.33 |
+|          StdEpRet |              30 |
+|          MaxEpRet |               0 |
+|          MinEpRet |            -137 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -8.63 |
+|          StdVVals |            6.33 |
+|          MaxVVals |           -6.97 |
+|          MinVVals |            -144 |
+| TotalEnvInteracts |        4.25e+05 |
+|            LossPi |        4.75e-09 |
+|             LossV |             857 |
+|       DeltaLossPi |        -0.00551 |
+|        DeltaLossV |           -4.88 |
+|           Entropy |            2.24 |
+|                KL |         0.00719 |
+|          ClipFrac |          0.0736 |
+|          StopIter |              79 |
+|           ShowRet |           -1.44 |
+|               SJF |            6.89 |
+|                F1 |            6.89 |
+|              Time |        5.86e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              83 |
+|      AverageEpRet |            -1.4 |
+|          StdEpRet |            6.09 |
+|          MaxEpRet |               0 |
+|          MinEpRet |           -27.9 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -8.04 |
+|          StdVVals |            2.31 |
+|          MaxVVals |           -6.64 |
+|          MinVVals |           -82.5 |
+| TotalEnvInteracts |         4.3e+05 |
+|            LossPi |        2.61e-09 |
+|             LossV |            82.4 |
+|       DeltaLossPi |        -0.00517 |
+|        DeltaLossV |           -46.1 |
+|           Entropy |            2.26 |
+|                KL |         0.00598 |
+|          ClipFrac |          0.0377 |
+|          StopIter |              79 |
+|           ShowRet |            -1.4 |
+|               SJF |               0 |
+|                F1 |               0 |
+|              Time |        5.93e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              84 |
+|      AverageEpRet |               0 |
+|          StdEpRet |               0 |
+|          MaxEpRet |               0 |
+|          MinEpRet |               0 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -1.08 |
+|          StdVVals |          0.0292 |
+|          MaxVVals |          -0.413 |
+|          MinVVals |           -1.08 |
+| TotalEnvInteracts |        4.35e+05 |
+|            LossPi |        3.95e-08 |
+|             LossV |            1.17 |
+|       DeltaLossPi |        -0.00529 |
+|        DeltaLossV |           -1.05 |
+|           Entropy |            2.27 |
+|                KL |         0.00373 |
+|          ClipFrac |          0.0262 |
+|          StopIter |              79 |
+|           ShowRet |               0 |
+|               SJF |               0 |
+|                F1 |               0 |
+|              Time |           6e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              85 |
+|      AverageEpRet |       -0.000977 |
+|          StdEpRet |         0.00426 |
+|          MaxEpRet |               0 |
+|          MinEpRet |         -0.0195 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |         -0.0108 |
+|          StdVVals |           0.363 |
+|          MaxVVals |            1.06 |
+|          MinVVals |           -1.08 |
+| TotalEnvInteracts |         4.4e+05 |
+|            LossPi |        5.22e-09 |
+|             LossV |           0.132 |
+|       DeltaLossPi |        -0.00455 |
+|        DeltaLossV |         -0.0711 |
+|           Entropy |            2.27 |
+|                KL |         0.00317 |
+|          ClipFrac |          0.0238 |
+|          StopIter |              79 |
+|           ShowRet |       -0.000977 |
+|               SJF |               0 |
+|                F1 |               0 |
+|              Time |        6.08e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              86 |
+|      AverageEpRet |           -6.21 |
+|          StdEpRet |            27.1 |
+|          MaxEpRet |               0 |
+|          MinEpRet |            -124 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -0.13 |
+|          StdVVals |             2.5 |
+|          MaxVVals |           0.687 |
+|          MinVVals |           -78.1 |
+| TotalEnvInteracts |        4.45e+05 |
+|            LossPi |       -1.28e-08 |
+|             LossV |             750 |
+|       DeltaLossPi |        -0.00766 |
+|        DeltaLossV |           -47.3 |
+|           Entropy |            2.24 |
+|                KL |          0.0112 |
+|          ClipFrac |           0.166 |
+|          StopIter |              79 |
+|           ShowRet |           -6.21 |
+|               SJF |               0 |
+|                F1 |               0 |
+|              Time |        6.15e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              87 |
+|      AverageEpRet |          -0.756 |
+|          StdEpRet |             3.3 |
+|          MaxEpRet |               0 |
+|          MinEpRet |           -15.1 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -5.92 |
+|          StdVVals |            2.95 |
+|          MaxVVals |            -3.8 |
+|          MinVVals |            -117 |
+| TotalEnvInteracts |        4.51e+05 |
+|            LossPi |       -2.12e-08 |
+|             LossV |            43.4 |
+|       DeltaLossPi |        -0.00525 |
+|        DeltaLossV |           -31.1 |
+|           Entropy |            2.28 |
+|                KL |         0.00342 |
+|          ClipFrac |          0.0439 |
+|          StopIter |              79 |
+|           ShowRet |          -0.756 |
+|               SJF |               0 |
+|                F1 |               0 |
+|              Time |        6.22e+04 |
+---------------------------------------
+[32;1mEarly stopping at step 8 due to reaching max kl.[0m
+---------------------------------------
+|             Epoch |              88 |
+|      AverageEpRet |           -4.13 |
+|          StdEpRet |              18 |
+|          MaxEpRet |               0 |
+|          MinEpRet |           -82.6 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -2.08 |
+|          StdVVals |            1.46 |
+|          MaxVVals |           -1.46 |
+|          MinVVals |           -47.1 |
+| TotalEnvInteracts |        4.56e+05 |
+|            LossPi |        2.74e-08 |
+|             LossV |             319 |
+|       DeltaLossPi |        -0.00331 |
+|        DeltaLossV |           -12.3 |
+|           Entropy |            2.24 |
+|                KL |          0.0173 |
+|          ClipFrac |           0.285 |
+|          StopIter |               8 |
+|           ShowRet |           -4.13 |
+|               SJF |               0 |
+|                F1 |               0 |
+|              Time |        6.27e+04 |
+---------------------------------------
+[32;1mEarly stopping at step 8 due to reaching max kl.[0m
+---------------------------------------
+|             Epoch |              89 |
+|      AverageEpRet |           -5.23 |
+|          StdEpRet |            22.8 |
+|          MaxEpRet |               0 |
+|          MinEpRet |            -105 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -4.14 |
+|          StdVVals |            4.16 |
+|          MaxVVals |           -2.75 |
+|          MinVVals |           -96.2 |
+| TotalEnvInteracts |        4.61e+05 |
+|            LossPi |        1.32e-08 |
+|             LossV |             496 |
+|       DeltaLossPi |        -0.00394 |
+|        DeltaLossV |           -2.55 |
+|           Entropy |            2.28 |
+|                KL |          0.0223 |
+|          ClipFrac |           0.297 |
+|          StopIter |               8 |
+|           ShowRet |           -5.23 |
+|               SJF |               0 |
+|                F1 |               0 |
+|              Time |        6.32e+04 |
+---------------------------------------
+[32;1mEarly stopping at step 10 due to reaching max kl.[0m
+---------------------------------------
+|             Epoch |              90 |
+|      AverageEpRet |           -5.52 |
+|          StdEpRet |            16.9 |
+|          MaxEpRet |               0 |
+|          MinEpRet |             -66 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -5.36 |
+|          StdVVals |             6.1 |
+|          MaxVVals |           -3.06 |
+|          MinVVals |            -122 |
+| TotalEnvInteracts |        4.66e+05 |
+|            LossPi |       -3.54e-09 |
+|             LossV |             283 |
+|       DeltaLossPi |        -0.00362 |
+|        DeltaLossV |            -9.5 |
+|           Entropy |            2.26 |
+|                KL |          0.0157 |
+|          ClipFrac |           0.275 |
+|          StopIter |              10 |
+|           ShowRet |           -5.52 |
+|               SJF |               0 |
+|                F1 |               0 |
+|              Time |        6.38e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              91 |
+|      AverageEpRet |           -16.7 |
+|          StdEpRet |            46.9 |
+|          MaxEpRet |               0 |
+|          MinEpRet |            -194 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -6.02 |
+|          StdVVals |            6.02 |
+|          MaxVVals |           -2.86 |
+|          MinVVals |           -87.1 |
+| TotalEnvInteracts |        4.71e+05 |
+|            LossPi |       -5.49e-09 |
+|             LossV |        2.18e+03 |
+|       DeltaLossPi |        -0.00763 |
+|        DeltaLossV |            -306 |
+|           Entropy |            2.31 |
+|                KL |         0.00694 |
+|          ClipFrac |           0.129 |
+|          StopIter |              79 |
+|           ShowRet |           -5.94 |
+|               SJF |            10.8 |
+|                F1 |            10.8 |
+|              Time |        6.45e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              92 |
+|      AverageEpRet |           -7.42 |
+|          StdEpRet |            30.3 |
+|          MaxEpRet |               0 |
+|          MinEpRet |            -139 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -15.7 |
+|          StdVVals |            11.1 |
+|          MaxVVals |            -1.1 |
+|          MinVVals |            -230 |
+| TotalEnvInteracts |        4.76e+05 |
+|            LossPi |       -6.71e-09 |
+|             LossV |             997 |
+|       DeltaLossPi |        -0.00711 |
+|        DeltaLossV |            -137 |
+|           Entropy |            2.28 |
+|                KL |          0.0108 |
+|          ClipFrac |          0.0709 |
+|          StopIter |              79 |
+|           ShowRet |           -7.42 |
+|               SJF |               0 |
+|                F1 |               0 |
+|              Time |        6.52e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              93 |
+|      AverageEpRet |         -0.0863 |
+|          StdEpRet |           0.376 |
+|          MaxEpRet |               0 |
+|          MinEpRet |           -1.73 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -7.79 |
+|          StdVVals |            3.66 |
+|          MaxVVals |            1.58 |
+|          MinVVals |           -26.4 |
+| TotalEnvInteracts |        4.81e+05 |
+|            LossPi |        7.08e-09 |
+|             LossV |            72.9 |
+|       DeltaLossPi |        -0.00553 |
+|        DeltaLossV |           -71.8 |
+|           Entropy |             2.3 |
+|                KL |          0.0065 |
+|          ClipFrac |           0.041 |
+|          StopIter |              79 |
+|           ShowRet |         -0.0863 |
+|               SJF |               0 |
+|                F1 |               0 |
+|              Time |        6.59e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              94 |
+|      AverageEpRet |           -3.12 |
+|          StdEpRet |            13.6 |
+|          MaxEpRet |               0 |
+|          MinEpRet |           -62.5 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -1.29 |
+|          StdVVals |            4.46 |
+|          MaxVVals |            1.29 |
+|          MinVVals |            -108 |
+| TotalEnvInteracts |        4.86e+05 |
+|            LossPi |         5.4e-09 |
+|             LossV |             180 |
+|       DeltaLossPi |        -0.00591 |
+|        DeltaLossV |           -2.24 |
+|           Entropy |            2.28 |
+|                KL |         0.00631 |
+|          ClipFrac |          0.0471 |
+|          StopIter |              79 |
+|           ShowRet |           -3.12 |
+|               SJF |               0 |
+|                F1 |               0 |
+|              Time |        6.67e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              95 |
+|      AverageEpRet |           -3.47 |
+|          StdEpRet |            15.1 |
+|          MaxEpRet |               0 |
+|          MinEpRet |           -69.4 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -1.31 |
+|          StdVVals |            2.26 |
+|          MaxVVals |           -0.84 |
+|          MinVVals |           -76.3 |
+| TotalEnvInteracts |        4.92e+05 |
+|            LossPi |        6.29e-09 |
+|             LossV |             228 |
+|       DeltaLossPi |        -0.00432 |
+|        DeltaLossV |           -4.15 |
+|           Entropy |            2.25 |
+|                KL |          0.0106 |
+|          ClipFrac |           0.122 |
+|          StopIter |              79 |
+|           ShowRet |           -3.47 |
+|               SJF |               0 |
+|                F1 |               0 |
+|              Time |        6.74e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              96 |
+|      AverageEpRet |             -25 |
+|          StdEpRet |            59.8 |
+|          MaxEpRet |               0 |
+|          MinEpRet |            -217 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -3.92 |
+|          StdVVals |            10.3 |
+|          MaxVVals |            -1.4 |
+|          MinVVals |            -123 |
+| TotalEnvInteracts |        4.97e+05 |
+|            LossPi |        6.98e-09 |
+|             LossV |        3.79e+03 |
+|       DeltaLossPi |        -0.00579 |
+|        DeltaLossV |            -544 |
+|           Entropy |            2.22 |
+|                KL |         0.00629 |
+|          ClipFrac |          0.0867 |
+|          StopIter |              79 |
+|           ShowRet |           -7.23 |
+|               SJF |            17.8 |
+|                F1 |            17.8 |
+|              Time |        6.81e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              97 |
+|      AverageEpRet |          -0.334 |
+|          StdEpRet |            1.45 |
+|          MaxEpRet |               0 |
+|          MinEpRet |           -6.68 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -23.1 |
+|          StdVVals |            2.41 |
+|          MaxVVals |           -9.37 |
+|          MinVVals |           -56.2 |
+| TotalEnvInteracts |        5.02e+05 |
+|            LossPi |        3.65e-08 |
+|             LossV |             525 |
+|       DeltaLossPi |        -0.00508 |
+|        DeltaLossV |            -522 |
+|           Entropy |            2.23 |
+|                KL |         0.00729 |
+|          ClipFrac |          0.0428 |
+|          StopIter |              79 |
+|           ShowRet |          -0.334 |
+|               SJF |               0 |
+|                F1 |               0 |
+|              Time |        6.88e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              98 |
+|      AverageEpRet |           -22.7 |
+|          StdEpRet |            97.8 |
+|          MaxEpRet |               0 |
+|          MinEpRet |            -449 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |          -0.943 |
+|          StdVVals |            5.89 |
+|          MaxVVals |            1.03 |
+|          MinVVals |           -82.3 |
+| TotalEnvInteracts |        5.07e+05 |
+|            LossPi |        2.79e-10 |
+|             LossV |        9.65e+03 |
+|       DeltaLossPi |        -0.00666 |
+|        DeltaLossV |       -1.52e+03 |
+|           Entropy |            2.19 |
+|                KL |         0.00719 |
+|          ClipFrac |           0.109 |
+|          StopIter |              79 |
+|           ShowRet |           -17.3 |
+|               SJF |            5.47 |
+|                F1 |            5.47 |
+|              Time |        6.95e+04 |
+---------------------------------------
+---------------------------------------
+|             Epoch |              99 |
+|      AverageEpRet |          -0.111 |
+|          StdEpRet |           0.483 |
+|          MaxEpRet |               0 |
+|          MinEpRet |           -2.21 |
+|      AverageEpLen |             256 |
+|          StdEpLen |               0 |
+|          MaxEpLen |             256 |
+|          MinEpLen |             256 |
+|      AverageVVals |           -19.4 |
+|          StdVVals |            5.91 |
+|          MaxVVals |           -1.26 |
+|          MinVVals |           -52.6 |
+| TotalEnvInteracts |        5.12e+05 |
+|            LossPi |       -1.49e-08 |
+|             LossV |             406 |
+|       DeltaLossPi |        -0.00678 |
+|        DeltaLossV |            -404 |
+|           Entropy |            2.19 |
+|                KL |         0.00414 |
+|          ClipFrac |          0.0486 |
+|          StopIter |              79 |
+|           ShowRet |          -0.111 |
+|               SJF |               0 |
+|                F1 |               0 |
+|              Time |        7.02e+04 |
+---------------------------------------
+/home/hdeeprm/.local/lib/python3.6/site-packages/tensorflow/python/framework/dtypes.py:516: FutureWarning: Passing (type, 1) or '1type' as a synonym of type is deprecated; in a future version of numpy, it will be understood as (type, (1,)) / '(1,)type'.
+  _np_qint8 = np.dtype([("qint8", np.int8, 1)])
+/home/hdeeprm/.local/lib/python3.6/site-packages/tensorflow/python/framework/dtypes.py:517: FutureWarning: Passing (type, 1) or '1type' as a synonym of type is deprecated; in a future version of numpy, it will be understood as (type, (1,)) / '(1,)type'.
+  _np_quint8 = np.dtype([("quint8", np.uint8, 1)])
+/home/hdeeprm/.local/lib/python3.6/site-packages/tensorflow/python/framework/dtypes.py:518: FutureWarning: Passing (type, 1) or '1type' as a synonym of type is deprecated; in a future version of numpy, it will be understood as (type, (1,)) / '(1,)type'.
+  _np_qint16 = np.dtype([("qint16", np.int16, 1)])
+/home/hdeeprm/.local/lib/python3.6/site-packages/tensorflow/python/framework/dtypes.py:519: FutureWarning: Passing (type, 1) or '1type' as a synonym of type is deprecated; in a future version of numpy, it will be understood as (type, (1,)) / '(1,)type'.
+  _np_quint16 = np.dtype([("quint16", np.uint16, 1)])
+/home/hdeeprm/.local/lib/python3.6/site-packages/tensorflow/python/framework/dtypes.py:520: FutureWarning: Passing (type, 1) or '1type' as a synonym of type is deprecated; in a future version of numpy, it will be understood as (type, (1,)) / '(1,)type'.
+  _np_qint32 = np.dtype([("qint32", np.int32, 1)])
+/home/hdeeprm/.local/lib/python3.6/site-packages/tensorflow/python/framework/dtypes.py:525: FutureWarning: Passing (type, 1) or '1type' as a synonym of type is deprecated; in a future version of numpy, it will be understood as (type, (1,)) / '(1,)type'.
+  np_resource = np.dtype([("resource", np.ubyte, 1)])
+/home/hdeeprm/.local/lib/python3.6/site-packages/tensorboard/compat/tensorflow_stub/dtypes.py:541: FutureWarning: Passing (type, 1) or '1type' as a synonym of type is deprecated; in a future version of numpy, it will be understood as (type, (1,)) / '(1,)type'.
+  _np_qint8 = np.dtype([("qint8", np.int8, 1)])
+/home/hdeeprm/.local/lib/python3.6/site-packages/tensorboard/compat/tensorflow_stub/dtypes.py:542: FutureWarning: Passing (type, 1) or '1type' as a synonym of type is deprecated; in a future version of numpy, it will be understood as (type, (1,)) / '(1,)type'.
+  _np_quint8 = np.dtype([("quint8", np.uint8, 1)])
+/home/hdeeprm/.local/lib/python3.6/site-packages/tensorboard/compat/tensorflow_stub/dtypes.py:543: FutureWarning: Passing (type, 1) or '1type' as a synonym of type is deprecated; in a future version of numpy, it will be understood as (type, (1,)) / '(1,)type'.
+  _np_qint16 = np.dtype([("qint16", np.int16, 1)])
+/home/hdeeprm/.local/lib/python3.6/site-packages/tensorboard/compat/tensorflow_stub/dtypes.py:544: FutureWarning: Passing (type, 1) or '1type' as a synonym of type is deprecated; in a future version of numpy, it will be understood as (type, (1,)) / '(1,)type'.
+  _np_quint16 = np.dtype([("quint16", np.uint16, 1)])
+/home/hdeeprm/.local/lib/python3.6/site-packages/tensorboard/compat/tensorflow_stub/dtypes.py:545: FutureWarning: Passing (type, 1) or '1type' as a synonym of type is deprecated; in a future version of numpy, it will be understood as (type, (1,)) / '(1,)type'.
+  _np_qint32 = np.dtype([("qint32", np.int32, 1)])
+/home/hdeeprm/.local/lib/python3.6/site-packages/tensorboard/compat/tensorflow_stub/dtypes.py:550: FutureWarning: Passing (type, 1) or '1type' as a synonym of type is deprecated; in a future version of numpy, it will be understood as (type, (1,)) / '(1,)type'.
+  np_resource = np.dtype([("resource", np.ubyte, 1)])
+/home/hdeeprm/.local/lib/python3.6/site-packages/gym/logger.py:30: UserWarning: [33mWARN: Box bound precision lowered by casting to float32[0m
+  warnings.warn(colorize('%s: %s'%('WARN', msg % args), 'yellow'))

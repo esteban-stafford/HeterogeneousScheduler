@@ -1,0 +1,48 @@
+{
+    "ac_kwargs":	{},
+    "attn":	0,
+    "backfil":	0,
+    "batch_job_slice":	0,
+    "clip_ratio":	0.2,
+    "enable_clustering":	1,
+    "epochs":	100,
+    "exp_name":	"Kmeans_50n_BSLD",
+    "gamma":	1,
+    "lam":	0.97,
+    "logger":	{
+        "<spinup.utils.logx.EpochLogger object at 0x7f02a34f8f60>":	{
+            "epoch_dict":	{},
+            "exp_name":	"Kmeans_50n_BSLD",
+            "first_row":	true,
+            "log_current_row":	{},
+            "log_headers":	[],
+            "output_dir":	"/home/hdeeprm/HeterogeneousScheduler/./data/logs/Kmeans_50n_BSLD/Kmeans_50n_BSLD_s505",
+            "output_file":	{
+                "<_io.TextIOWrapper name='/home/hdeeprm/HeterogeneousScheduler/./data/logs/Kmeans_50n_BSLD/Kmeans_50n_BSLD_s505/progress.txt' mode='w' encoding='ANSI_X3.4-1968'>":	{
+                    "mode":	"w"
+                }
+            }
+        }
+    },
+    "logger_kwargs":	{
+        "exp_name":	"Kmeans_50n_BSLD",
+        "output_dir":	"/home/hdeeprm/HeterogeneousScheduler/./data/logs/Kmeans_50n_BSLD/Kmeans_50n_BSLD_s505"
+    },
+    "max_ep_len":	1000,
+    "model_path":	"./data/lublin_256.schd",
+    "pi_lr":	0.0003,
+    "platform_file":	"/home/hdeeprm/HeterogeneousScheduler/./data/cluster_50nodes.json",
+    "pre_trained":	0,
+    "save_freq":	10,
+    "score_type":	0,
+    "seed":	505,
+    "shuffle":	0,
+    "skip":	0,
+    "target_kl":	0.01,
+    "train_pi_iters":	80,
+    "train_v_iters":	80,
+    "trained_model":	null,
+    "traj_per_epoch":	20,
+    "vf_lr":	0.001,
+    "workload_file":	"/home/hdeeprm/HeterogeneousScheduler/./data/lublin_256.swf"
+}
