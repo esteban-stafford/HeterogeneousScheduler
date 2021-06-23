@@ -10,7 +10,7 @@
     "gamma":	1,
     "lam":	0.97,
     "logger":	{
-        "<spinup.utils.logx.EpochLogger object at 0x7f365d977f60>":	{
+        "<spinup.utils.logx.EpochLogger object at 0x7f4babff5f60>":	{
             "epoch_dict":	{},
             "exp_name":	"Kmeans_100n_SLD",
             "first_row":	true,
