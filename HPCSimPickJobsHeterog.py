@@ -29,7 +29,7 @@ MAX_RUN_TIME = 12 * 60 * 60 # assume maximal runtime is 12 hours
 JOB_FEATURES = 4
 DEBUG = False
 
-CLUSTERING_SIZE = 20
+CLUSTERING_SIZE = 10
 
 NUM_NODES = 20
 NODE_FEATURES = 3
