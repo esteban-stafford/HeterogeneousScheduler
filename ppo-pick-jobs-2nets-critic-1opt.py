@@ -4,6 +4,7 @@ import gym
 import os
 import sys
 import time
+import random
 
 import spinup
 
@@ -218,6 +219,7 @@ def ppo(workload_file, platform_file, model_path, ac_kwargs=dict(), seed=0,
 
     tf.set_random_seed(seed)
     np.random.seed(seed)
+    random.seed(seed)
 
     env = HPCEnv(shuffle=shuffle, backfil=backfil, skip=skip, job_score_type=score_type, batch_job_slice=batch_job_slice, build_sjf=False)
     env.seed(seed)
