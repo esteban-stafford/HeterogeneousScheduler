@@ -17,7 +17,6 @@ from gym import spaces
 from gym.spaces import Box, Discrete
 from gym.utils import seeding
 
-from sklearn.cluster import KMeans
 
 
 MAX_QUEUE_SIZE = 128
@@ -418,6 +417,7 @@ class HPCEnv(gym.Env):
             vector[i*NODE_FEATURES:(i+1)*NODE_FEATURES] = self.nodes[i][1:]
 
         if self.enable_clustering:
+            from sklearn.cluster import KMeans
             kmeans = KMeans(n_clusters=CLUSTERING_SIZE)
             clusters = kmeans.fit_predict(vector.reshape(NUM_NODES, NODE_FEATURES))
             self.node_clusters = {i:[] for i in range(self.NUM_NODES)}
