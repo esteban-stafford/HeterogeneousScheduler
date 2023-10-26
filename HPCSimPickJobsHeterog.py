@@ -141,6 +141,7 @@ class HPCEnv(gym.Env):
 
     def my_init(self, workload_file='', platform_file='', sched_file=''):
         print ("Loading workloads from dataset:", workload_file)
+        print ("Loading cluster info from file:", platform_file)
         self.loads = Workloads(workload_file)
         self.cluster = Cluster(platform_file)
 
@@ -212,6 +213,13 @@ class HPCEnv(gym.Env):
     def fcfs_score(self, job):
         submit_time = job.submit_time
         return submit_time
+
+    def random_score(self, job):
+        return random.random()
+
+    def random_node(self, node):
+        return random.random()
+
 
     def job_score(self, job_for_scheduling: Job):
         # 0: Average bounded slowdown, 1: Average waiting time
@@ -799,9 +807,10 @@ class HPCEnv(gym.Env):
     # SORT JOBS
     def JOB_SCORES(self):
         return {
-            'smallest': self.smallest_score, 
-            'shortest': self.sjf_score, 
-            'first': self.fcfs_score
+            'r': self.random_score,
+            'f': self.fcfs_score,
+            's': self.sjf_score,
+            'l': self.smallest_score,
         }
 
     # SORT NODES
@@ -819,10 +828,11 @@ class HPCEnv(gym.Env):
 
     def NODE_SCORES(self):
         return {
-            'smallest': self.smallest_node,
-            'biggest': self.biggest_node,
-            'lowest': self.lowest_frec,
-            'highest': self.highest_frec
+            'r': self.random_node,
+            'b': self.biggest_node,
+            'f': self.highest_frec,
+            # 'smallest': self.smallest_node,
+            # 'lowest': self.lowest_frec,
         }
     
 
@@ -831,10 +841,12 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--workload', type=str, default='./data/lublin_256.swf')  # RICC-2010-2
+    parser.add_argument('--platform', type=str, default='./data/cluster_x4_64procs.json')
     args = parser.parse_args()
     current_dir = os.getcwd()
     workload_file = os.path.join(current_dir, args.workload)
+    platform_file = os.path.join(current_dir, args.platform)
 
-    env = HPCEnv(batch_job_slice=100, build_sjf=True)
+    env = HPCEnv(batch_job_slice=100, build_sjf=False)
     env.seed(0)
-    env.my_init(workload_file=workload_file, sched_file=workload_file)
+    env.my_init(workload_file=workload_file, platform_file=platform_file, sched_file=workload_file)
