@@ -114,44 +114,48 @@ def run_policy(env, get_jobs, get_nodes, nums, iters, score_type):
 
     axes.yaxis.grid(True)
     axes.set_xticks([y + 1 for y in range(len(all_data))])
-    xticklabels = [f'{k1}_{k2}' for k1 in env.JOB_SCORES() for k2 in env.NODE_SCORES()] + ['rl']
+    xticklabels = [f'{k1}{k2}' for k1 in env.JOB_SCORES() for k2 in env.NODE_SCORES()] + ['DA']
+    # xticklabels = [f'{k1}_{k2}' for k1 in env.JOB_SCORES() for k2 in env.NODE_SCORES()] + ['rl']
+    # xticklabels = [f'{i*len(env.JOB_SCORES())+j+1}' for i in range(len(env.JOB_SCORES())) for j in range(len(env.NODE_SCORES()))] + ['MEAN']
     plt.setp(axes, xticks=[y + 1 for y in range(len(all_data))],
              xticklabels=xticklabels)
     if score_type == 0:
-        plt.ylabel("Average bounded slowdown")
+        plt.ylabel("Average bounded slowdown", fontsize=15)
     elif score_type == 1:
-        plt.ylabel("Average waiting time")
+        plt.ylabel("Average waiting time", fontsize=15)
     elif score_type == 2:
-        plt.ylabel("Average turnaround time")
+        plt.ylabel("Average turnaround time", fontsize=15)
     elif score_type == 3:
-        plt.ylabel("Resource utilization")
+        plt.ylabel("Resource utilization", fontsize=15)
     else:
         raise NotImplementedError
 
+    plt.title('Comparison of results for the SEP Double Agent', fontsize=20)
     # plt.ylabel("Average waiting time (s)")
-    plt.xlabel("Scheduling Policies")
-    # plt.tick_params(axis='both', which='major', labelsize=40)
-    # plt.tick_params(axis='both', which='minor', labelsize=40)
-    plt.tick_params(axis='both', which='major', labelsize=20)
-    plt.tick_params(axis='both', which='minor', labelsize=20)
+    plt.xlabel("Scheduling Policies", fontsize=15)
+    plt.tick_params(axis='both', which='major', labelsize=15)
+    plt.tick_params(axis='both', which='minor', labelsize=15)
 
-    plt.savefig('data/graphics2/fig_2nets_2opt_fix_min_value4.png')
+    # plt.tight_layout()
+    # plt.savefig('data/ExperimentosTFG/Figures/BoxplotExp2_MEAN.png')
+    plt.savefig('data/ExperimentosTFG/Figures/BoxplotExp3_2opt.png')
 
 if __name__ == '__main__':
     import argparse
     import time
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--rlmodel', type=str, default="./data/logs/2nets_2opt_fix_min_value/2nets_2opt_fix_min_value_s1804")
+    # parser.add_argument('--rlmodel', type=str, default="./data/logs/Exp2_DoubleMEAN/Exp2_DoubleMEAN_s2406")
+    parser.add_argument('--rlmodel', type=str, default="./data/logs/Exp3_Double2opt/Exp3_Double2opt_s2406")
     parser.add_argument('--workload', type=str, default='./data/lublin_256.swf')
     parser.add_argument('--platform', type=str, default='./data/cluster_x4_64procs.json')
-    parser.add_argument('--len', '-l', type=int, default=2048)
-    parser.add_argument('--seed', '-s', type=int, default=1234)
-    parser.add_argument('--iter', '-i', type=int, default=10)
+    parser.add_argument('--len', '-l', type=int, default=1024)
+    parser.add_argument('--seed', '-s', type=int, default=500)
+    parser.add_argument('--iter', '-i', type=int, default=20)
     parser.add_argument('--shuffle', type=int, default=0)
     parser.add_argument('--backfil', type=int, default=0)
     parser.add_argument('--skip', type=int, default=0)
-    parser.add_argument('--score_type', type=int, default=0)
+    parser.add_argument('--score_type', type=int, default=BSLD)
     parser.add_argument('--batch_job_slice', type=int, default=0)
 
     args = parser.parse_args()
