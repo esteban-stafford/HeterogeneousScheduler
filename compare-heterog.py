@@ -64,7 +64,7 @@ def run_policy(env, get_probs, get_out, nums, iters, score_type):
                 results[(k1,k2)].append(sum(env.schedule_curr_sequence_reset_heterog(js, ns).values()))
                 print(f'{k1}{k2}: {results[(k1,k2)][-1]}')
         [o, lst] = env.combine_observations(env.build_observation(), env.build_nodes_observation())
-        print ("schedule: ", end="")
+       # print ("schedule: ", end="")
         rl = 0
         total_decisions = 0
         rl_decisions = 0
@@ -78,7 +78,7 @@ def run_policy(env, get_probs, get_out, nums, iters, score_type):
             [o, lst], r, d, _ = env.step_for_test(a)
             rl += r
             if d:
-                print("Sequence Length:",total_decisions)
+               # print("Sequence Length:",total_decisions)
                 break
         print(f'RL res: {rl}')
         rl_r.append(rl)
