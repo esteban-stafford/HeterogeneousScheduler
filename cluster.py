@@ -191,6 +191,7 @@ Cluster = HeterogeneousCluster
 
 
 def load_cluster(path):
+    print('Loading ' + path + ' for the cluster...')
     with open(path) as in_f:
         data = json.load(in_f)
     return data['clusters'][0]
