@@ -316,7 +316,7 @@ def ppo(workload_file, platform_file, model_path, ac_kwargs=dict(), seed=0,
             buf.store(o, None, a, np.array(lst), r, v_t, logp_t)
             logger.store(VVals=v_t)
 
-            # print('ACTION:', a)
+            #print('ACTION:', a)
 
             [o, lst], r, d, r2, sjf_t, f1_t = env.step(a[0])
             ep_ret += r
@@ -398,7 +398,7 @@ if __name__ == '__main__':
         model_file = os.path.join(current_dir, args.trained_model)
 
         ppo(workload_file, platform_file, args.model, gamma=args.gamma, seed=args.seed, traj_per_epoch=args.trajs, epochs=args.epochs,
-        logger_kwargs=logger_kwargs, pre_trained=1,trained_model=os.path.join(model_file,"simple_save"),attn=args.attn,
+        logger_kwargs=logger_kwargs, pre_trained=1,trained_model=os.path.join(model_file,"tf1_save"),attn=args.attn,
             shuffle=args.shuffle, backfil=args.backfil, skip=args.skip, score_type=args.score_type,
             batch_job_slice=args.batch_job_slice, enable_clustering=args.enable_clustering)
     else:

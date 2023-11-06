@@ -22,14 +22,14 @@ tf.enable_eager_execution()
 def load_policy(model_path, itr='last'):
     # handle which epoch to load from
     if itr == 'last':
-        saves = [int(x[11:]) for x in os.listdir(model_path) if 'simple_save' in x and len(x) > 11]
+        saves = [int(x[11:]) for x in os.listdir(model_path) if 'tf1_save' in x and len(x) > 11]
         itr = '%d' % max(saves) if len(saves) > 0 else ''
     else:
         itr = '%d' % itr
 
     # load the things!
     sess = tf.Session()
-    model = restore_tf_graph(sess, osp.join(model_path, 'simple_save' + itr))
+    model = restore_tf_graph(sess, osp.join(model_path, 'tf1_save' + itr))
 
     # get the correct op for executing actions
     pi = model['pi']

@@ -493,7 +493,7 @@ if __name__ == '__main__':
         model_file = os.path.join(current_dir, args.trained_model)
 
         ppo(workload_file, platform_file, args.model, gamma=args.gamma, seed=args.seed, traj_per_epoch=args.trajs, epochs=args.epochs,
-        logger_kwargs=logger_kwargs, pre_trained=1,trained_model=os.path.join(model_file,"simple_save"),attn=args.attn,
+        logger_kwargs=logger_kwargs, pre_trained=1,trained_model=os.path.join(model_file,"tf1_save"),attn=args.attn,
             shuffle=args.shuffle, backfil=args.backfil, skip=args.skip, score_type=args.score_type,
             batch_job_slice=args.batch_job_slice)
     else:
