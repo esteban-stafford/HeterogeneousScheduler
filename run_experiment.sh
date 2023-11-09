@@ -14,7 +14,7 @@ $PYTHON ppo-pick-jobs.py \
   --platform $PLATFORM \
   --gamma 1 \
   --seed $TRAIN_SEED \
-  --trajs 1 \
+  --trajs 10 \
   --epochs 1 \
   --exp_name $EXP_NAME \
   --pre_trained 0 \
