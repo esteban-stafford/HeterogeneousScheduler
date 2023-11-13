@@ -91,7 +91,7 @@ class HPCEnv(gym.Env):
 
     def __init__(self,shuffle=False, backfil=False, skip=False, job_score_type=0, batch_job_slice=0, build_sjf=False, enable_clustering=False):
         super(HPCEnv, self).__init__()
-        print("Initialize Heterog HPC Env")
+        print("Initialize Heterog HPC Env", file=sys.stderr)
 
         self.job_queue = []
         self.running_jobs = []
@@ -123,9 +123,6 @@ class HPCEnv(gym.Env):
         self.shuffle = shuffle
         self.backfil = backfil
         self.skip = skip
-        # 0: Average bounded slowdown, 1: Average waiting time
-        # 2: Average turnaround time, 3: Resource utilization
-        # 4: Slowdown
         self.job_score_type = job_score_type
         self.batch_job_slice = batch_job_slice
 
@@ -140,8 +137,8 @@ class HPCEnv(gym.Env):
                                             dtype=np.float32)
 
     def my_init(self, workload_file='', platform_file='', sched_file=''):
-        print ("Loading workloads from dataset:", workload_file)
-        print ("Loading cluster info from file:", platform_file)
+        print ("Loading workloads from dataset:", workload_file, file=sys.stderr)
+        print ("Loading cluster info from file:", platform_file, file=sys.stderr)
         self.loads = Workloads(workload_file)
         self.cluster = Cluster(platform_file)
 
@@ -221,19 +218,19 @@ class HPCEnv(gym.Env):
         return random.random()
 
 
-    def job_score(self, job_for_scheduling: Job):
-        # 0: Average bounded slowdown, 1: Average waiting time
-        # 2: Average turnaround time, 3: Resource utilization 4: Average slowdown
-        if self.job_score_type == BSLD:
+    def job_score(self, job_for_scheduling: Job, job_score_type = -1):
+        if job_score_type == -1:
+           job_score_type = self.job_score_type
+        if job_score_type == BSLD:
             return max(1.0, (float(job_for_scheduling.finish_time - job_for_scheduling.submit_time)
                             / max(job_for_scheduling.request_time, 10)))
-        if self.job_score_type == AVGW:
+        if job_score_type == AVGW:
             return float(job_for_scheduling.scheduled_time - job_for_scheduling.submit_time)
-        if self.job_score_type == AVGT:
+        if job_score_type == AVGT:
             return float(job_for_scheduling.finish_time - job_for_scheduling.submit_time)
-        if self.job_score_type == RESU: # TODO Esto igual se puede redefinir algo mejor
+        if job_score_type == RESU: # TODO Esto igual se puede redefinir algo mejor
             return -float(job_for_scheduling.request_time*job_for_scheduling.request_number_of_processors)
-        if self.job_score_type == SLD:
+        if job_score_type == SLD:
             return float(job_for_scheduling.finish_time - job_for_scheduling.submit_time)\
                 /job_for_scheduling.request_time
         raise NotImplementedError
@@ -513,12 +510,12 @@ class HPCEnv(gym.Env):
                 return node
         raise NotImplementedError
 
-    def step(self, a: int) -> list:
-        job_for_scheduling = self.jobs[a//self.NUM_NODES][0]
+    def step(self, action: int) -> list:
+        job_for_scheduling = self.jobs[action//self.NUM_NODES][0]
         if self.enable_clustering:
-            node_for_scheduling = self.get_node_from_cluster(job_for_scheduling, a%self.NUM_NODES)
+            node_for_scheduling = self.get_node_from_cluster(job_for_scheduling, action%self.NUM_NODES)
         else:
-            node_for_scheduling = self.nodes[a%self.NUM_NODES][0]
+            node_for_scheduling = self.nodes[action%self.NUM_NODES][0]
 
         if not job_for_scheduling or not node_for_scheduling:
             done = self.skip_schedule()
@@ -571,12 +568,12 @@ class HPCEnv(gym.Env):
         rwd = -rl_total
         return [(None, None), rwd, True, rwd2, sjf, f1]
 
-    def step_for_test(self, a):
-        job_for_scheduling = self.jobs[a//self.NUM_NODES][0]
+    def step_for_test(self, action):
+        job_for_scheduling = self.jobs[action//self.NUM_NODES][0]
         if self.enable_clustering:
-            node_for_scheduling = self.get_node_from_cluster(job_for_scheduling, a%self.NUM_NODES)
+            node_for_scheduling = self.get_node_from_cluster(job_for_scheduling, action%self.NUM_NODES)
         else:
-            node_for_scheduling = self.nodes[a%self.NUM_NODES][0]
+            node_for_scheduling = self.nodes[action%self.NUM_NODES][0]
 
         if not job_for_scheduling or not node_for_scheduling:
             done = self.skip_schedule()
@@ -590,10 +587,12 @@ class HPCEnv(gym.Env):
                 self.advance_time()
             obs = self.combine_observations(self.build_observation(), self.build_nodes_observation())
             return [obs, 0, False, None]
-
-        self.post_process_score(self.scheduled_rl)
-        rl_total = sum(self.scheduled_rl.values())
-        return [(None, None), rl_total, True, None]
+        metrics = {}
+        for job_score_type in (BSLD, AVGW, AVGT, SLD):
+            self.post_process_score(self.scheduled_logs[job_score_type], job_score_type)
+            metrics[job_score_type] = sum(self.scheduled_logs[job_score_type])
+        
+        return [(None, None), metrics, True, None]
 
     def step_for_test_2nets(self, aj: int, an: int):
         job_for_scheduling = self.jobs[aj][0]
@@ -616,14 +615,14 @@ class HPCEnv(gym.Env):
         rl_total = sum(self.scheduled_rl.values())
         return [(None, None), rl_total, True, None]
 
-    def post_process_score(self, scheduled_logs: dict):
-        if self.job_score_type in (BSLD, AVGW, AVGT, SLD):
-            for k in scheduled_logs:
-                scheduled_logs[k] /= self.num_job_in_batch
+    def post_process_score(self, scheduled_logs: list, job_score_type):
+        if job_score_type in (BSLD, AVGW, AVGT, SLD):
+            for i in range(len(scheduled_logs)):
+                scheduled_logs[i] /= self.num_job_in_batch
             return
-        if self.job_score_type in (RESU,):
+        if job_score_type in (RESU,):
             total_cpu_hour = (self.current_timestamp - self.loads[self.start].submit_time)*self.loads.max_procs
-            for i in scheduled_logs:
+            for i in range(len(scheduled_logs)):
                 scheduled_logs[i] /= total_cpu_hour
             return
         raise NotImplementedError
@@ -641,6 +640,8 @@ class HPCEnv(gym.Env):
         assert job.request_number_of_processors <= node.free_procs
         self.cluster.allocate(job, self.current_timestamp, node)
         self.running_jobs.append(job)
+        for score_type in (BSLD, AVGW, AVGT, SLD):
+            self.scheduled_logs[score_type].append(self.job_score(job, score_type))
         score = self.job_score(job)   # calculated reward
         self.scheduled_rl[job.job_id] = score
         self.job_queue.remove(job)  # remove the job from job queue
@@ -650,28 +651,30 @@ class HPCEnv(gym.Env):
         raise NotImplementedError
 
     def schedule_curr_sequence_reset_heterog(self, job_fn, node_fn) -> dict:
-        scheduled_logs = {}
+        self.scheduled_logs = {}
+        metrics = {}
         self.cluster.all_nodes.sort(key=lambda n:node_fn(n))
+        for job_score_type in (BSLD, AVGW, AVGT, SLD):
+            self.scheduled_logs[job_score_type] = []
         while self.job_queue:
             self.job_queue.sort(key=lambda j:job_fn(j))
             job = self.job_queue.pop(0)
             node = self.cluster.next_resource(job)
             while not node:
-                # TODO Mirar esta funcion
                 self.advance_time()
                 node = self.cluster.next_resource(job)
-                # node = self.skip_for_resources_greedy_heterog(job)
-                # self.skip_for_resources_greedy(job, scheduled_logs)
             assert job.scheduled_time == -1
             assert job.request_number_of_processors <= node.free_procs
             self.cluster.allocate(job, self.current_timestamp, node)
             self.running_jobs.append(job)
-            score = self.job_score(job)
-            scheduled_logs[job.job_id] = score
-            # self.receive_jobs()
+            for job_score_type in (BSLD, AVGW, AVGT, SLD):
+                self.scheduled_logs[job_score_type].append(self.job_score(job,job_score_type))
             self.moveforward_for_job() # TODO Esto igual hay que revisarlo
         
-        self.post_process_score(scheduled_logs)
+        for job_score_type in (BSLD, AVGW, AVGT, SLD):
+            self.post_process_score(self.scheduled_logs[job_score_type], job_score_type)
+            metrics[job_score_type] = sum(self.scheduled_logs[job_score_type])
+
         self.cluster.reset()
         self.loads.reset()
         self.job_queue = []
@@ -688,7 +691,7 @@ class HPCEnv(gym.Env):
         if self.enable_preworkloads:
             raise NotImplementedError
 
-        return scheduled_logs
+        return metrics
 
     def schedule_curr_sequence_reset(self, score_fn) -> dict:
         scheduled_logs = {}

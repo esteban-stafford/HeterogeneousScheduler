@@ -50,90 +50,36 @@ def load_policy(model_path, itr='last'):
     return get_probs, get_out
 
 
+import pprint
+pp = pprint.PrettyPrinter(indent=4)
 #@profile
-def run_policy(env, get_probs, get_out, nums, iters, score_type):
-
-    rl_r = []
-    results = defaultdict(list)
-
+def run_policy(env, get_probs, get_out, nums, iters):
     for iter_num in range(0, iters):
         start = iter_num *args.len
         env.reset_for_test(nums,start)
         for k1, js in env.JOB_SCORES().items():
             for k2, ns in env.NODE_SCORES().items():
-                results[(k1,k2)].append(sum(env.schedule_curr_sequence_reset_heterog(js, ns).values()))
-                print(f'{k1}{k2}: {results[(k1,k2)][-1]}')
+                averages = env.schedule_curr_sequence_reset_heterog(js, ns)
+                print(f'{iter_num} {k1}{k2} ' + ' '.join([str(averages[k]) for k in sorted(averages.keys())]))
         [o, lst] = env.combine_observations(env.build_observation(), env.build_nodes_observation())
-       # print ("schedule: ", end="")
-        rl = 0
+       
         total_decisions = 0
         rl_decisions = 0
+        averages = {}
         while True:
             total_decisions += 1
             pi = get_probs(o, np.array(lst))
-            a = pi[0]
+            action = pi[0]
             rl_decisions += 1
 
-            # print (str(a)+"("+str(count)+")", end="|")
-            [o, lst], r, d, _ = env.step_for_test(a)
-            rl += r
+            [o, lst], metrics, d, _ = env.step_for_test(action)
+            
             if d:
-               # print("Sequence Length:",total_decisions)
+                for metric, value in metrics.items():
+                    averages[metric] = value
                 break
-        print(f'RL res: {rl}')
-        rl_r.append(rl)
-        print ("")
+        print(f'{iter_num} RL ' + ' '.join([str(averages[metric]) for metric in sorted(averages.keys())]))
 
-    # plot
-    all_data = list(results.values())
-    all_data.append(rl_r)
-
-    all_medians = [np.median(p) for p in all_data]
-
-    plt.rc("font", size=23)
-    plt.figure(figsize=(9, 5))
-    axes = plt.axes()
-
-    xticks = [y + 1 for y in range(len(all_data))]
-    for i in range(len(all_data)):
-        plt.plot(xticks[i:i+1], all_data[i:i+1], 'o', color='darkorange')
-        
-    plt.boxplot(all_data, showfliers=False, meanline=True, showmeans=True, medianprops={"linewidth":0},meanprops={"color":"darkorange", "linewidth":4,"linestyle":"solid"})
-
-
-    axes.yaxis.grid(True)
-    axes.set_xticks([y + 1 for y in range(len(all_data))])
-    xticklabels = [f'{k1}{k2}' for k1 in env.JOB_SCORES() for k2 in env.NODE_SCORES()] + ['SA']
-    plt.setp(axes, xticks=[y + 1 for y in range(len(all_data))], xticklabels=xticklabels)
-    if score_type == BSLD:
-        plt.ylabel("Average bounded slowdown", fontsize=15)
-    elif score_type == AVGW:
-        plt.ylabel("Average waiting time", fontsize=15)
-    elif score_type == AVGT:
-        plt.ylabel("Average turnaround time", fontsize=15)
-    elif score_type == RESU:
-        plt.ylabel("Resource utilization", fontsize=15)
-    elif score_type == SLD:
-        plt.ylabel("Slowdown", fontsize=15)
-    else:
-        raise NotImplementedError
-
-    # plt.title('Comparison of results for the Squared Agent with Clustering (BSLD).', fontsize=14)
-    # plt.title('Comparison of results for the Squared Agent (BSLD). Train: lublin_256 | Test: RICC-2010-2', fontsize=18)
-    plt.title('Comparison of results for the Squared Agent (AVGW)', fontsize=18)
-    # plt.title('Comparison of results for the Squared Agent with clustering (BSLD)', fontsize=18)
-    # plt.ylabel("Average waiting time (s)")
-    plt.xlabel("Scheduling Policies", fontsize=15)
-    # plt.tick_params(axis='both', which='major', labelsize=40)
-    # plt.tick_params(axis='both', which='minor', labelsize=40)
-    plt.tick_params(axis='both', which='major', labelsize=15)
-    plt.tick_params(axis='both', which='minor', labelsize=15)
-
-    # plt.savefig('data/NuevosExperimentos/DiferenteObjectivo/Figures/BoxplotExp_SLD_BSLD.png')
-    plt.savefig('data/Pruebas/Test1epoch.png')
-    # plt.savefig('data/ExperimentosTFG/Figures/BoxplotExp5_SqSLD.png')
-    # plt.savefig('data/ExperimentosTFG/Figures/BoxplotExp6_SqAVGW.png')
-    # plt.savefig('data/ExperimentosTFG/Figures/BoxplotExp7_SqBSLD_Clust_NEW.png')
 
 if __name__ == '__main__':
     import argparse
@@ -153,7 +99,6 @@ if __name__ == '__main__':
     parser.add_argument('--shuffle', type=int, default=0)
     parser.add_argument('--backfil', type=int, default=0)
     parser.add_argument('--skip', type=int, default=0)
-    parser.add_argument('--score_type', type=int, default=0)
     parser.add_argument('--batch_job_slice', type=int, default=0)
     parser.add_argument('--enable_clustering', type=int, default=0)
     # parser.add_argument('--enable_clustering', type=int, default=1)
@@ -168,12 +113,13 @@ if __name__ == '__main__':
     get_probs, get_value = load_policy(model_file, 'last') 
     
     # initialize the environment from scratch
-    env = HPCEnv(shuffle=args.shuffle, backfil=args.backfil, skip=args.skip, job_score_type=args.score_type,
+    env = HPCEnv(shuffle=args.shuffle, backfil=args.backfil, skip=args.skip,
                  batch_job_slice=args.batch_job_slice, build_sjf=False, enable_clustering=args.enable_clustering)
     env.my_init(workload_file=workload_file, platform_file=platform_file)
     env.seed(args.seed)
     random.seed(args.seed)
 
+    print("iteration","scheduler","BSLD","AVGW","AVGT","SLD")
     start = time.time()
-    run_policy(env, get_probs, get_value, args.len, args.iter, args.score_type)
-    print("elapse: {}".format(time.time()-start))
+    run_policy(env, get_probs, get_value, args.len, args.iter)
+    print("elapse: {}".format(time.time()-start), file=sys.stderr)

@@ -1,4 +1,5 @@
 import math
+import sys
 import json
 
 from queue import PriorityQueue
@@ -191,7 +192,7 @@ Cluster = HeterogeneousCluster
 
 
 def load_cluster(path):
-    print('Loading ' + path + ' for the cluster...')
+    print('Loading ' + path + ' for the cluster...', file=sys.stderr)
     with open(path) as in_f:
         data = json.load(in_f)
     return data['clusters'][0]

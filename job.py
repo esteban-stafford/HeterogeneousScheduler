@@ -156,7 +156,7 @@ class Workloads:
 
         print ("Max Allocated Processors:", str(self.max), ";max node:", self.max_nodes,
                ";max procs:", self.max_procs,
-               ";max execution time:", self.max_exec_time)
+               ";max execution time:", self.max_exec_time, file=sys.stderr)
 
         self.all_jobs.sort(key=lambda job: job.job_id)
 
