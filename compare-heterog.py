@@ -50,10 +50,7 @@ def load_policy(model_path, itr='last'):
     return get_probs, get_out
 
 
-import pprint
-pp = pprint.PrettyPrinter(indent=4)
-#@profile
-def run_policy(env, get_probs, get_out, nums, iters):
+def run_policy(env, models, nums, iters):
     for iter_num in range(0, iters):
         start = iter_num *args.len
         env.reset_for_test(nums,start)
@@ -61,24 +58,29 @@ def run_policy(env, get_probs, get_out, nums, iters):
             for k2, ns in env.NODE_SCORES().items():
                 averages = env.schedule_curr_sequence_reset_heterog(js, ns)
                 print(f'{iter_num} {k1}{k2} ' + ' '.join([str(averages[k]) for k in sorted(averages.keys())]))
-        [o, lst] = env.combine_observations(env.build_observation(), env.build_nodes_observation())
-       
-        total_decisions = 0
-        rl_decisions = 0
-        averages = {}
-        while True:
-            total_decisions += 1
-            pi = get_probs(o, np.array(lst))
-            action = pi[0]
-            rl_decisions += 1
-
-            [o, lst], metrics, d, _ = env.step_for_test(action)
+ 
+        for model in models:
+            model_file = os.path.join(current_dir, model)
+            get_probs, get_value = load_policy(model_file, 'last')
+            total_decisions = 0
+            rl_decisions = 0
+            averages = {}
             
-            if d:
-                for metric, value in metrics.items():
-                    averages[metric] = value
-                break
-        print(f'{iter_num} RL ' + ' '.join([str(averages[metric]) for metric in sorted(averages.keys())]))
+            [o, lst] = env.combine_observations(env.build_observation(), env.build_nodes_observation())
+            while True:
+                total_decisions += 1
+                pi = get_probs(o, np.array(lst))
+                action = pi[0]
+                rl_decisions += 1
+
+                [o, lst], metrics, d, _ = env.step_for_test(action)
+                
+                if d:
+                    for metric, value in metrics.items():
+                        averages[metric] = value
+                    env.reset()
+                    break
+            print(f'{iter_num} {model} ' + ' '.join([str(averages[metric]) for metric in sorted(averages.keys())]))
 
 
 if __name__ == '__main__':
@@ -88,7 +90,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     # parser.add_argument('--rlmodel', type=str, default="./data/logs/Exp4_SquaredSLD/Exp4_SquaredSLD_s2406")
     # parser.add_argument('--rlmodel', type=str, default="./data/logs/Exp5_SquaredSLD/Exp5_SquaredSLD_s2406")
-    parser.add_argument('--rlmodel', type=str, default="./data/logs/Exp6_SquaredAVGW/Exp6_SquaredAVGW_s2406")
+    parser.add_argument('--rlmodel', type=str, default="./data/logs/Exp6_SquaredAVGW/Exp6_SquaredAVGW_s2406", nargs="+")
     # parser.add_argument('--rlmodel', type=str, default="./data/logs/Exp6_SquaredAVGW/Exp6_SquaredAVGW_s2406")
     # parser.add_argument('--rlmodel', type=str, default="./data/logs/Exp7_SquaredClustering/Exp7_SquaredClustering_s2406")
     parser.add_argument('--workload', type=str, default='./data/lublin_256.swf')
@@ -108,10 +110,7 @@ if __name__ == '__main__':
     current_dir = os.getcwd()
     workload_file = os.path.join(current_dir, args.workload)
     platform_file = os.path.join(current_dir, args.platform)
-    model_file = os.path.join(current_dir, args.rlmodel)
 
-    get_probs, get_value = load_policy(model_file, 'last') 
-    
     # initialize the environment from scratch
     env = HPCEnv(shuffle=args.shuffle, backfil=args.backfil, skip=args.skip,
                  batch_job_slice=args.batch_job_slice, build_sjf=False, enable_clustering=args.enable_clustering)
@@ -121,5 +120,5 @@ if __name__ == '__main__':
 
     print("iteration","scheduler","BSLD","AVGW","AVGT","SLD")
     start = time.time()
-    run_policy(env, get_probs, get_value, args.len, args.iter)
+    run_policy(env, args.rlmodel, args.len, args.iter)
     print("elapse: {}".format(time.time()-start), file=sys.stderr)

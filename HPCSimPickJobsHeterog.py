@@ -675,6 +675,10 @@ class HPCEnv(gym.Env):
             self.post_process_score(self.scheduled_logs[job_score_type], job_score_type)
             metrics[job_score_type] = sum(self.scheduled_logs[job_score_type])
 
+        self.reset()
+        return metrics
+
+    def reset(self):
         self.cluster.reset()
         self.loads.reset()
         self.job_queue = []
@@ -690,8 +694,6 @@ class HPCEnv(gym.Env):
 
         if self.enable_preworkloads:
             raise NotImplementedError
-
-        return metrics
 
     def schedule_curr_sequence_reset(self, score_fn) -> dict:
         scheduled_logs = {}
@@ -709,21 +711,7 @@ class HPCEnv(gym.Env):
             self.moveforward_for_job() # TODO Esto igual hay que revisarlo
 
         self.post_process_score(scheduled_logs)
-        self.cluster.reset()
-        self.loads.reset()
-        self.job_queue = []
-        self.running_jobs = []
-        self.visible_jobs = []
-        self.pairs = []
-        self.current_timestamp = self.loads[self.start].submit_time
-        self.job_queue.append(self.loads[self.start])
-        for job in self.loads[self.start:self.start+JOB_SEQUENCE_SIZE]:
-            self.cluster.events_queue.put(job.submit_time)
-        self.last_job_in_batch = self.start + self.num_job_in_batch
-        self.next_arriving_job_idx = self.start + 1
-
-        if self.enable_preworkloads:
-            raise NotImplementedError
+        self.reset()
 
         return scheduled_logs
 
