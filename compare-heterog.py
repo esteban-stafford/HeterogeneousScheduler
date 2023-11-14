@@ -78,7 +78,7 @@ def run_policy(env, models, nums, iters):
                 if d:
                     for metric, value in metrics.items():
                         averages[metric] = value
-                    env.reset()
+                    env.reset_funky()
                     break
             print(f'{iter_num} {model} ' + ' '.join([str(averages[metric]) for metric in sorted(averages.keys())]))
 
