@@ -3,7 +3,6 @@
 PYTHON=python3
 WORKLOAD="data/lublin_256.swf"
 PLATFORM="data/cluster_x4_64procs.json"
-TRAIN_SEED=0
 
 scores=(BSLD AVGW AVGT RESU SLD)
 
@@ -17,10 +16,10 @@ for score in 0 1 4; do
    $PYTHON ppo-pick-jobs.py \
      --workload $WORKLOAD \
      --platform $PLATFORM \
-     --gamma 1 \
-     --seed $TRAIN_SEED \
-     --trajs 10 \
-     --epochs 1 \
+     --gamma 0.99 \
+     --seed 2406 \
+     --trajs 20 \
+     --epochs 100 \
      --exp_name model_${scores[$score]} \
      --pre_trained 0 \
      --trained_model $MODEL_PATH \
