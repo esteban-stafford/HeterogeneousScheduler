@@ -110,7 +110,7 @@ class HPCEnv(gym.Env):
         self.cluster = None
 
         self.bsld_algo_dict = {}
-        self.scheduled_rl = {}
+        self.scheduled_rl = []
         self.penalty = 0
         self.pivot_job = False
         self.scheduled_scores = []
@@ -256,7 +256,7 @@ class HPCEnv(gym.Env):
         self.next_arriving_job_idx = 0
         self.last_job_in_batch = 0
         self.num_job_in_batch = 0
-        self.scheduled_rl = {}
+        self.scheduled_rl = []
         self.penalty = 0
         self.pivot_job = False
         self.scheduled_scores = []
@@ -285,8 +285,8 @@ class HPCEnv(gym.Env):
         if self.enable_preworkloads:
             raise NotImplementedError
 
-        self.scheduled_scores.append(sum(self.schedule_curr_sequence_reset(self.sjf_score).values()))
-        self.scheduled_scores.append(sum(self.schedule_curr_sequence_reset(self.f1_score).values()))     
+        self.scheduled_scores.append(sum(self.schedule_curr_sequence_reset(self.sjf_score)))
+        self.scheduled_scores.append(sum(self.schedule_curr_sequence_reset(self.f1_score)))     
 
         # return self.build_observation(), self.build_nodes_observation(), self.build_critic_observation()
         return self.combine_observations(self.build_observation(), self.build_nodes_observation())
@@ -306,7 +306,7 @@ class HPCEnv(gym.Env):
         self.next_arriving_job_idx = 0
         self.last_job_in_batch = 0
         self.num_job_in_batch = 0
-        self.scheduled_rl = {}
+        self.scheduled_rl = []
         self.penalty = 0
         self.pivot_job = False
         self.scheduled_scores = []
@@ -354,7 +354,7 @@ class HPCEnv(gym.Env):
         self.next_arriving_job_idx = 0
         self.last_job_in_batch = 0
         self.num_job_in_batch = 0
-        self.scheduled_rl = {}
+        self.scheduled_rl = []
         self.penalty = 0
         self.pivot_job = False
         self.scheduled_scores = []
@@ -534,7 +534,7 @@ class HPCEnv(gym.Env):
             return [obs, 0, False, 0, 0, 0]
 
         self.post_process_score(self.scheduled_rl)
-        rl_total = sum(self.scheduled_rl.values())
+        rl_total = sum(self.scheduled_rl)
         best_total = min(self.scheduled_scores)
         sjf = self.scheduled_scores[0]
         f1 = self.scheduled_scores[1]
@@ -612,10 +612,12 @@ class HPCEnv(gym.Env):
             return [obs, 0, False, None]
         
         self.post_process_score(self.scheduled_rl)
-        rl_total = sum(self.scheduled_rl.values())
+        rl_total = sum(self.scheduled_rl)
         return [(None, None), rl_total, True, None]
 
-    def post_process_score(self, scheduled_logs: list, job_score_type):
+    def post_process_score(self, scheduled_logs: list, job_score_type = -1):
+        if job_score_type == -1:
+           job_score_type = self.job_score_type
         if job_score_type in (BSLD, AVGW, AVGT, SLD):
             for i in range(len(scheduled_logs)):
                 scheduled_logs[i] /= self.num_job_in_batch
@@ -643,7 +645,7 @@ class HPCEnv(gym.Env):
         for score_type in (BSLD, AVGW, AVGT, SLD):
             self.scheduled_logs[score_type].append(self.job_score(job, score_type))
         score = self.job_score(job)   # calculated reward
-        self.scheduled_rl[job.job_id] = score
+        self.scheduled_rl.append(score)
         self.job_queue.remove(job)  # remove the job from job queue
         return not self.moveforward_for_job()        
 
@@ -675,10 +677,10 @@ class HPCEnv(gym.Env):
             self.post_process_score(self.scheduled_logs[job_score_type], job_score_type)
             metrics[job_score_type] = sum(self.scheduled_logs[job_score_type])
 
-        self.reset()
+        self.reset_funky()
         return metrics
 
-    def reset(self):
+    def reset_funky(self):
         self.cluster.reset()
         self.loads.reset()
         self.job_queue = []
@@ -696,24 +698,26 @@ class HPCEnv(gym.Env):
             raise NotImplementedError
 
     def schedule_curr_sequence_reset(self, score_fn) -> dict:
-        scheduled_logs = {}
+        self.scheduled_logs = { }
+        for job_score_type in (BSLD, AVGW, AVGT, SLD):
+            self.scheduled_logs[job_score_type] = []
         self.job_queue.sort(key=lambda j:score_fn(j))
         while self.job_queue:
             job_for_scheduling = self.job_queue.pop(0)
             if not self.cluster.can_allocate(job_for_scheduling):
                 #TODO Implement backfill y meter if
-                self.skip_for_resources_greedy(job_for_scheduling, scheduled_logs)
+                self.skip_for_resources_greedy(job_for_scheduling, self.scheduled_logs)
             assert job_for_scheduling.scheduled_time == -1
             self.cluster.allocate(job_for_scheduling, self.current_timestamp)
             self.running_jobs.append(job_for_scheduling)
-            score = self.job_score(job_for_scheduling)
-            scheduled_logs[job_for_scheduling.job_id] = score
+            for score_type in (BSLD, AVGW, AVGT, SLD):
+                self.scheduled_logs[score_type].append(self.job_score(job_for_scheduling, score_type))
             self.moveforward_for_job() # TODO Esto igual hay que revisarlo
 
-        self.post_process_score(scheduled_logs)
-        self.reset()
+        self.post_process_score(self.scheduled_logs[self.job_score_type])
+        self.reset_funky()
 
-        return scheduled_logs
+        return self.scheduled_logs[self.job_score_type]
 
     def skip_for_resources(self, job:Job, node:Node = None):
 
