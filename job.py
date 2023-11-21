@@ -51,7 +51,7 @@ class Job:
         if self.request_time == -1:
             self.request_time = self.run_time
         if self.request_time == -1:
-            print(f"Request time and run time are negative for job {self.job_id}")
+            print(f"Request time and run time are negative for job {self.job_id}", file=sys.stderr)
 
         # if we use the run time as the most accurate request time
         # self.request_time = self.run_time + 60
