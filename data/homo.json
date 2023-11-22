@@ -1,0 +1,15 @@
+{
+   "clusters" : [
+      {
+         "id" : "cluster_0",
+         "nodes" : [
+            {
+               "number" : 6,
+               "id" : "node_64_4.2",
+               "num_procs" : 64,
+               "frec" : 4.2
+            }
+         ]
+      }
+   ]
+}

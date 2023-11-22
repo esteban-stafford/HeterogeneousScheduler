@@ -1,0 +1,54 @@
+#!/usr/bin/perl 
+
+use strict;
+use JSON;
+
+my %platform = (
+   clusters => [
+       {
+         id => "cluster_0",
+         nodes => []
+       }
+   ]
+);
+
+my $total_cores = 0;
+my $total_capacity = 0;
+
+unless(@ARGV) {
+   print <<EOF;
+ERROR: must supply at least one node specification.
+
+A node specified with three numbers separated by comas. The first
+is the number of nodes, then comes the number of processors and
+finally the number of cores. For example:
+
+ 10,48,2 creates 10 nodes of 48 cores and 2 GHz each.
+
+EOF
+   exit(1);
+
+}
+
+foreach my $arg (@ARGV) {
+   my ($node_count,$core_count,$freq);
+   if($arg =~ /^(\d+),(\d+),([.0-9]+)$/) {
+      ($node_count,$core_count,$freq) = ($1,$2,$3);
+   } else {
+      print "ERROR: unknown node specification: $arg\n";
+      exit(1);
+   
+   }
+   $total_cores += $core_count * $node_count;
+   $total_capacity += $core_count * $node_count * $freq;
+   push @{$platform{clusters}[0]{nodes}}, {
+      id => "node_$core_count\_$freq",
+      num_procs => $core_count -0,
+      number => $node_count -0,
+      frec => $freq -0
+      };
+}
+
+print to_json(\%platform, {utf8 => 1, pretty => 1});
+print STDERR "Total cores: $total_cores\n";
+print STDERR "Total capacity (core*GHz) $total_capacity\n";
