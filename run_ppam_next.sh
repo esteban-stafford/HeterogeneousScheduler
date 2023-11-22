@@ -1,7 +1,7 @@
 #!/bin/bash
 
 PYTHON=python3
-WORKLOAD="data/lublin_256.swf"
+WORKLOAD="data/SDSC-BLUE-2000-4.2-cln.swf"
 PLATFORM="data/cluster_x4_64procs.json"
 TRAIN_SEED=2406
 
@@ -30,9 +30,12 @@ for score in 0 1 4; do
      --batch_job_slice 0
 done
 
-echo Comparing...
+for workload in CTC-SP2-1996-3.1-cln.swf HPC2N-2002-2.2-cln.swf lublin_1024.swf \
+                lublin-aaroh.swf RICC-2010-2.swf SDSC-BLUE-2000-4.2-cln.swf \
+                SDSC-SP2-1998-4.2-cln.swf; do
+echo Comparing with $workload...
 $PYTHON compare-heterog.py \
-  --workload $WORKLOAD \
+  --workload data/$workload \
   --platform $PLATFORM \
   --rlmodel ${models[*]} \
   --len 1024 \
@@ -40,4 +43,7 @@ $PYTHON compare-heterog.py \
   --iter 20 \
   --shuffle 0 \
   --skip 0 \
-  --batch_job_slice 0 > data/logs/compare_models.dat
+  --batch_job_slice 0 > data/logs/compare_models_$workload.dat &
+done
+
+wait
