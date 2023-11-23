@@ -5,87 +5,87 @@
          "nodes" : [
             {
                "frec" : 2.5,
-               "id" : "node_4_2.5",
+               "num_procs" : 4,
                "number" : 1,
-               "num_procs" : 4
+               "id" : "node_4_2.5"
             },
             {
-               "id" : "node_4_3",
-               "frec" : 3,
                "number" : 1,
-               "num_procs" : 4
+               "num_procs" : 4,
+               "frec" : 3,
+               "id" : "node_4_3"
             },
             {
                "frec" : 3.5,
-               "id" : "node_4_3.5",
-               "number" : 1,
-               "num_procs" : 4
-            },
-            {
                "num_procs" : 4,
                "number" : 1,
+               "id" : "node_4_3.5"
+            },
+            {
                "id" : "node_4_4",
+               "number" : 1,
+               "num_procs" : 4,
                "frec" : 4
             },
             {
                "frec" : 2.5,
-               "id" : "node_8_2.5",
+               "num_procs" : 8,
                "number" : 1,
-               "num_procs" : 8
+               "id" : "node_8_2.5"
             },
             {
                "num_procs" : 8,
                "number" : 1,
-               "id" : "node_8_3",
-               "frec" : 3
+               "frec" : 3,
+               "id" : "node_8_3"
             },
             {
+               "num_procs" : 8,
+               "number" : 1,
                "frec" : 3.5,
-               "id" : "node_8_3.5",
-               "number" : 1,
-               "num_procs" : 8
+               "id" : "node_8_3.5"
             },
             {
+               "id" : "node_8_4",
                "num_procs" : 8,
                "number" : 1,
-               "frec" : 4,
-               "id" : "node_8_4"
+               "frec" : 4
             },
             {
-               "number" : 1,
-               "num_procs" : 16,
+               "id" : "node_16_2.5",
                "frec" : 2.5,
-               "id" : "node_16_2.5"
+               "num_procs" : 16,
+               "number" : 1
             },
             {
-               "id" : "node_16_3",
+               "num_procs" : 16,
+               "number" : 1,
                "frec" : 3,
-               "num_procs" : 16,
-               "number" : 1
+               "id" : "node_16_3"
             },
             {
-               "num_procs" : 16,
                "number" : 1,
-               "id" : "node_16_3.5",
-               "frec" : 3.5
-            },
-            {
-               "id" : "node_16_4",
-               "frec" : 4,
                "num_procs" : 16,
-               "number" : 1
+               "frec" : 3.5,
+               "id" : "node_16_3.5"
             },
             {
-               "frec" : 2.5,
+               "number" : 1,
+               "num_procs" : 16,
+               "frec" : 4,
+               "id" : "node_16_4"
+            },
+            {
                "id" : "node_32_2.5",
-               "number" : 1,
-               "num_procs" : 32
+               "frec" : 2.5,
+               "num_procs" : 32,
+               "number" : 1
             },
             {
-               "id" : "node_32_3",
                "frec" : 3,
                "number" : 1,
-               "num_procs" : 32
+               "num_procs" : 32,
+               "id" : "node_32_3"
             },
             {
                "id" : "node_32_3.5",
@@ -94,34 +94,34 @@
                "number" : 1
             },
             {
-               "number" : 1,
-               "num_procs" : 32,
+               "id" : "node_32_4",
                "frec" : 4,
-               "id" : "node_32_4"
+               "number" : 1,
+               "num_procs" : 32
             },
             {
                "id" : "node_64_2.5",
-               "frec" : 2.5,
+               "number" : 1,
                "num_procs" : 64,
-               "number" : 1
+               "frec" : 2.5
             },
             {
                "id" : "node_64_3",
-               "frec" : 3,
                "num_procs" : 64,
-               "number" : 1
+               "number" : 1,
+               "frec" : 3
             },
             {
-               "frec" : 3.5,
                "id" : "node_64_3.5",
                "number" : 1,
-               "num_procs" : 64
+               "num_procs" : 64,
+               "frec" : 3.5
             },
             {
-               "frec" : 4,
                "id" : "node_64_4",
-               "number" : 1,
-               "num_procs" : 64
+               "frec" : 4,
+               "num_procs" : 64,
+               "number" : 1
             }
          ]
       }

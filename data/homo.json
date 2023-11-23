@@ -1,7 +1,6 @@
 {
    "clusters" : [
       {
-         "id" : "cluster_0",
          "nodes" : [
             {
                "id" : "node_64_1.26",
@@ -9,7 +8,8 @@
                "frec" : 1.26,
                "number" : 20
             }
-         ]
+         ],
+         "id" : "cluster_0"
       }
    ]
 }

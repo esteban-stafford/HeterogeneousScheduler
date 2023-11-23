@@ -7,7 +7,7 @@ TRAIN_SEED=2406
 scores=(BSLD AVGW AVGT RESU SLD)
 
 data/generate_platform 20,64,1.26 > data/homo.json
-data/generate_platform 2,64,{2.1,3,3.5,4} > data/hetero_freq.json
+data/generate_platform 4,{4,8,16,32,64},3.25 > data/hetero_core.json
 data/generate_platform 5,64,{0.54,1,1.5,2} > data/hetero_freq.json
 data/generate_platform 1,{4,8,16,32,64},{2.5,3,3.5,4} > data/hetero.json
 
