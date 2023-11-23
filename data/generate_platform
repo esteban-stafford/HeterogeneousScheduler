@@ -13,6 +13,7 @@ my %platform = (
 );
 
 my $total_cores = 0;
+my $total_nodes = 0;
 my $total_capacity = 0;
 
 unless(@ARGV) {
@@ -39,6 +40,7 @@ foreach my $arg (@ARGV) {
       exit(1);
    
    }
+   $total_nodes += $node_count;
    $total_cores += $core_count * $node_count;
    $total_capacity += $core_count * $node_count * $freq;
    push @{$platform{clusters}[0]{nodes}}, {
@@ -50,5 +52,6 @@ foreach my $arg (@ARGV) {
 }
 
 print to_json(\%platform, {utf8 => 1, pretty => 1});
+print STDERR "Total nodes: $total_nodes\n";
 print STDERR "Total cores: $total_cores\n";
 print STDERR "Total capacity (core*GHz) $total_capacity\n";
