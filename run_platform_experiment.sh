@@ -1,7 +1,8 @@
 #!/bin/bash
 
 PYTHON=python3
-WORKLOAD="data/PIK-IPLEX-2009-1.swf"
+trace=lublin_256
+#WORKLOAD="data/PIK-IPLEX-2009-1.swf"
 TRAIN_SEED=2406
 
 scores=(BSLD AVGW AVGT RESU SLD)
@@ -13,10 +14,13 @@ data/generate_platform 1,{4,8,16,32,64},{2.5,3,3.5,4} > data/hetero.json
 
 for platform in homo hetero; do
    for score in 0; do
-      MODEL_PATH="data/logs/model_${platform}_${scores[$score]}/model_${platform}_${scores[$score]}_s${TRAIN_SEED}"
+      model=model_${platform}_${trace}_${scores[$score]}
+      MODEL_PATH="data/logs/${model}/${model}_s${TRAIN_SEED}"
+      WORKLOAD="data/$trace.swf"
       models+=($MODEL_PATH)
       mkdir -p $MODEL_PATH/tf1_save
-      echo Training score_type=${scores[$score]} with platform=$platform...
+      [ -e $MODEL_PATH/tf1_save/saved_model.pb ] && continue
+      echo Training score_type=${scores[$score]} with platform=$platform and trace=$trace...
 
       $PYTHON ppo-pick-jobs.py \
         --workload $WORKLOAD \
@@ -25,7 +29,7 @@ for platform in homo hetero; do
         --seed $TRAIN_SEED \
         --trajs 20 \
         --epochs 60 \
-        --exp_name model_${scores[$score]} \
+        --exp_name $model \
         --pre_trained 0 \
         --trained_model $MODEL_PATH \
         --shuffle 0 \
@@ -36,6 +40,7 @@ for platform in homo hetero; do
 done
 
 echo Comparing...
+WORKLOAD="data/$trace.swf"
 for platform in homo hetero_freq hetero_core hetero; do
    $PYTHON compare-heterog.py \
      --workload $WORKLOAD \
