@@ -26,6 +26,13 @@ finally the number of cores. For example:
 
  10,48,2 creates 10 nodes of 48 cores and 2 GHz each.
 
+ 1,{4,8,16},{3,4} creates 6 nodes one for each combination of
+    number of cores and frequency
+
+ 1,{4\\,3,8\\,3.5,16\\,3} creates 3 nodes, one with 4 cores at
+    3GHz, another with 8 cores at 3.5GHz and the last with 16
+    cores at 3GHz
+
 EOF
    exit(1);
 
