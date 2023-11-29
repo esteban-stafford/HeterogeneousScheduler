@@ -21,8 +21,8 @@ for trace in $traces; do
    for platform in $train_platforms; do
       PLATFORM="data/$platform.json"
       for score in 0; do
-         model=model_${platform}_${trace}_${scores[$score]}
-         MODEL_PATH="data/logs/${model}/${model}_s${TRAIN_SEED}"
+         model=model:${trace}:${platform}:${scores[$score]}
+         MODEL_PATH="data/logs/${model}/${model}:s${TRAIN_SEED}"
          models+=($MODEL_PATH)
          mkdir -p $MODEL_PATH/tf1_save
          [ -e $MODEL_PATH/tf1_save/saved_model.pb ] && continue
@@ -56,7 +56,7 @@ for trace in $traces; do
         --iter 20 \
         --shuffle 0 \
         --skip 0 \
-        --batch_job_slice 0 > data/logs/compare_models_${trace}_${platform}.dat &
+        --batch_job_slice 0 > data/logs/compare_models:${trace}:${platform}.dat &
    done
    wait
 done
