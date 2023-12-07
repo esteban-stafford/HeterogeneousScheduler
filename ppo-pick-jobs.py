@@ -340,6 +340,7 @@ def ppo(workload_file, platform_file, model_path, ac_kwargs=dict(), seed=0,
 
         # Perform PPO update!
         # start_time = time.time()
+        #if epoch == 0 or epoch > 10:
         update()
         # print("Train time:", time.time()-start_time)
 

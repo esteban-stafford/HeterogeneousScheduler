@@ -4,10 +4,10 @@
          "id" : "cluster_0",
          "nodes" : [
             {
-               "num_procs" : 64,
-               "number" : 20,
+               "id" : "node_64_1.26",
                "frec" : 1.26,
-               "id" : "node_64_1.26"
+               "number" : 20,
+               "num_procs" : 64
             }
          ]
       }

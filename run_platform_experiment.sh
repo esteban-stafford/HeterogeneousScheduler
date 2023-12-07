@@ -3,7 +3,7 @@
 PYTHON=python3
 TRAIN_SEED=2406
 
-traces="lublin_256 PIK-IPLEX-2009-1"
+traces="lublin_256 PIK-IPLEX-2009-1 CTC-SP2-1996-3.1-cln"
 train_platforms="homo hetero"
 compare_platforms="homo hetero_freq hetero_core hetero hetero_diag hetero_rand"
 scores=(BSLD AVGW AVGT RESU SLD)
@@ -22,11 +22,14 @@ for trace in $traces; do
       PLATFORM="data/$platform.json"
       for score in 0; do
          model=model:${trace}:${platform}:${scores[$score]}
-         MODEL_PATH="data/logs/${model}/${model}:s${TRAIN_SEED}"
+         MODEL_PATH="data/logs/${model}/${model}_s${TRAIN_SEED}"
          models+=($MODEL_PATH)
          mkdir -p $MODEL_PATH/tf1_save
          [ -e $MODEL_PATH/tf1_save/saved_model.pb ] && continue
          echo Training score_type=${scores[$score]} with platform=$platform and trace=$trace...
+
+         epochs=60
+         #[ "$trace" == "PIK-IPLEX-2009-1" ] && epochs=120
 
          $PYTHON ppo-pick-jobs.py \
            --workload $WORKLOAD \
@@ -34,7 +37,7 @@ for trace in $traces; do
            --gamma 0.99 \
            --seed $TRAIN_SEED \
            --trajs 20 \
-           --epochs 60 \
+           --epochs $epochs \
            --exp_name $model \
            --pre_trained 0 \
            --trained_model $MODEL_PATH \
