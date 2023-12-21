@@ -3,7 +3,7 @@
 PYTHON=python3
 TRAIN_SEED=2406
 
-traces="lublin_256 PIK-IPLEX-2009-1 CTC-SP2-1996-3.1-cln"
+traces="lublin_256 lublin_1024 PIK-IPLEX-2009-1 CTC-SP2-1996-3.1-cln"
 train_platforms="homo hetero"
 compare_platforms="homo hetero_freq hetero_core hetero hetero_diag hetero_rand"
 scores=(BSLD AVGW AVGT RESU SLD)
@@ -29,7 +29,7 @@ for trace in $traces; do
          echo Training score_type=${scores[$score]} with platform=$platform and trace=$trace...
 
          epochs=60
-         #[ "$trace" == "PIK-IPLEX-2009-1" ] && epochs=120
+         #[ "$trace" == "lublin_256" ] && epochs=60
 
          $PYTHON ppo-pick-jobs.py \
            --workload $WORKLOAD \
