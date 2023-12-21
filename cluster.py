@@ -131,7 +131,7 @@ class HeterogeneousCluster:
                 name, num_procs, frec = n['id'], n['num_procs'], n['frec']
                 self.max_frec = max(self.max_frec, frec)
                 self.all_nodes.append(HeterogeneousNode(f'{name}_{i}', num_procs, frec, self.min_frec))
-        print("Loaded "+str(self.num_nodes())+" nodes")
+        #print("Loaded "+str(self.num_nodes())+" nodes")
         # print('CLUSTER: ', [str(n) for n in self.all_nodes])
 
     def can_allocate(self, job, node=None):
