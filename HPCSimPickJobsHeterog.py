@@ -423,7 +423,7 @@ class HPCEnv(gym.Env):
         if self.enable_clustering:
             from sklearn.cluster import KMeans
             kmeans = KMeans(n_clusters=CLUSTERING_SIZE)
-            clusters = kmeans.fit_predict(vector.reshape(NUM_NODES, NODE_FEATURES))
+            clusters = kmeans.fit_predict(vector.reshape(self.NUM_NODES, NODE_FEATURES))
             self.node_clusters = {i:[] for i in range(self.NUM_NODES)}
             for i, node in enumerate(self.nodes):
                 self.node_clusters[clusters[i]].append(node[0])
