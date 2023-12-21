@@ -165,7 +165,7 @@ def ppo(workload_file, platform_file, model_path, ac_kwargs=dict(), seed=0,
         traj_per_epoch=4000, epochs=50, gamma=0.99, clip_ratio=0.2, pi_lr=3e-4,
         vf_lr=1e-3, train_pi_iters=80, train_v_iters=80, lam=0.97, max_ep_len=1000,
         target_kl=0.01, logger_kwargs=dict(), save_freq=10,pre_trained=0,trained_model=None,attn=False,shuffle=False,
-        backfil=False, skip=False, score_type=0, batch_job_slice=0, enable_clustering=False):
+        backfil=False, skip=False, score_type=0, batch_job_slice=0, clustering_size=0):
 
     logger = EpochLogger(**logger_kwargs)
     logger.save_config(locals())
@@ -173,7 +173,8 @@ def ppo(workload_file, platform_file, model_path, ac_kwargs=dict(), seed=0,
     tf.set_random_seed(seed)
     np.random.seed(seed)
 
-    env = HPCEnv(shuffle=shuffle, backfil=backfil, skip=skip, job_score_type=score_type, batch_job_slice=batch_job_slice, build_sjf=False, enable_clustering=enable_clustering)
+    env = HPCEnv(shuffle=shuffle, backfil=backfil, skip=skip, job_score_type=score_type, batch_job_slice=batch_job_slice,
+                 build_sjf=False, clustering_size=clustering_size)
     env.seed(seed)
     env.my_init(workload_file=workload_file, platform_file=platform_file, sched_file=model_path)
     
@@ -384,7 +385,7 @@ if __name__ == '__main__':
     parser.add_argument('--skip', type=int, default=0)
     parser.add_argument('--score_type', type=int, default=0)
     parser.add_argument('--batch_job_slice', type=int, default=0)
-    parser.add_argument('--enable_clustering', type=int, default=0)
+    parser.add_argument('--clustering_size', type=int, default=0)
     args = parser.parse_args()
 
     from spinup.utils.run_utils import setup_logger_kwargs
@@ -401,8 +402,8 @@ if __name__ == '__main__':
         ppo(workload_file, platform_file, args.model, gamma=args.gamma, seed=args.seed, traj_per_epoch=args.trajs, epochs=args.epochs,
         logger_kwargs=logger_kwargs, pre_trained=1,trained_model=os.path.join(model_file,"tf1_save"),attn=args.attn,
             shuffle=args.shuffle, backfil=args.backfil, skip=args.skip, score_type=args.score_type,
-            batch_job_slice=args.batch_job_slice, enable_clustering=args.enable_clustering)
+            batch_job_slice=args.batch_job_slice, clustering_size=args.clustering_size)
     else:
         ppo(workload_file, platform_file, args.model, gamma=args.gamma, seed=args.seed, traj_per_epoch=args.trajs, epochs=args.epochs,
         logger_kwargs=logger_kwargs, pre_trained=0, attn=args.attn,shuffle=args.shuffle, backfil=args.backfil,
-            skip=args.skip, score_type=args.score_type, batch_job_slice=args.batch_job_slice, enable_clustering=args.enable_clustering)
+            skip=args.skip, score_type=args.score_type, batch_job_slice=args.batch_job_slice, clustering_size=args.clustering_size)

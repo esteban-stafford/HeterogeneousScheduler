@@ -37,6 +37,7 @@ for trace in $traces; do
            --trained_model $MODEL_PATH \
            --shuffle 0 \
            --backfil 0 \
+           --clustering_size 2 \
            --score_type $score \
            --batch_job_slice 0 
       done

@@ -28,8 +28,6 @@ MAX_RUN_TIME = 12 * 60 * 60 # assume maximal runtime is 12 hours
 JOB_FEATURES = 4
 DEBUG = False
 
-CLUSTERING_SIZE = 10
-
 NODE_FEATURES = 3
 
 TOTAL_FEATURES = JOB_FEATURES + NODE_FEATURES
@@ -88,7 +86,7 @@ def discount_cumsum(x, discount):
 
 class HPCEnv(gym.Env):
 
-    def __init__(self,shuffle=False, backfil=False, skip=False, job_score_type=0, batch_job_slice=0, build_sjf=False, enable_clustering=False):
+    def __init__(self,shuffle=False, backfil=False, skip=False, job_score_type=0, batch_job_slice=0, build_sjf=False, clustering_size=0):
         super(HPCEnv, self).__init__()
         print("Initialize Heterog HPC Env", file=sys.stderr)
 
@@ -116,7 +114,7 @@ class HPCEnv(gym.Env):
         self.enable_preworkloads = False
         self.pre_workloads = []
 
-        self.enable_clustering = enable_clustering
+        self.clustering_size = clustering_size
 
         self.shuffle = shuffle
         self.backfil = backfil
@@ -133,7 +131,7 @@ class HPCEnv(gym.Env):
         self.loads = Workloads(workload_file)
         print ("Loading cluster info from file:", platform_file, file=sys.stderr)
         self.cluster = Cluster(platform_file)
-        self.NUM_NODES = self.cluster.num_nodes()
+        self.NUM_NODES = self.cluster.num_nodes() if self.clustering_size == 0 else self.clustering_size
 
         self.action_space = spaces.Discrete(MAX_QUEUE_SIZE * self.NUM_NODES)
         self.jobs_action_space = spaces.Discrete(MAX_QUEUE_SIZE)
@@ -411,7 +409,8 @@ class HPCEnv(gym.Env):
         return vector
 
     def build_nodes_observation(self) -> np.ndarray:
-        vector = np.zeros(self.NUM_NODES * NODE_FEATURES, dtype=float)
+        num_nodes = self.cluster.num_nodes()
+        vector = np.zeros(num_nodes * NODE_FEATURES, dtype=float)
         self.nodes = []
         for i, node in enumerate(self.cluster.all_nodes):
             normalized_proc_number = min(float(node.total_procs)/float(self.loads.max_procs), MAX_OBS_VALUE)
@@ -420,14 +419,15 @@ class HPCEnv(gym.Env):
             self.nodes.append([node, normalized_proc_number, normalized_free_procs, normalized_frec])
             vector[i*NODE_FEATURES:(i+1)*NODE_FEATURES] = self.nodes[i][1:]
 
-        if self.enable_clustering:
+        if self.clustering_size:
             from sklearn.cluster import KMeans
-            kmeans = KMeans(n_clusters=CLUSTERING_SIZE)
-            clusters = kmeans.fit_predict(vector.reshape(self.NUM_NODES, NODE_FEATURES))
-            self.node_clusters = {i:[] for i in range(self.NUM_NODES)}
+            kmeans = KMeans(n_clusters=self.clustering_size)
+            clusters = kmeans.fit_predict(vector.reshape(num_nodes, NODE_FEATURES))
+            self.node_clusters = {i:[] for i in range(self.clustering_size)}
             for i, node in enumerate(self.nodes):
                 self.node_clusters[clusters[i]].append(node[0])
             vector = kmeans.cluster_centers_
+            print("Clusters: " + " ".join([ str(len(cluster)) for cluster in self.node_clusters.values()]))
             #print("Clusters:\n" + "\n\n".join([ "\n".join([str(node) for node in cluster]) for cluster in self.node_clusters.values()]))
 
         return vector
@@ -457,7 +457,7 @@ class HPCEnv(gym.Env):
             for j, node_obs in enumerate(nodes_obs):
                 p = i * TOTAL_FEATURES * self.NUM_NODES + j * TOTAL_FEATURES
                 vector[p:p+TOTAL_FEATURES] = np.concatenate((job_obs, node_obs))
-                if self.enable_clustering:
+                if self.clustering_size:
                     mask.append(job[0] is not None and any(job[0].request_number_of_processors <= n.free_procs for n in self.node_clusters[j]))
                 else:
                     node = self.nodes[j]
@@ -486,7 +486,7 @@ class HPCEnv(gym.Env):
         return vector
 
     def build_critic_observation_heterog(self, jobs_obs: np.ndarray) -> None:
-        nodes = np.zeros((self.NUM_NODES * NODE_FEATURES))
+        nodes = np.zeros((self.cluster.num_nodes() * NODE_FEATURES))
         for i, node in enumerate(self.cluster.all_nodes):
             normalized_proc_number = min(float(node.total_procs)/float(self.loads.max_procs), MAX_OBS_VALUE)
             normalized_free_procs = min(float(node.free_procs)/float(node.total_procs), MAX_OBS_VALUE)
@@ -512,7 +512,7 @@ class HPCEnv(gym.Env):
 
     def step(self, action: int) -> list:
         job_for_scheduling = self.jobs[action//self.NUM_NODES][0]
-        if self.enable_clustering:
+        if self.clustering_size:
             node_for_scheduling = self.get_node_from_cluster(job_for_scheduling, action%self.NUM_NODES)
         else:
             node_for_scheduling = self.nodes[action%self.NUM_NODES][0]
@@ -570,7 +570,7 @@ class HPCEnv(gym.Env):
 
     def step_for_test(self, action):
         job_for_scheduling = self.jobs[action//self.NUM_NODES][0]
-        if self.enable_clustering:
+        if self.clustering_size:
             node_for_scheduling = self.get_node_from_cluster(job_for_scheduling, action%self.NUM_NODES)
         else:
             node_for_scheduling = self.nodes[action%self.NUM_NODES][0]
