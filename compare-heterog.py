@@ -59,28 +59,29 @@ def run_policy(env, models, nums, iters):
                 averages = env.schedule_curr_sequence_reset_heterog(js, ns)
                 print(f'{iter_num} {k1}{k2} ' + ' '.join([str(averages[k]) for k in sorted(averages.keys())]))
  
-        for model in models:
-            model_file = os.path.join(current_dir, model)
-            get_probs, get_value = load_policy(model_file, 'last')
-            total_decisions = 0
-            rl_decisions = 0
-            averages = {}
-            
-            [o, lst] = env.combine_observations(env.build_observation(), env.build_nodes_observation())
-            while True:
-                total_decisions += 1
-                pi = get_probs(o, np.array(lst))
-                action = pi[0]
-                rl_decisions += 1
-
-                [o, lst], metrics, d, _ = env.step_for_test(action)
+        if models is not None:
+            for model in models:
+                model_file = os.path.join(current_dir, model)
+                get_probs, get_value = load_policy(model_file, 'last')
+                total_decisions = 0
+                rl_decisions = 0
+                averages = {}
                 
-                if d:
-                    for metric, value in metrics.items():
-                        averages[metric] = value
-                    env.reset_funky()
-                    break
-            print(f'{iter_num} {model} ' + ' '.join([str(averages[metric]) for metric in sorted(averages.keys())]))
+                [o, lst] = env.combine_observations(env.build_observation(), env.build_nodes_observation())
+                while True:
+                    total_decisions += 1
+                    pi = get_probs(o, np.array(lst))
+                    action = pi[0]
+                    rl_decisions += 1
+
+                    [o, lst], metrics, d, _ = env.step_for_test(action)
+                    
+                    if d:
+                        for metric, value in metrics.items():
+                            averages[metric] = value
+                        env.reset_funky()
+                        break
+                print(f'{iter_num} {model} ' + ' '.join([str(averages[metric]) for metric in sorted(averages.keys())]))
 
 
 if __name__ == '__main__':
@@ -88,11 +89,7 @@ if __name__ == '__main__':
     import time
 
     parser = argparse.ArgumentParser()
-    # parser.add_argument('--rlmodel', type=str, default="./data/logs/Exp4_SquaredSLD/Exp4_SquaredSLD_s2406")
-    # parser.add_argument('--rlmodel', type=str, default="./data/logs/Exp5_SquaredSLD/Exp5_SquaredSLD_s2406")
-    parser.add_argument('--rlmodel', type=str, default="./data/logs/Exp6_SquaredAVGW/Exp6_SquaredAVGW_s2406", nargs="+")
-    # parser.add_argument('--rlmodel', type=str, default="./data/logs/Exp6_SquaredAVGW/Exp6_SquaredAVGW_s2406")
-    # parser.add_argument('--rlmodel', type=str, default="./data/logs/Exp7_SquaredClustering/Exp7_SquaredClustering_s2406")
+    parser.add_argument('--rlmodel', type=str, nargs="+")
     parser.add_argument('--workload', type=str, default='./data/lublin_256.swf')
     parser.add_argument('--platform', type=str, default='./data/cluster_x4_64procs.json')
     parser.add_argument('--len', '-l', type=int, default=1024)
@@ -102,8 +99,7 @@ if __name__ == '__main__':
     parser.add_argument('--backfil', type=int, default=0)
     parser.add_argument('--skip', type=int, default=0)
     parser.add_argument('--batch_job_slice', type=int, default=0)
-    parser.add_argument('--enable_clustering', type=int, default=0)
-    # parser.add_argument('--enable_clustering', type=int, default=1)
+    parser.add_argument('--clustering_size', type=int, default=0)
 
     args = parser.parse_args()
 
@@ -113,7 +109,7 @@ if __name__ == '__main__':
 
     # initialize the environment from scratch
     env = HPCEnv(shuffle=args.shuffle, backfil=args.backfil, skip=args.skip,
-                 batch_job_slice=args.batch_job_slice, build_sjf=False, enable_clustering=args.enable_clustering)
+                 batch_job_slice=args.batch_job_slice, build_sjf=False, clustering_size=args.clustering_size)
     env.my_init(workload_file=workload_file, platform_file=platform_file)
     env.seed(args.seed)
     random.seed(args.seed)

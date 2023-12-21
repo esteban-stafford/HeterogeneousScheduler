@@ -54,6 +54,7 @@ for trace in $traces; do
         --iter 1 \
         --shuffle 0 \
         --skip 0 \
+        --clustering_size 2 \
         --batch_job_slice 0 \
         > data/logs/compare_models:cl:${trace}:${platform}.dat &
    done

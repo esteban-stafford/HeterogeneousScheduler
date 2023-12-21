@@ -26,9 +26,7 @@ class Job:
     17. Preceding Job Number -- this is the number of a previous job in the workload, such that the current job can only start after the termination of this preceding job. Together with the next field, this allows the workload to include feedback as described below.
     18. Think Time from Preceding Job -- this is the number of seconds that should elapse between the termination of the preceding job and the submittal of this one.
     """
-    def __init__(self, line = "0        0      0    0   0     0    0   0  0 0  0   0   0  0  0 0 0 0"):
-        line = line.strip()
-        s_array = re.split("\\s+", line)
+    def __init__(self, s_array):
         self.job_id = int(s_array[0])
         self.submit_time = int(s_array[1])
         self.wait_time = int(s_array[2])
@@ -131,7 +129,11 @@ class Workloads:
                         self.max_procs = int(line.split(":")[1].strip())
                     continue
 
-                j = Job(line)
+                line = line.strip()
+                s_array = re.split("\\s+", line)
+                if len(s_array) < 10:
+                   continue
+                j = Job(s_array)
                 if j.run_time > self.max_exec_time:
                     self.max_exec_time = j.run_time
                 if j.run_time < self.min_exec_time:
