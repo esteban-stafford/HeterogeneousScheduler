@@ -30,7 +30,6 @@ DEBUG = False
 
 CLUSTERING_SIZE = 10
 
-NUM_NODES = 20
 NODE_FEATURES = 3
 
 TOTAL_FEATURES = JOB_FEATURES + NODE_FEATURES
@@ -117,8 +116,7 @@ class HPCEnv(gym.Env):
         self.enable_preworkloads = False
         self.pre_workloads = []
 
-        self.enable_clustering = enable_clustering and CLUSTERING_SIZE < NUM_NODES
-        self.NUM_NODES = CLUSTERING_SIZE if self.enable_clustering else NUM_NODES
+        self.enable_clustering = enable_clustering
 
         self.shuffle = shuffle
         self.backfil = backfil
@@ -129,19 +127,20 @@ class HPCEnv(gym.Env):
         self.build_sjf = build_sjf
         self.sjf_scores = []
 
-        self.action_space = spaces.Discrete(MAX_QUEUE_SIZE * self.NUM_NODES)
-        self.jobs_action_space = spaces.Discrete(MAX_QUEUE_SIZE)
-        self.nodes_action_space = spaces.Discrete(NUM_NODES)
-        self.observation_space = spaces.Box(low=0.0, high=1.0,
-                                            shape=(MAX_QUEUE_SIZE * self.NUM_NODES * TOTAL_FEATURES,),
-                                            dtype=np.float32)
 
     def my_init(self, workload_file='', platform_file='', sched_file=''):
         print ("Loading workloads from dataset:", workload_file, file=sys.stderr)
-        print ("Loading cluster info from file:", platform_file, file=sys.stderr)
         self.loads = Workloads(workload_file)
+        print ("Loading cluster info from file:", platform_file, file=sys.stderr)
         self.cluster = Cluster(platform_file)
+        self.NUM_NODES = self.cluster.num_nodes()
 
+        self.action_space = spaces.Discrete(MAX_QUEUE_SIZE * self.NUM_NODES)
+        self.jobs_action_space = spaces.Discrete(MAX_QUEUE_SIZE)
+        self.nodes_action_space = spaces.Discrete(self.NUM_NODES)
+        self.observation_space = spaces.Box(low=0.0, high=1.0,
+                                            shape=(MAX_QUEUE_SIZE * self.NUM_NODES * TOTAL_FEATURES,),
+                                            dtype=np.float32)
         # Continue for trajectory filtering
         if not self.build_sjf:
             return
@@ -412,7 +411,7 @@ class HPCEnv(gym.Env):
         return vector
 
     def build_nodes_observation(self) -> np.ndarray:
-        vector = np.zeros(NUM_NODES * NODE_FEATURES, dtype=float)
+        vector = np.zeros(self.NUM_NODES * NODE_FEATURES, dtype=float)
         self.nodes = []
         for i, node in enumerate(self.cluster.all_nodes):
             normalized_proc_number = min(float(node.total_procs)/float(self.loads.max_procs), MAX_OBS_VALUE)
@@ -429,11 +428,12 @@ class HPCEnv(gym.Env):
             for i, node in enumerate(self.nodes):
                 self.node_clusters[clusters[i]].append(node[0])
             vector = kmeans.cluster_centers_
+            #print("Clusters:\n" + "\n\n".join([ "\n".join([str(node) for node in cluster]) for cluster in self.node_clusters.values()]))
 
         return vector
 
     def build_nodes_observation_for_job(self, job_idx) -> tuple:
-        vector = np.zeros(NUM_NODES * TOTAL_FEATURES, dtype=float)
+        vector = np.zeros(self.NUM_NODES * TOTAL_FEATURES, dtype=float)
         mask = []
         job = self.jobs[job_idx][0]
         jo = self.jobs[job_idx][1:]
@@ -486,7 +486,7 @@ class HPCEnv(gym.Env):
         return vector
 
     def build_critic_observation_heterog(self, jobs_obs: np.ndarray) -> None:
-        nodes = np.zeros((NUM_NODES * NODE_FEATURES))
+        nodes = np.zeros((self.NUM_NODES * NODE_FEATURES))
         for i, node in enumerate(self.cluster.all_nodes):
             normalized_proc_number = min(float(node.total_procs)/float(self.loads.max_procs), MAX_OBS_VALUE)
             normalized_free_procs = min(float(node.free_procs)/float(node.total_procs), MAX_OBS_VALUE)
