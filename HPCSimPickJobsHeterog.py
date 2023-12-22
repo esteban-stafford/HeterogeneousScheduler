@@ -427,7 +427,7 @@ class HPCEnv(gym.Env):
             for i, node in enumerate(self.nodes):
                 self.node_clusters[clusters[i]].append(node[0])
             vector = kmeans.cluster_centers_
-            print("Clusters: " + " ".join([ str(len(cluster)) for cluster in self.node_clusters.values()]))
+            #print("Clusters: " + " ".join([ str(len(cluster)) for cluster in self.node_clusters.values()]))
             #print("Clusters:\n" + "\n\n".join([ "\n".join([str(node) for node in cluster]) for cluster in self.node_clusters.values()]))
 
         return vector

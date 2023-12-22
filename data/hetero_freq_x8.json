@@ -1,33 +1,33 @@
 {
    "clusters" : [
       {
+         "id" : "cluster_0",
          "nodes" : [
             {
+               "number" : 2,
                "id" : "node_64_2.094",
                "num_procs" : 64,
-               "number" : 2,
                "frec" : 2.094
             },
             {
+               "number" : 2,
                "id" : "node_64_3",
                "num_procs" : 64,
-               "number" : 2,
                "frec" : 3
             },
             {
                "frec" : 3.5,
-               "number" : 2,
+               "num_procs" : 64,
                "id" : "node_64_3.5",
-               "num_procs" : 64
+               "number" : 2
             },
             {
-               "frec" : 4,
-               "number" : 2,
                "id" : "node_64_4",
+               "number" : 2,
+               "frec" : 4,
                "num_procs" : 64
             }
-         ],
-         "id" : "cluster_0"
+         ]
       }
    ]
 }

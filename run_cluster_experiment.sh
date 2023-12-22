@@ -3,60 +3,74 @@
 PYTHON=python3
 TRAIN_SEED=2406
 
-traces="lublin_256"
-train_platforms="hetero"
-compare_platforms="hetero"
+traces="KIT-FH2-2016-1"
+train_platforms="homo_x8 hetero_x8"
 scores=(BSLD AVGW AVGT RESU SLD)
 
-data/generate_platform 4,{4,8,16,32,64},{2.5,3,3.5,4} > data/hetero.json
+for fac in 8; do
+   data/generate_platform 8,64,3.1485 > data/homo_x$fac.json
+   compare_platforms="$compare_platforms homo_x$fac"
+   data/generate_platform 4,{4,8,16,32,64},3.25 > data/hetero_core_x$fac.json
+   compare_platforms="$compare_platforms hetero_core_x$fac"
+   data/generate_platform 2,64,{2.094,3,3.5,4} > data/hetero_freq_x$fac.json
+   compare_platforms="$compare_platforms hetero_freq_x$fac"
+   data/generate_platform 1,{4,8,16,32,64},{2.5,3,3.5,4} > data/hetero_x$fac.json
+   compare_platforms="$compare_platforms hetero_x$fac"
+   data/generate_platform $(echo 1,{4,32,16,8,64},{2.5,3,3.5,4} | tr ' ' '\n' | sort -R | tr '\n' ' ') > data/hetero_rand_x$fac.json
+   compare_platforms="$compare_platforms hetero_rand_x$fac"
+   data/generate_platform 4,{4\,4.35,8\,4,16\,3.7,32\,3.2,64\,3} > data/hetero_diag_x$fac.json
+   compare_platforms="$compare_platforms hetero_diag_x$fac"
+done
 
-for trace in $traces; do
-   models=()
-   WORKLOAD="data/$trace.swf"
-   for platform in $train_platforms; do
-      PLATFORM="data/$platform.json"
-      for score in 0; do
-         model=model:cl:${trace}:${platform}:${scores[$score]}
-         MODEL_PATH="data/logs/${model}/${model}_s${TRAIN_SEED}"
-         models+=($MODEL_PATH)
-         mkdir -p $MODEL_PATH/tf1_save
-         [ -e $MODEL_PATH/tf1_save/saved_model.pb ] && continue
-         echo Training score_type=${scores[$score]} with platform=$platform and trace=$trace...
+for cluster in 4 8 16 32; do
+   for trace in $traces; do
+      models=()
+      WORKLOAD="data/$trace.swf"
+      for platform in $train_platforms; do
+         PLATFORM="data/$platform.json"
+         for score in 0; do
+            model=model:cl${cluster}:${trace}:${platform}:${scores[$score]}
+            MODEL_PATH="data/logs/${model}/${model}_s${TRAIN_SEED}"
+            models+=($MODEL_PATH)
+            mkdir -p $MODEL_PATH/tf1_save
+            [ -e $MODEL_PATH/tf1_save/saved_model.pb ] && continue
+            echo Training cluster=$cluster score_type=${scores[$score]} with platform=$platform and trace=$trace...
 
-         epochs=2
+            epochs=60
 
-         $PYTHON ppo-pick-jobs.py \
+            $PYTHON ppo-pick-jobs.py \
+              --workload $WORKLOAD \
+              --platform $PLATFORM \
+              --gamma 0.99 \
+              --seed $TRAIN_SEED \
+              --trajs 20 \
+              --epochs $epochs \
+              --exp_name $model \
+              --pre_trained 0 \
+              --trained_model $MODEL_PATH \
+              --shuffle 0 \
+              --backfil 0 \
+              --clustering_size $cluster \
+              --score_type $score \
+              --batch_job_slice 0 
+         done
+      done
+      echo Comparing with cluster=$cluster and trace=$trace...
+      for platform in $compare_platforms; do
+         PLATFORM="data/$platform.json"
+         $PYTHON compare-heterog.py \
            --workload $WORKLOAD \
            --platform $PLATFORM \
-           --gamma 0.99 \
-           --seed $TRAIN_SEED \
-           --trajs 1 \
-           --epochs $epochs \
-           --exp_name $model \
-           --pre_trained 0 \
-           --trained_model $MODEL_PATH \
+           --rlmodel ${models[*]} \
+           --len 1024 \
+           --seed 500 \
+           --iter 20 \
            --shuffle 0 \
-           --backfil 0 \
-           --clustering_size 2 \
-           --score_type $score \
-           --batch_job_slice 0 
+           --skip 0 \
+           --clustering_size $cluster \
+           --batch_job_slice 0 \
+           > data/logs/compare_models:cl${cluster}:${trace}:${platform}.dat &
       done
+      wait
    done
-   echo Comparing with $trace...
-   for platform in $compare_platforms; do
-      PLATFORM="data/$platform.json"
-      $PYTHON compare-heterog.py \
-        --workload $WORKLOAD \
-        --platform $PLATFORM \
-        --rlmodel ${models[*]} \
-        --len 16 \
-        --seed 500 \
-        --iter 1 \
-        --shuffle 0 \
-        --skip 0 \
-        --clustering_size 2 \
-        --batch_job_slice 0 \
-        > data/logs/compare_models:cl:${trace}:${platform}.dat &
-   done
-   wait
 done
