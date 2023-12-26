@@ -8,17 +8,17 @@ train_platforms="homo_x8 hetero_x8"
 scores=(BSLD AVGW AVGT RESU SLD)
 
 for fac in 8; do
-   data/generate_platform 8,64,3.1485 > data/homo_x$fac.json
+   data/generate_platform $(( $fac * 8 )),64,3.1485 > data/homo_x$fac.json
    compare_platforms="$compare_platforms homo_x$fac"
-   data/generate_platform 4,{4,8,16,32,64},3.25 > data/hetero_core_x$fac.json
+   data/generate_platform $(( $fac * 4 )),{4,8,16,32,64},3.25 > data/hetero_core_x$fac.json
    compare_platforms="$compare_platforms hetero_core_x$fac"
-   data/generate_platform 2,64,{2.094,3,3.5,4} > data/hetero_freq_x$fac.json
+   data/generate_platform $(( $fac * 2 )),64,{2.094,3,3.5,4} > data/hetero_freq_x$fac.json
    compare_platforms="$compare_platforms hetero_freq_x$fac"
-   data/generate_platform 1,{4,8,16,32,64},{2.5,3,3.5,4} > data/hetero_x$fac.json
+   data/generate_platform $(( $fac * 1 )),{4,8,16,32,64},{2.5,3,3.5,4} > data/hetero_x$fac.json
    compare_platforms="$compare_platforms hetero_x$fac"
-   data/generate_platform $(echo 1,{4,32,16,8,64},{2.5,3,3.5,4} | tr ' ' '\n' | sort -R | tr '\n' ' ') > data/hetero_rand_x$fac.json
+   data/generate_platform $(echo $(( $fac * 1 )),{4,32,16,8,64},{2.5,3,3.5,4} | tr ' ' '\n' | sort -R | tr '\n' ' ') > data/hetero_rand_x$fac.json
    compare_platforms="$compare_platforms hetero_rand_x$fac"
-   data/generate_platform 4,{4\,4.35,8\,4,16\,3.7,32\,3.2,64\,3} > data/hetero_diag_x$fac.json
+   data/generate_platform $(( $fac * 4 )),{4\,4.35,8\,4,16\,3.7,32\,3.2,64\,3} > data/hetero_diag_x$fac.json
    compare_platforms="$compare_platforms hetero_diag_x$fac"
 done
 

@@ -4,26 +4,26 @@
          "id" : "cluster_0",
          "nodes" : [
             {
-               "id" : "node_64_0.54",
                "frec" : 0.54,
-               "number" : 5,
-               "num_procs" : 64
-            },
-            {
-               "id" : "node_64_1",
-               "frec" : 1,
+               "id" : "node_64_0.54",
                "num_procs" : 64,
                "number" : 5
             },
             {
-               "id" : "node_64_1.5",
+               "frec" : 1,
+               "id" : "node_64_1",
                "num_procs" : 64,
-               "number" : 5,
-               "frec" : 1.5
+               "number" : 5
             },
             {
-               "id" : "node_64_2",
+               "frec" : 1.5,
+               "id" : "node_64_1.5",
+               "num_procs" : 64,
+               "number" : 5
+            },
+            {
                "frec" : 2,
+               "id" : "node_64_2",
                "num_procs" : 64,
                "number" : 5
             }

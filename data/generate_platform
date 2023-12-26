@@ -58,7 +58,7 @@ foreach my $arg (@ARGV) {
       };
 }
 
-print to_json(\%platform, {utf8 => 1, pretty => 1});
+print to_json(\%platform, {utf8 => 1, pretty => 1, canonical => 1});
 print STDERR "Total nodes: $total_nodes\n";
 print STDERR "Total cores: $total_cores\n";
 print STDERR "Total capacity (core*GHz) $total_capacity\n";

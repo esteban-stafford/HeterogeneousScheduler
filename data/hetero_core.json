@@ -1,39 +1,39 @@
 {
    "clusters" : [
       {
+         "id" : "cluster_0",
          "nodes" : [
             {
                "frec" : 3.25,
-               "number" : 4,
                "id" : "node_4_3.25",
-               "num_procs" : 4
-            },
-            {
-               "num_procs" : 8,
-               "id" : "node_8_3.25",
-               "frec" : 3.25,
+               "num_procs" : 4,
                "number" : 4
             },
             {
-               "num_procs" : 16,
+               "frec" : 3.25,
+               "id" : "node_8_3.25",
+               "num_procs" : 8,
+               "number" : 4
+            },
+            {
+               "frec" : 3.25,
                "id" : "node_16_3.25",
-               "number" : 4,
-               "frec" : 3.25
+               "num_procs" : 16,
+               "number" : 4
             },
             {
+               "frec" : 3.25,
+               "id" : "node_32_3.25",
                "num_procs" : 32,
-               "frec" : 3.25,
-               "number" : 4,
-               "id" : "node_32_3.25"
+               "number" : 4
             },
             {
-               "id" : "node_64_3.25",
                "frec" : 3.25,
-               "number" : 4,
-               "num_procs" : 64
+               "id" : "node_64_3.25",
+               "num_procs" : 64,
+               "number" : 4
             }
-         ],
-         "id" : "cluster_0"
+         ]
       }
    ]
 }
