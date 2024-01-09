@@ -687,6 +687,9 @@ class HPCEnv(gym.Env):
         self.running_jobs = []
         self.visible_jobs = []
         self.pairs = []
+        self.scheduled_logs = { }
+        for job_score_type in (BSLD, AVGW, AVGT, SLD):
+            self.scheduled_logs[job_score_type] = []
         self.current_timestamp = self.loads[self.start].submit_time
         self.job_queue.append(self.loads[self.start])
         for job in self.loads[self.start:self.start+JOB_SEQUENCE_SIZE]:
