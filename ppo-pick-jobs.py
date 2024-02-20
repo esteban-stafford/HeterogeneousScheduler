@@ -165,7 +165,8 @@ def ppo(workload_file, platform_file, model_path, ac_kwargs=dict(), seed=0,
         traj_per_epoch=4000, epochs=50, gamma=0.99, clip_ratio=0.2, pi_lr=3e-4,
         vf_lr=1e-3, train_pi_iters=80, train_v_iters=80, lam=0.97, max_ep_len=1000,
         target_kl=0.01, logger_kwargs=dict(), save_freq=10,pre_trained=0,trained_model=None,attn=False,shuffle=False,
-        backfil=False, skip=False, score_type=0, batch_job_slice=0, clustering_size=0, max_queue_size=128):
+        backfil=False, skip=False, score_type=0, batch_job_slice=0, clustering_size=0, max_queue_size=128,
+        job_sequence_size=256):
 
     logger = EpochLogger(**logger_kwargs)
     logger.save_config(locals())
@@ -173,8 +174,9 @@ def ppo(workload_file, platform_file, model_path, ac_kwargs=dict(), seed=0,
     tf.set_random_seed(seed)
     np.random.seed(seed)
 
-    env = HPCEnv(shuffle=shuffle, backfil=backfil, skip=skip, job_score_type=score_type, batch_job_slice=batch_job_slice,
-                 build_sjf=False, clustering_size=clustering_size, max_queue_size=max_queue_size)
+    env = HPCEnv(shuffle=shuffle, backfil=backfil, skip=skip, job_score_type=score_type,
+                 batch_job_slice=batch_job_slice, build_sjf=False, clustering_size=clustering_size,
+                 max_queue_size=max_queue_size, job_sequence_size=job_sequence_size)
     env.seed(seed)
     env.my_init(workload_file=workload_file, platform_file=platform_file, sched_file=model_path)
     
@@ -187,7 +189,7 @@ def ppo(workload_file, platform_file, model_path, ac_kwargs=dict(), seed=0,
 
     # Inputs to computation graph
 
-    buf = PPOBuffer(obs_dim, act_dim, traj_per_epoch * JOB_SEQUENCE_SIZE, gamma, lam)
+    buf = PPOBuffer(obs_dim, act_dim, traj_per_epoch * job_sequence_size, gamma, lam)
 
     if pre_trained:
         sess = tf.Session()
@@ -228,7 +230,7 @@ def ppo(workload_file, platform_file, model_path, ac_kwargs=dict(), seed=0,
 
     else:
         x_ph, a_ph = placeholders_from_spaces(env.observation_space, env.action_space)
-        # y_ph = placeholder(JOB_SEQUENCE_SIZE*3) # 3 is the number of sequence features
+        # y_ph = placeholder(job_sequence_size*3) # 3 is the number of sequence features
         mask_ph = placeholder(env.action_space.n)
         adv_ph, ret_ph, logp_old_ph = placeholders(None, None, None)
 
@@ -350,7 +352,7 @@ def ppo(workload_file, platform_file, model_path, ac_kwargs=dict(), seed=0,
         logger.log_tabular('EpRet', with_min_and_max=True)
         logger.log_tabular('EpLen', with_min_and_max=True)
         logger.log_tabular('VVals', with_min_and_max=True)
-        logger.log_tabular('TotalEnvInteracts', (epoch+1)* traj_per_epoch * JOB_SEQUENCE_SIZE)
+        logger.log_tabular('TotalEnvInteracts', (epoch+1)* traj_per_epoch * job_sequence_size)
         logger.log_tabular('LossPi', average_only=True)
         logger.log_tabular('LossV', average_only=True)
         logger.log_tabular('DeltaLossPi', average_only=True)

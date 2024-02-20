@@ -22,7 +22,7 @@ for fac in 8; do
    compare_platforms="$compare_platforms hetero_diag_x$fac"
 done
 
-for cluster in 4 ; do #8 16 32; do
+for cluster in 4 8 16 32; do
    for trace in $traces; do
       models=()
       training=()
@@ -43,10 +43,9 @@ for cluster in 4 ; do #8 16 32; do
                #SBATCH -J training
                #SBATCH -o %x_%j.out
                #SBATCH -N 1
-               #SBATCH -n 10
+               #SBATCH -n 5
                #SBATCH -t 12:00:00
 
-               epochs=60
                export TF_NUM_INTEROP_THREADS=$SLURM_CPUS_PER_TASK
                export TF_NUM_INTRAOP_THREADS=$SLURM_CPUS_PER_TASK
 
@@ -56,7 +55,7 @@ for cluster in 4 ; do #8 16 32; do
                  --gamma 0.99 \
                  --seed $TRAIN_SEED \
                  --trajs 1 \
-                 --epochs $epochs \
+                 --epochs 60 \
                  --exp_name $model \
                  --pre_trained 0 \
                  --trained_model $MODEL_PATH \
@@ -83,7 +82,7 @@ EOF
             #SBATCH -J comparing
             #SBATCH -o %x_%j.out
             #SBATCH -N 1
-            #SBATCH -n 20
+            #SBATCH -n 5
             #SBATCH -t 12:00:00
 
             export TF_NUM_INTEROP_THREADS=$SLURM_CPUS_PER_TASK
