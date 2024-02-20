@@ -4,15 +4,9 @@
          "id" : "cluster_0",
          "nodes" : [
             {
-               "frec" : 4,
-               "id" : "node_4_4",
+               "frec" : 3.5,
+               "id" : "node_4_3.5",
                "num_procs" : 4,
-               "number" : 8
-            },
-            {
-               "frec" : 2.5,
-               "id" : "node_64_2.5",
-               "num_procs" : 64,
                "number" : 8
             },
             {
@@ -22,32 +16,32 @@
                "number" : 8
             },
             {
+               "frec" : 4,
+               "id" : "node_64_4",
+               "num_procs" : 64,
+               "number" : 8
+            },
+            {
                "frec" : 3,
                "id" : "node_64_3",
                "num_procs" : 64,
                "number" : 8
             },
             {
-               "frec" : 2.5,
-               "id" : "node_32_2.5",
-               "num_procs" : 32,
+               "frec" : 3.5,
+               "id" : "node_8_3.5",
+               "num_procs" : 8,
                "number" : 8
             },
             {
-               "frec" : 3,
-               "id" : "node_8_3",
-               "num_procs" : 8,
+               "frec" : 4,
+               "id" : "node_4_4",
+               "num_procs" : 4,
                "number" : 8
             },
             {
                "frec" : 3,
                "id" : "node_16_3",
-               "num_procs" : 16,
-               "number" : 8
-            },
-            {
-               "frec" : 4,
-               "id" : "node_16_4",
                "num_procs" : 16,
                "number" : 8
             },
@@ -58,9 +52,9 @@
                "number" : 8
             },
             {
-               "frec" : 3.5,
-               "id" : "node_4_3.5",
-               "num_procs" : 4,
+               "frec" : 2.5,
+               "id" : "node_64_2.5",
+               "num_procs" : 64,
                "number" : 8
             },
             {
@@ -71,8 +65,8 @@
             },
             {
                "frec" : 2.5,
-               "id" : "node_4_2.5",
-               "num_procs" : 4,
+               "id" : "node_32_2.5",
+               "num_procs" : 32,
                "number" : 8
             },
             {
@@ -82,9 +76,15 @@
                "number" : 8
             },
             {
-               "frec" : 3.5,
-               "id" : "node_8_3.5",
-               "num_procs" : 8,
+               "frec" : 4,
+               "id" : "node_32_4",
+               "num_procs" : 32,
+               "number" : 8
+            },
+            {
+               "frec" : 2.5,
+               "id" : "node_4_2.5",
+               "num_procs" : 4,
                "number" : 8
             },
             {
@@ -94,9 +94,15 @@
                "number" : 8
             },
             {
+               "frec" : 2.5,
+               "id" : "node_8_2.5",
+               "num_procs" : 8,
+               "number" : 8
+            },
+            {
                "frec" : 4,
-               "id" : "node_32_4",
-               "num_procs" : 32,
+               "id" : "node_16_4",
+               "num_procs" : 16,
                "number" : 8
             },
             {
@@ -106,21 +112,15 @@
                "number" : 8
             },
             {
-               "frec" : 4,
-               "id" : "node_64_4",
-               "num_procs" : 64,
-               "number" : 8
-            },
-            {
-               "frec" : 2.5,
-               "id" : "node_8_2.5",
-               "num_procs" : 8,
+               "frec" : 3,
+               "id" : "node_4_3",
+               "num_procs" : 4,
                "number" : 8
             },
             {
                "frec" : 3,
-               "id" : "node_4_3",
-               "num_procs" : 4,
+               "id" : "node_8_3",
+               "num_procs" : 8,
                "number" : 8
             }
          ]

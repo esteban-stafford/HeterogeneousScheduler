@@ -100,6 +100,7 @@ if __name__ == '__main__':
     parser.add_argument('--skip', type=int, default=0)
     parser.add_argument('--batch_job_slice', type=int, default=0)
     parser.add_argument('--clustering_size', type=int, default=0)
+    parser.add_argument('--max_queue_size', type=int, default=128)
 
     args = parser.parse_args()
 
@@ -109,7 +110,8 @@ if __name__ == '__main__':
 
     # initialize the environment from scratch
     env = HPCEnv(shuffle=args.shuffle, backfil=args.backfil, skip=args.skip,
-                 batch_job_slice=args.batch_job_slice, build_sjf=False, clustering_size=args.clustering_size)
+                 batch_job_slice=args.batch_job_slice, build_sjf=False, clustering_size=args.clustering_size,
+                 max_queue_size=args.max_queue_size)
     env.my_init(workload_file=workload_file, platform_file=platform_file)
     env.seed(args.seed)
     random.seed(args.seed)
