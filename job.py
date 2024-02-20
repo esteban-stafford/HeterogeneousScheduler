@@ -32,14 +32,15 @@ class Job:
         self.wait_time = int(s_array[2])
         self.run_time = int(s_array[3])
         self.number_of_allocated_processors = int(s_array[4])
+        self.number_of_allocated_processors = min(self.number_of_allocated_processors, 64)
         self.average_cpu_time_used = float(s_array[5])
         self.used_memory = int(s_array[6])
 
         # "requested number of processors" and "number of allocated processors" are typically mixed.
         # I do not know their difference clearly. But it seems to me using a larger one will be sufficient.
         self.request_number_of_processors = int(s_array[7])
+        self.request_number_of_processors = min(self.request_number_of_processors, 64)
         self.number_of_allocated_processors = max(self.number_of_allocated_processors, self.request_number_of_processors)
-        self.request_number_of_processors = min(self.number_of_allocated_processors, 64)
         
         self.request_number_of_nodes = -1
         
@@ -123,10 +124,6 @@ class Workloads:
         with open(path) as fp:
             for line in fp:
                 if line.startswith(";"):
-                    if line.startswith("; MaxNodes:"):
-                        self.max_nodes = int(line.split(":")[1].strip())
-                    if line.startswith("; MaxProcs:"):
-                        self.max_procs = int(line.split(":")[1].strip())
                     continue
 
                 line = line.strip()
@@ -138,6 +135,10 @@ class Workloads:
                     self.max_exec_time = j.run_time
                 if j.run_time < self.min_exec_time:
                     self.min_exec_time = j.run_time
+                if j.request_number_of_nodes > self.max_nodes:
+                    self.max_nodes = j.nodes
+                if j.request_number_of_processors > self.max_procs:
+                    self.max_procs = j.request_number_of_processors
                 if j.request_memory > self.max_requested_memory:
                     self.max_requested_memory = j.request_memory
                 if j.user_id > self.max_user_id:

@@ -11,6 +11,7 @@ import random
 import numpy as np
 import tensorflow as tf
 import scipy.signal
+import warnings
 
 import gym
 from gym import spaces
@@ -413,8 +414,8 @@ class HPCEnv(gym.Env):
         vector = np.zeros(num_nodes * NODE_FEATURES, dtype=float)
         self.nodes = []
         for i, node in enumerate(self.cluster.all_nodes):
-            normalized_proc_number = min(float(node.total_procs)/float(self.loads.max_procs), MAX_OBS_VALUE)
-            normalized_free_procs = min(float(node.free_procs)/float(node.total_procs), MAX_OBS_VALUE)
+            normalized_proc_number = min(float(node.total_procs)/float(self.cluster.num_procs()), MAX_OBS_VALUE) # Is this observation irrelevant? Remove?
+            normalized_free_procs = min(float(node.free_procs)/float(self.cluster.num_procs()), MAX_OBS_VALUE)
             normalized_frec = min(float(node.frec)/float(self.cluster.max_frec), MAX_OBS_VALUE)
             self.nodes.append([node, normalized_proc_number, normalized_free_procs, normalized_frec])
             vector[i*NODE_FEATURES:(i+1)*NODE_FEATURES] = self.nodes[i][1:]
@@ -422,14 +423,18 @@ class HPCEnv(gym.Env):
         if self.clustering_size:
             from sklearn.cluster import KMeans
             kmeans = KMeans(n_clusters=self.clustering_size)
-            clusters = kmeans.fit_predict(vector.reshape(num_nodes, NODE_FEATURES))
-            self.node_clusters = {i:[] for i in range(self.clustering_size)}
+            with warnings.catch_warnings():
+               warnings.simplefilter("ignore")
+               clusters = kmeans.fit_predict(vector.reshape(num_nodes, NODE_FEATURES))
+            idx = np.argsort(kmeans.cluster_centers_.sum(axis=1))
+            vector=kmeans.cluster_centers_[idx]
+            self.node_clusters = {idx[i]:[] for i in range(self.clustering_size)}
             for i, node in enumerate(self.nodes):
-                self.node_clusters[clusters[i]].append(node[0])
-            vector = kmeans.cluster_centers_
+                self.node_clusters[idx[clusters[i]]].append(node[0])
             #print("Clusters: " + " ".join([ str(len(cluster)) for cluster in self.node_clusters.values()]))
             #print("Clusters:\n" + "\n\n".join([ "\n".join([str(node) for node in cluster]) for cluster in self.node_clusters.values()]))
 
+        #print("%",str([value for row in vector for value in row]), str([len(cluster) for cluster in self.node_clusters.values()]))
         return vector
 
     def build_nodes_observation_for_job(self, job_idx) -> tuple:
@@ -464,26 +469,6 @@ class HPCEnv(gym.Env):
                     mask.append(job[0] is not None and job[0].request_number_of_processors <= node[0].free_procs)
         return vector, np.array(mask)
 
-    def build_critic_observation(self) -> np.ndarray:
-        vector = np.zeros(JOB_SEQUENCE_SIZE * CRITIC_SIZE,dtype=float)
-        earlist_job = self.loads[self.start_idx_last_reset]
-        earlist_submit_time = earlist_job.submit_time
-        jobs = []
-        for i in range(self.start_idx_last_reset, self.last_job_in_batch+1):
-            job = self.loads[i]
-            submit_time = job.submit_time - earlist_submit_time
-            request_processors = job.request_number_of_processors
-            request_time = job.request_time
-
-            normalized_submit_time = min(float(submit_time) / float(MAX_WAIT_TIME), 1.0 - 1e-5)
-            normalized_run_time = min(float(request_time) / float(self.loads.max_exec_time), 1.0 - 1e-5)
-            normalized_request_nodes = min(float(request_processors) / float(self.loads.max_procs), 1.0 - 1e-5)
-
-            jobs.append([normalized_submit_time, normalized_run_time, normalized_request_nodes])
-
-        for i in range(JOB_SEQUENCE_SIZE):
-            vector[i*CRITIC_SIZE:(i+1)*CRITIC_SIZE] = jobs[i]
-        return vector
 
     def build_critic_observation_heterog(self, jobs_obs: np.ndarray) -> None:
         nodes = np.zeros((self.cluster.num_nodes() * NODE_FEATURES))
@@ -503,6 +488,7 @@ class HPCEnv(gym.Env):
     def advance_time(self):
         self.current_timestamp = self.cluster.advance_to_next_time_event()
         self.receive_jobs()
+        #print(self.current_timestamp,len(self.job_queue),self.cluster.used_procs())
 
     def get_node_from_cluster(self, job, cluster):
         for node in self.node_clusters[cluster]:
@@ -542,34 +528,9 @@ class HPCEnv(gym.Env):
         rwd = -rl_total
         return [(None, None), rwd, True, rwd2, sjf, f1]
 
-    def step_2nets(self, aj: int, an: int) -> list:
-        job_for_scheduling = self.jobs[aj][0]
-        node_for_scheduling = self.nodes[an][0]
-
-        if not job_for_scheduling or not node_for_scheduling:
-            done = self.skip_schedule()
-            self.cluster.free_resources(self.current_timestamp)
-        else:
-            assert job_for_scheduling.request_number_of_processors <= node_for_scheduling.free_procs
-            done = self.schedule(job_for_scheduling, node_for_scheduling)
-        
-        if not done:
-            while self.shortest_job_req_procs() > self.cluster.most_free_procs():
-                self.advance_time()
-            obs = self.build_observation(with_mask=True)
-            return [obs, 0, False, 0, 0, 0]
-        
-        self.post_process_score(self.scheduled_rl)
-        rl_total = sum(self.scheduled_rl.values())
-        best_total = min(self.scheduled_scores)
-        sjf = self.scheduled_scores[0]
-        f1 = self.scheduled_scores[1]
-        rwd2 = (best_total - rl_total)
-        rwd = -rl_total
-        return [(None, None), rwd, True, rwd2, sjf, f1]
-
     def step_for_test(self, action):
         job_for_scheduling = self.jobs[action//self.NUM_NODES][0]
+        #print("#",action%self.NUM_NODES)
         if self.clustering_size:
             node_for_scheduling = self.get_node_from_cluster(job_for_scheduling, action%self.NUM_NODES)
         else:
@@ -593,27 +554,6 @@ class HPCEnv(gym.Env):
             metrics[job_score_type] = sum(self.scheduled_logs[job_score_type])
         
         return [(None, None), metrics, True, None]
-
-    def step_for_test_2nets(self, aj: int, an: int):
-        job_for_scheduling = self.jobs[aj][0]
-        node_for_scheduling = self.nodes[an][0]
-
-        if not job_for_scheduling or not node_for_scheduling:
-            done = self.skip_schedule()
-            self.cluster.free_resources(self.current_timestamp)
-        else:
-            assert job_for_scheduling.request_number_of_processors <= node_for_scheduling.free_procs
-            done = self.schedule(job_for_scheduling, node_for_scheduling)
-
-        if not done:
-            while self.shortest_job_req_procs() > self.cluster.most_free_procs():
-                self.advance_time()
-            obs = self.build_observation(with_mask=True)
-            return [obs, 0, False, None]
-        
-        self.post_process_score(self.scheduled_rl)
-        rl_total = sum(self.scheduled_rl)
-        return [(None, None), rl_total, True, None]
 
     def post_process_score(self, scheduled_logs: list, job_score_type = -1):
         if job_score_type == -1:

@@ -22,7 +22,7 @@ for fac in 8; do
    compare_platforms="$compare_platforms hetero_diag_x$fac"
 done
 
-for cluster in 4 8 16 32; do
+for cluster in 4 ; do #8 16 32; do
    for trace in $traces; do
       models=()
       WORKLOAD="data/$trace.swf"
@@ -33,7 +33,7 @@ for cluster in 4 8 16 32; do
             MODEL_PATH="data/logs/${model}/${model}_s${TRAIN_SEED}"
             models+=($MODEL_PATH)
             mkdir -p $MODEL_PATH/tf1_save
-            [ -e $MODEL_PATH/tf1_save/saved_model.pb ] && continue
+            [ -e $MODEL_PATH/tf1_save/saved_model.pb ] && echo Skipping training $MODEL_PATH/tf1_save/saved_model.pb && continue
             echo Training cluster=$cluster score_type=${scores[$score]} with platform=$platform and trace=$trace...
 
             epochs=60

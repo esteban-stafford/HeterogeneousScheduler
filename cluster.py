@@ -188,6 +188,12 @@ class HeterogeneousCluster:
     def most_free_procs(self):
         return max([n.free_procs for n in self.all_nodes])
 
+    def used_procs(self):
+        return sum([n.used_procs for n in self.all_nodes])
+
+    def num_procs(self):
+        return sum([n.total_procs for n in self.all_nodes])
+
     def num_nodes(self):
         return len(self.all_nodes)
 
