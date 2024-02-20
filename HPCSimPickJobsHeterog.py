@@ -289,55 +289,6 @@ class HPCEnv(gym.Env):
         # return self.build_observation(), self.build_nodes_observation(), self.build_critic_observation()
         return self.combine_observations(self.build_observation(), self.build_nodes_observation())
 
-    def reset_2nets(self) -> tuple:
-        self.cluster.reset()
-        self.loads.reset()
-
-        self.job_queue = []
-        self.running_jobs = []
-        self.visible_jobs = []
-        self.jobs = []
-        self.nodes = []
-
-        self.current_timestamp = 0
-        self.start = 0
-        self.next_arriving_job_idx = 0
-        self.last_job_in_batch = 0
-        self.num_job_in_batch = 0
-        self.scheduled_rl = []
-        self.penalty = 0
-        self.pivot_job = False
-        self.scheduled_scores = []
-
-        assert self.batch_job_slice == 0 or self.batch_job_slice >= JOB_SEQUENCE_SIZE
-
-        if self.build_sjf:
-            # Trajectory filtering
-            raise NotImplementedError
-        else:
-            size = self.loads.size() \
-                if self.batch_job_slice == 0 \
-                else self.batch_job_slice
-            self.start = self.np_random.randint(JOB_SEQUENCE_SIZE, (size - JOB_SEQUENCE_SIZE - 1))
-
-        for job in self.loads[self.start:self.start+JOB_SEQUENCE_SIZE]:
-            self.cluster.events_queue.put(job.submit_time)
-
-        self.start_idx_last_reset = self.start
-        self.num_job_in_batch = JOB_SEQUENCE_SIZE
-        self.last_job_in_batch = self.start + self.num_job_in_batch
-        self.current_timestamp = self.loads[self.start].submit_time
-        self.job_queue.append(self.loads[self.start])
-        self.next_arriving_job_idx = self.start + 1
-
-        if self.enable_preworkloads:
-            raise NotImplementedError
-
-        self.scheduled_scores.append(sum(self.schedule_curr_sequence_reset(self.sjf_score).values()))
-        self.scheduled_scores.append(sum(self.schedule_curr_sequence_reset(self.f1_score).values()))
-
-        return self.build_observation(with_mask=True)
-
     def reset_for_test(self, num,start):
         self.cluster.reset()
         self.loads.reset()
@@ -371,9 +322,8 @@ class HPCEnv(gym.Env):
         self.job_queue.append(self.loads[self.start])
         self.next_arriving_job_idx = self.start + 1
 
-    def build_observation(self, with_mask=False):
+    def build_observation(self):
         vector = np.zeros(MAX_QUEUE_SIZE * JOB_FEATURES, dtype=float)
-        mask = np.zeros(MAX_QUEUE_SIZE, dtype=float)
         self.job_queue.sort(key=lambda job: self.fcfs_score(job))
         self.visible_jobs = self.job_queue[:MAX_QUEUE_SIZE]
         if self.shuffle:
@@ -395,7 +345,6 @@ class HPCEnv(gym.Env):
             normalized_request_procs = min(float(request_processors) / float(self.loads.max_procs),  MAX_OBS_VALUE)
 
             can_schedule_now = MAX_OBS_VALUE if self.cluster.can_allocate(job) else MIN_OBS_VALUE
-            mask[i] = 1
             self.jobs.append([ job, normalized_wait_time, normalized_run_time, normalized_request_procs, can_schedule_now ])
 
         needed_jobs = MAX_QUEUE_SIZE - len(self.jobs)
@@ -405,8 +354,6 @@ class HPCEnv(gym.Env):
             vector[i*JOB_FEATURES:(i+1)*JOB_FEATURES] = self.jobs[i][1:]
         self.build_critic_observation_heterog(vector)
         
-        if with_mask:
-            return vector, mask
         return vector
 
     def build_nodes_observation(self) -> np.ndarray:
