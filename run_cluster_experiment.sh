@@ -52,7 +52,9 @@ for cluster in 4 ; do #8 16 32; do
               --backfil 0 \
               --clustering_size $cluster \
               --score_type $score \
-              --batch_job_slice 0 
+              --batch_job_slice 0 \
+              --max_queue_size 64 \
+              --job_sequence_size 512
          done
       done
       echo Comparing with cluster=$cluster and trace=$trace...
@@ -62,13 +64,14 @@ for cluster in 4 ; do #8 16 32; do
            --workload $WORKLOAD \
            --platform $PLATFORM \
            --rlmodel ${models[*]} \
-           --len 1024 \
+           --len 2048 \
            --seed 500 \
            --iter 20 \
            --shuffle 0 \
            --skip 0 \
            --clustering_size $cluster \
            --batch_job_slice 0 \
+           --max_queue_size 64 \
            > data/logs/compare_models:cl${cluster}:${trace}:${platform}.dat &
       done
       wait

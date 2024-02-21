@@ -35,7 +35,7 @@ for cluster in 4 8 16 32; do
             models+=($MODEL_PATH)
             mkdir -p $MODEL_PATH/tf1_save
             [ -e $MODEL_PATH/tf1_save/saved_model.pb ] && echo Skipping training $MODEL_PATH/tf1_save/saved_model.pb && continue
-            #echo Training cluster=$cluster score_type=${scores[$score]} with platform=$platform and trace=$trace...
+            echo Training cluster=$cluster score_type=${scores[$score]} with platform=$platform and trace=$trace...
 
             sed 's/^[[:blank:]]*//' <<-EOF >> train_job_$$.sh
                #!/bin/bash
@@ -68,14 +68,14 @@ for cluster in 4 8 16 32; do
                  --job_sequence_size 512
                exit 0
 EOF
-            train_job=$(sbatch train_job_$$.sh)
+            train_job=$(sbatch $* train_job_$$.sh)
             training+=(${train_job##* })
             rm -f train_job_$$.sh
          done
       done
+      echo Comparing with cluster=$cluster and trace=$trace...
       for platform in $compare_platforms; do
          PLATFORM="data/$platform.json"
-         #echo Comparing with cluster=$cluster and trace=$trace...
          sed 's/^[[:blank:]]*//' <<-EOF >> compare_job_$$.sh
             #!/bin/bash
 
@@ -103,7 +103,10 @@ EOF
               > data/logs/compare_models:cl${cluster}:${trace}:${platform}.dat
             exit 0
 EOF
-         sbatch --dependency=afterok:$(IFS=:; echo "${training[*]}") compare_job_$$.sh
+         if [ ${#training[@]} -gt 0 ]; then
+            dependency=--dependency=afterok:$(IFS=:; echo "${training[*]}")
+         fi
+         sbatch $* $dependency compare_job_$$.sh
          rm -f compare_job_$$.sh
       done
    done

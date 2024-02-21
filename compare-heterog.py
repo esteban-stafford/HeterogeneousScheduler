@@ -27,7 +27,7 @@ tf.enable_eager_execution()
 
 from collections import defaultdict
 
-def load_policy(model_path, itr='last'):
+def load_policy(model_path, itr='last', max_queue_size=128):
     # handle which epoch to load from
     if itr=='last':
         saves = [int(x[11:]) for x in os.listdir(model_path) if 'tf1_save' in x and len(x)>11]
@@ -43,14 +43,14 @@ def load_policy(model_path, itr='last'):
     pi = model['pi']
     v = model['v']
     out = model['out']
-    get_out = lambda x ,y  : sess.run(out, feed_dict={model['x']: x.reshape(-1, MAX_QUEUE_SIZE * JOB_FEATURES), model['mask']:y.reshape(-1, MAX_QUEUE_SIZE)})
+    get_out = lambda x ,y  : sess.run(out, feed_dict={model['x']: x.reshape(-1, max_queue_size * JOB_FEATURES), model['mask']:y.reshape(-1, max_queue_size)})
     # make function for producing an action given a single state
-    get_probs = lambda x ,y  : sess.run(pi, feed_dict={model['x']: x.reshape(-1, MAX_QUEUE_SIZE * env.NUM_NODES * TOTAL_FEATURES), model['mask']:y.reshape(-1, MAX_QUEUE_SIZE*env.NUM_NODES)})
-    get_v = lambda x : sess.run(v, feed_dict={model['x']: x.reshape(-1, MAX_QUEUE_SIZE * JOB_FEATURES)})
+    get_probs = lambda x ,y  : sess.run(pi, feed_dict={model['x']: x.reshape(-1, max_queue_size * env.NUM_NODES * TOTAL_FEATURES), model['mask']:y.reshape(-1, max_queue_size*env.NUM_NODES)})
+    get_v = lambda x : sess.run(v, feed_dict={model['x']: x.reshape(-1, max_queue_size * JOB_FEATURES)})
     return get_probs, get_out
 
 
-def run_policy(env, models, nums, iters):
+def run_policy(env, models, nums, iters, max_queue_size):
     for iter_num in range(0, iters):
         start = iter_num *args.len
         env.reset_for_test(nums,start)
@@ -62,7 +62,7 @@ def run_policy(env, models, nums, iters):
         if models is not None:
             for model in models:
                 model_file = os.path.join(current_dir, model)
-                get_probs, get_value = load_policy(model_file, 'last')
+                get_probs, get_value = load_policy(model_file, 'last', max_queue_size)
                 total_decisions = 0
                 rl_decisions = 0
                 averages = {}
@@ -118,5 +118,5 @@ if __name__ == '__main__':
 
     print("iteration","scheduler","BSLD","AVGW","AVGT","SLD")
     start = time.time()
-    run_policy(env, args.rlmodel, args.len, args.iter)
+    run_policy(env, args.rlmodel, args.len, args.iter, args.max_queue_size)
     print("elapse: {}".format(time.time()-start), file=sys.stderr)
